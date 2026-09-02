@@ -82,7 +82,21 @@ Physical partitions are optional; directories may initially reside on the same f
 
 ## Core packages
 
+Update the linux server
+```text
+sudo apt update
+sudo apt full-upgrade -y
+sudo apt autoremove -y
+sudo apt autoclean
+```
+
+Set time to Montevideo/UY
+```text
+sudo timedatectl set-timezone America/Montevideo
+```
+
 Install only after recording the clean OS state:
+
 
 ```text
 openssh-server
@@ -104,6 +118,50 @@ python3
 python3-venv
 python3-pip
 ```
+
+
+Install command line
+```text
+sudo apt install -y \
+git \
+curl \
+wget \
+vim \
+nano \
+htop \
+btop \
+tmux \
+screen \
+tree \
+jq \
+unzip \
+zip \
+rsync \
+build-essential \
+cmake \
+pkg-config \
+python3 \
+python3-pip \
+python3-venv \
+pciutils \
+usbutils \
+lshw \
+lm-sensors \
+smartmontools \
+nvme-cli \
+net-tools \
+iproute2 \
+dnsutils
+```
+
+Result:
+
+git --version
+python3 --version
+cmake --version
+gcc --version
+lspci | head
+
 
 ## Baseline capture
 
