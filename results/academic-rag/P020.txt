@@ -1,0 +1,811 @@
+
+
+===== PAGE 1 =====
+
+3702
+IEEE TRANSACTIONS ON INDUSTRIAL INFORMATICS, VOL. 18, NO. 6, JUNE 2022
+Graph Cardinality Preserved Attention Network
+for Fault Diagnosis of Induction Motor Under
+Varying Speed and Load Condition
+Yao Tang
+, Xiaofei Zhang
+, Guojun Qin
+, Zhuo Long
+, Shoudao Huang
+, Member, IEEE,
+Dianyi Song
+, and Haidong Shao
+Abstract—During the long-term operation of motors,
+their working conditions are changing due to the industrial
+demands or declining health status, and traditional diagno-
+sis methods perform poorly in that case. This article pro-
+poses a fault diagnosis method based on graph cardinal-
+ity preserved attention network (GCPAT), which can work
+under varying working conditions, and can be generalized
+to the transient state. Diagnosis results are obtained by
+analyzing signal-converting graphs, which are composed
+of nodes and edges. First, the vibration signals are con-
+verted into symmetrical snowﬂake images by symmetrized
+dot pattern (SDP) method. Second, SLIC is developed to
+make homogeneous super-pixels in SDP images as nodes,
+and form graphs according to color, texture, and distance
+features. Finally, the GCPAT is utilized to distinguish mo-
+tor status. Compared with other state-of-art methods, the
+results show the out-performance of GCPAT under varying
+working conditions both in steady and transient state.
+Index Terms—Fault diagnosis, graph neural network
+(GNN), rotating motors, symmetrized dot pattern (SDP).
+I. INTRODUCTION
+E
+LECTRIC motors are signiﬁcant components of Industry
+4.0 era (electriﬁcation, digitization, and interconnectivity)
+due to its complex physical operating environment and varying
+working condition [1], [2]. During long-term operation, these
+machines are possible to suffer from various faults, which would
+adversely affect the manufacturing productivity, even lead to
+large economic costs and terrible catastrophes [3]. Therefore,
+Manuscript received February 20, 2021; revised June 4, 2021 and July
+9, 2021; accepted September 12, 2021. Date of publication September
+16, 2021; date of current version February 18, 2022. This work was
+supported in part by the National Science Foundation of China under
+Grant 52077064 and in part by the Foundation of Key Laboratory of
+Science and Technology on Integrated Logistics Support under Grant
+6142003200203. Paper no. TII-21-0754. (Corresponding authors: Xi-
+aofei Zhang; Guojun Qin.)
+Yao
+Tang,
+Xiaofei
+Zhang,
+Guojun
+Qin,
+Zhuo
+Long,
+Shoudao
+Huang, and Haidong Shao are with the College of Electrical and
+Information
+Engineering,
+Hunan
+University,
+Changsha
+410082,
+China
+(e-mail:
+tangzihan@hnu.edu.cn;
+zhangxiaofei@hnu.edu.cn;
+qgj@nudt.edu.cn;
+longzhuo601@hnu.edu.cn;
+hsd1962@hnu.edu.cn;
+hdshao@hnu.edu.cn).
+Dianyi Song is with the National University of Defense Technology,
+Changsha 410073, China (e-mail: changshasong@nudt.edu.cn).
+Color versions of one or more ﬁgures in this article are available at
+https://doi.org/10.1109/TII.2021.3112696.
+Digital Object Identiﬁer 10.1109/TII.2021.3112696
+accurate fault diagnosis algorithm for electric motor is of great
+importance.
+Due to the rapid development of computer science, intelligent
+methods have attained remarkable achievement in fault diagno-
+sis. They can learn discriminative features automatically, and do
+not rely on the professional knowledge [4]. However, most of
+theexistingintelligentmethodsonlyworkunderlimitedworking
+condition [5]–[7], which are unsatisﬁed with the practical indus-
+trial demands. Recently, to tackle this issue, several intelligent
+faultdiagnosismethodshavebeendevelopedfocusingontimeor
+frequency domain. A multibranch and multiscale convolutional
+neural network (CNN) method was proposed for diagnosis
+under varying load conditions [8]. A domain adaptive CNN
+was developed to obtain strong domain-invariant capacity [9].
+The intelligent network was designed which can be generalized
+to varying working conditions [10]. Although these methods
+show certain advantages, because the traditional time-frequency
+methods are strict to working environment, they are still inherent
+with the following weaknesses.
+1) These methods only focus on the conditions that load or
+speed changes in a small degree.
+2) They would fail when load or speed is in the transient
+state.
+3) These preprocessing approaches strongly depend on pro-
+fessional knowledge.
+Recently, an intuitive signal representation method, the sym-
+metrized dot pattern (SDP) has been employed in fault classiﬁ-
+cation [11], [12]. Unlike these conventional methods, SDP can
+directly transform original signals into mirrored symmetrical
+snowﬂake images with easy implementation and small computa-
+tional burden [13]. The recognition and discrimination between
+patterns are directly related to the amplitude and frequency
+differences between signals. Its robustness against noise has
+been veriﬁed in [14], and a few researches have applied SDP
+in tougher working environment. Wang proposed the bearing
+fault (BF) detection method when load change in wide range
+[15]. Gu combined the SDP and angular domain resampling
+technology to realize diagnosis when speed is in transient state
+[16]. Accordingly, the SDP method is effective and reliable for
+fault diagnosis. Its application potential under varying working
+conditions and transient state has been demonstrated and needs
+further study.
+1551-3203 © 2021 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+TANG et al.: GCPAT FOR FAULT DIAGNOSIS OF INDUCTION MOTOR UNDER VARYING SPEED AND LOAD CONDITION
+3703
+Due to the SDP method, fault diagnosis tasks transform to
+image classiﬁcation tasks, and CNNs have been widely utilized
+in this ﬁeld [17]. Generally, CNNs process images in Euclidean
+domain and only focus on the value in matrix. Composed by
+nodes and edge connections, graphs provide an informative data
+structure, which contains the information including values and
+the connected relationships between the internal data. Recently,
+graph neural networks (GNNs) have revealed its potential in the
+fault diagnosis [18], [19]. In general, GNNs realize classiﬁcation
+in nodes, edges, or graphs level. Zhang diagnosed the BF based
+on node classiﬁcation [20]. In order to construct a graph, features
+of each image are extracted and are aggregated into nodes.
+Therefore, nodes represent samples and node label indicates the
+fault type. But in this way, the overall features of image are
+presented but the details are ignored.
+In GNNs, graph attention networks (GATs) [21] have been
+widely studied and applied. GATs show the superiority by as-
+signing adaptive attention weights to different connected nodes.
+Zhang [22] veriﬁed the ability of cardinality preservation to
+improve the performance in the attention mechanism. Therefore,
+a fault diagnosis method based on graph attention cardinality
+preservation network (GACPT) is proposed, which can work
+under varying working conditions. First, the raw vibration sig-
+nals are transformed into the SDP images. Second, the simple
+linear iterative cluster (SLIC) is developed to group pixels
+adaptively into homogeneous super-pixels to form nodes, and
+the edge connections are decided by nodes spatial distances.
+Thereby, the detailed features in image can be noticed and fault
+diagnosis is achievedingraphlevel insteadof nodelevel. Finally,
+the experimental results for ﬁve motor statuses under varying
+working conditions veriﬁed that the graph cardinality preserved
+attention network (GCPAT) achieves the superior performance
+compared with other baseline methods. The main contributions
+of our article are concluded as follows.
+1) TheSDPmethodisstudiedwithsignalsinsteadyandtran-
+sient state. Due to the consistency of images, this article
+reveals that SDP is an effective signal-to-image method
+for fault diagnosis when load or speed is changing.
+2) The proposed fault diagnosis method can analyze con-
+structed graphs and realize accurately diagnosis under
+varying working conditions.
+The rest of this article is organized as follows. The theoretical
+backgrounds of above methods are presented in Section II. A
+detailed description of the proposed method is given in Sec-
+tion III. In Section IV, experiment setup is explained and the
+superiority of proposed method is veriﬁed by comparing with
+other intelligent algorithms. Finally, Section V concludes this
+article.
+II. THEORETICAL BACKGROUND
+A. SDP Method
+The SDP method is a signal-to-image method. Based on
+the kth and the (k + l) th values in the discrete time series,
+this algorithm establishes the mapping relationship between
+Cartesian coordinate and polar coordinate, presenting signals
+in the form of symmetrical snowﬂake-shaped ﬁgures.
+Fig. 1.
+Illustration of SDP method’s principle. (a) Time series. (b) SDP
+image.
+Fig. 2.
+Image segmented by SLIC into about 200 super-pixels.
+Fig. 1 takes sine series Z(i) to clarify the transformation. First,
+it is shown that the periodic curve is bounded in range from Zmin
+to Zmax. By deﬁning △(i) = Z(i) −Zmin, △(k) and △(k + 1) are
+easily obtained and △max = Zmax −Zmin. Then, through ρ(i) =
+△(i)/△max, ρ(k) and ρ(k + l) are calculated for forming radius
+and angle in polar space based on (1), where k is the kth value
+in original time signals, l represents the time lag coefﬁcient; ψ0
+is the initial rotation angle; δ is the rotation range. Generally,
+ψ0 is chosen as 60°, indicating six symmetrical petals; δ ranges
+from 0° to 60°and l is between 1 to 10 [23]
+⎧
+⎨
+⎩
+R(k) = ρ(k)
+ψ+(k) = ψ0 + δ ∗ρ(k + l)
+ψ−(k) = ψ0 −δ ∗ρ(k + l)
+.
+(1)
+Thereby, Z(k) and Z(k + l) are converted to (R(k),ψ +(k)) and
+(R(k),ψ −(k)). It is known that R(k)(ࢠ01), ψ +(k)(ࢠψ0,δ +ψ0),
+and ψ −(k)(ࢠδ ,ψ0), so the mapped angle range is within ψ0,
+and the remaining dots in SDP are positioned symmetrically.
+B. SLIC Method
+The SLIC algorithm is an adaptation of k-means to group
+pixels into expressively atomic regions, so-called super-pixels,
+aiming to downgrade the complexity of image processing by
+substituting the rigid pixel grid structure, as shown in Fig. 2.
+By default, the only parameter needed to be set is: n, indicating
+the desired number of divided super-pixels. First, image I with
+N pixels is converted to CIELAB. It is a color space developed
+by international commission on illumination, where u indicates
+luminance, a and b are combined to represent color. Then, based
+on position information x and y, cluster centers Ci = [ui, ai, bi,
+xi, yi] are sampled on image I, which is divided into roughly
+equally super-pixels with size S = (N/k)1/2. According to lowest
+gradient position, the centers are shifted to seed locations to
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+3704
+IEEE TRANSACTIONS ON INDUSTRIAL INFORMATICS, VOL. 18, NO. 6, JUNE 2022
+Fig. 3.
+Explanation of original and improved attention mechanism in
+aggregators on two distinct multiset with different node distribution.
+avoid error clustering at the image edge. Finally, the assign-
+ment step and update step are needed to associate pixels with
+nearest cluster center and the ﬁnal cluster centers are adjusted
+[24].
+C. GCPAT
+GNNs analyze graphs by exchanging neighborhood informa-
+tion recurrently to learn the embedding representation, so called
+neighbor aggregation and graph pooling. As one type of GNNs,
+GATs assign trainable weights in aggregation to distinguish
+the information between a target node and its neighbor nodes.
+However,thetraditionalGATsignorethecertaindistinctconnect
+relationships of nodes, which limits the discriminative power of
+the algorithm. Therefore, the cardinality information is needed
+to improve aggregation [22].
+Fig. 3 is utilized to explain the principle of cardinality preser-
+vation. For source node u and u’, the edge connections are
+different. In the original algorithm, regardless of the neighbor
+structure of the node, the sum of attention weights of one node
+remains at 1. However, in cardinality preservation algorithm,
+the sum of attention weights is related to the number of edges,
+so the neighbor relationship can be reﬂected. Therefore, the
+summation function of attention weight is modiﬁed and the
+cardinality information is utilized to update node representation
+during aggregation.
+The hidden representation hl u of the node u is
+hl
+u = f l
+
+ψl (|Nu|) ⊙
+
+v∈Nu
+αl−1
+uv hl−1
+v
+
+(2)
+where the subscript l indicates l-th layer, and αl-1 uv is the
+attention weight between node u and its connected node v. Nu
+is a node set contains all the neighbors. hl-1 v represents hidden
+state of node v in (l −1)th layer. |N u| indicates the cardinality
+information of node u. Through nonlinear function ψ l(.) and
+f l(.), the hidden state of target node can be updated.
+III. FRAMEWORK OF THE PROPOSED FAULT DIAGNOSIS
+METHOD
+The overall framework of the proposed method is illustrated
+in Fig. 4, including: signal-image-graph method and end-to-end
+networks. The details would be described below.
+A. Signal-Image-Graph Method
+Step 1: Obtain the original time-series data. The radial vi-
+bration signals are measured from motors with dif-
+ferent status under varying speed and load working
+conditions.
+Step 2: Form visual distinguished SDP patterns. One dimen-
+sional time-series are converted to snowﬂake images.
+In the SDP method, because the rotation range d and
+time lag coefﬁcient l will affect the image presentation,
+based on the principle of maximizing image differ-
+ence, images similarities are calculated as Fig. 5, and
+parameters are chosen as δ = 30 and l = 4.
+Step 3: SLIC is performed as an intermediate step from image
+to graph. It adaptively divides an image into smaller
+super-pixels. The only parameter needed to decide is
+the desired number of super-pixels n. In our article, n
+is set as 200 to ensure an affordable computation and
+the details of the image can be described.
+Step 4: Construct graphs based on super-pixels. The basic
+information contained in a graph includes node fea-
+tures and edge connections. First, the color and texture
+features are treated as node features. The color features
+arecomposedofl,a,andbinCIELABcolorspace,and
+texture features include mean and standard deviation
+value of angular second moment, entropy, contrast,
+correlation, and inverse different moment. They are
+ﬁve typical representative ﬁgures in gray-level co-
+occurrence matrix. Hence, the node feature consists of
+three color features and ten texture features. Then, The
+spatial and color distance are combined to determine
+the comprehensive distance between nodes [25]. A
+node is connected to the ﬁve closest nodes in the
+article.
+B. Architecture of GCPAT
+As listed in Table I, the architecture of the proposed network
+contains two parts: GCPAT and multilayer perception (MLP).
+After four convolutional-pooling blocks, outputs out1–out4 are
+obtained, and the sum of them is utilized as the input of MLP,
+which is used to produce the ﬁnal diagnosis results of motor
+status. In the Table I, the number of nodes in all graphs is denoted
+by nn. The number of node attributes is denoted by na. The
+hidden layer size is represented by nh, which is set as 32. The
+number of fault types is nf.
+IV. EXPERIMENTAL VERIFICATION
+In this section, the diagnostic performance of GCPAT under
+steady and transient state is demonstrated by comparing with
+the intelligent methods.
+A. Implementation Details
+1) Data Description: From the test rig as Fig. 6 and induc-
+tion motor as Table II, the radial vibration data are measured
+including ﬁve statuses: 1) healthy condition (HC); 2) BBF; 3)
+BF; 4) ITSF, and 5) RBF. The details of fault implantation are
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+TANG et al.: GCPAT FOR FAULT DIAGNOSIS OF INDUCTION MOTOR UNDER VARYING SPEED AND LOAD CONDITION
+3705
+Fig. 4.
+Framework of the proposed fault diagnosis method based on GCPAT.
+Fig. 5.
+Relationship between δ, l, and images similarities.
+TABLE I
+STRUCTURE AND PARAMETERS OF THE GCPAT
+Fig. 6.
+Overviews of the test rig.
+TABLE II
+RATED PARAMETERS OF TESTED INDUCTION MOTOR
+TABLE III
+PARAMETERS OF VIBRATION SENSOR
+shown in Fig. 7. For BBF, 4 of 28 rotor bars are cut out, and
+the motor imbalance is adjusted by compensating mass. For BF,
+the inner BF is equipped in the fan end, and the outer BF is
+equipped in the drive end. For ITSF, a coil of the stator winding
+is led out, and short circuit fault is determined by a switch. The
+short circuit ratio is about 1/3. For RBF, the bending ratio of the
+shaft at both ends is about 40/100 mm. These data were sampled
+by 5 kHz and each sample contains 10k points. The parameters
+of the vibration sensor are listed in Table III.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+3706
+IEEE TRANSACTIONS ON INDUSTRIAL INFORMATICS, VOL. 18, NO. 6, JUNE 2022
+TABLE IV
+SAMPLE DESCRIPTION OF DATA-SET A, B, AND C IN STEADY STATE
+TABLE V
+SAMPLE DESCRIPTION OF DATA-SETS D AND E WHEN LOAD IS IN TRANSIENT STATE
+Fig. 7.
+Fault implantation diagram of (a) BBF, (b) BF, (c) ITSF, and (d)
+RBF.
+The data-sets in Table IV are utilized to study the impact of the
+sample size on the algorithms. The numbers of samples in each
+workingconditionaredescribed.Thespeedincludes1000,1250,
+and 1500 r/min, and the load includes 0, 1, and 2 hp, so there are
+nine working conditions in total. Based on the experiment, there
+are 200 samples in each working condition, and the samples in
+the data-sets are random selected. The whole samples numbers
+of data-sets A, B, and C are 1500, 1250, and 1000, respectively.
+Each data-set is divided in to three parts for training, validating
+and testing, and the proportions of each part are 60%, 20%, and
+20%.
+The data-sets in Tables V and VI are developed to test whether
+themodelstrainedbysteady-statedata-setsarerobusttogeneral-
+ize to transient state. Data-sets D1, D2, and D3 are obtained when
+the load is rising with the speed of 1000, 1250, and 1500 r/min,
+respectively, and E1, E2, and E3 are produced when the load is
+falling. Data-sets F1, F2, and F3 are obtained when the speed is
+rising with the load of 0, 1, and 2 hp respectively, and G1, G2,
+and G3 are produced when the speed is falling. The load and
+speed are manually adjusted with a relative stable rate, about
+0.25 hp/s for load and 50 r/min/s for speed. These data-sets are
+used for testing with the number of 250.
+2) Baseline Methods: To verify the effectiveness of the pro-
+posed fault diagnosis method, the following intelligent algo-
+rithms are developed as comparisons, including: GAT [26], vi-
+sual geometry group network (VGG-16) [27], hierarchical graph
+pooling with structure learning (HGP-SL) [28], LeNet-5 [29],
+multilayer perception (MLP) [30] and long short-term memory
+[31]. The hyper-parameters including learning rate and batch
+size are selected by grid search approach. The inputs of GNN
+methods (GAT and HGP-SL) are graphs, and for other methods,
+the SDP images are performed as inputs. These methods are
+performed on a computer with Intel Core: Intel(R) Xeon(R)
+Silver 4214 CPU, RAM: 128GB, and NVIDIA GeForce RTX
+2060 GPU. For the proposed method, the required diagnostic
+time for a sample is about 14.28 ms.
+B. Experimental Results in Steady State
+1) SDP Images for Data-Sets in Steady State: Taking
+steady state data-sets under different load conditions at
+1000 r/min as examples, the time series and SDP images are
+shown in Fig. 8. It can be seen that the differences between
+different motor statuses are distinguishable. Although the load
+varies from no load to full load, the changes between the SDP
+images in the same motor status are not signiﬁcant.
+Fig. 9 shows images under different speed at full load. It
+can be seen that the huge interclass inconsistency is presented.
+For example, in HC status, the patterns of different speed are
+inconsistent from each other. The great outer-class ambiguity is
+also introduced. For instances, the images of HC and BBF are
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+TANG et al.: GCPAT FOR FAULT DIAGNOSIS OF INDUCTION MOTOR UNDER VARYING SPEED AND LOAD CONDITION
+3707
+TABLE VI
+SAMPLE DESCRIPTION OF DATA-SETS F AND G WHEN SPEED IS IN TRANSIENT STATE
+Fig. 8.
+Vibration signals and SDP images of HC, BBF, BF, ITSF, and
+RBF motors under different load conditions with the speed of 1000 r/min.
+Fig. 9.
+Vibration signals and SDP images of HC, BBF, BF, ITSF, and
+RBF motors under different speed conditions with the load of 2 hp.
+highly similar at 1500 r/min. Hence, the above-mentioned issues
+enhance the difﬁculty in accurate fault diagnosis.
+2) Comparison With Baseline Methods: Receiver operating
+characteristic (ROC) curves are effective to compare the perfor-
+mance of algorithm on each motor statue. TP, FP, TN, and FN
+are denoted as the number of true positive, false positive, true
+negative, and false negative, correspondingly. The horizontal
+axis and the vertical axis of the ROC curves are false positive
+rate and true positive rate respectively, which are calculated as
+False positive rate (FPR) = FP/(FP + TN)
+(3)
+True positive rate (TPR) = TP/(TP + FN).
+(4)
+ROC curves of ﬁve motor statues and their microaverage and
+macroaverage are shown in the Fig. 10. Macroaverages of FPR
+and TPR are the average of FPR and TRP over ﬁve classes. To
+obtain microaverages of FPR and TPR, ﬁrst, TP, FP, TN, and
+FN of each class are summed, then it is calculated by the (3) and
+(4) based on the summation variables. The area under the curve
+(AUC) is utilized to measure the quality of the classiﬁcation,
+which ranges from 0.5 to 1. The AUC value of 1 indicates a
+perfectfaultdiagnosiswithoutthemisdiagnosis.InFig.10,AUV
+values are listed in parenthesis. It is shown that the curves of
+GCPAT based on A, B, and C data-sets are closest to the upper left
+corner, with the maximum AUC values of 0.9998, 0.9996, and
+0.9991 for microaverage, and of 0.9998, 0.9997, and 0.9994 for
+macroaverage. The overall performance of the proposed method
+is the superior compared with the baseline methods. Also, it
+achieves high AUC values on ﬁve motor statues. Among these
+methods, the classiﬁcation of BF achieves best performance
+compared with other four motor statues. When the number of
+sample decreases, as data-set A to data-set C, it is obvious that
+the AUC values of GCPAT are still close to 1, whereas the values
+of baseline methods are decreased to some extent. Therefore, it
+can be concluded that the proposed method realizes effective
+fault diagnosis.
+Based on data-set B, T-distributed stochastic neighbor embed-
+ding (t-SNE) [32] is presented in Fig. 11. It can be observed that
+via deep learning methods, the features become distinguishable
+to some extent, and GCPAT can completely separate these fea-
+tures. Among all methods, the features of BF are best separated.
+Also, the confusion matrices on data-set B are shown as Fig. 12.
+The confusion matrix is a 5 × 5 matrix, in which each row and
+column represents the motor statuses, and the horizontal and
+vertical axes represent the predicted and true labels, respectively.
+The proportions (bold) and the number of classiﬁcations are
+denoted in the confusion matrix. It is clear that the GCPAT
+reaches the highest diagnostic accuracy.
+C. Experimental Results in Transient State: Load
+Changed and Speed Fixed
+1) SDP Images for Transient State Data-Sets: Fig. 13(a) and
+(b) show the SDP images of HC motors when load continuous
+rises or falls at a rate about 0.25 hp/s. The speed condition is
+initially set at 1000 r/min, and it would not be adjusted deliber-
+ately. However, with the change of load it would also change in a
+small degree. The signals take 8 s and divide them into four parts
+to generate corresponding SDP images. It should be noticed that
+the transient and steady state images are generated sequentially
+basedontimeseries,withintervalsof2s,thereforethenumberof
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 7 =====
+
+3708
+IEEE TRANSACTIONS ON INDUSTRIAL INFORMATICS, VOL. 18, NO. 6, JUNE 2022
+Fig. 10.
+ROC plots via deep learning methods based on (a) data-set A, (b) data-set B, and (c) data-set C.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 8 =====
+
+TANG et al.: GCPAT FOR FAULT DIAGNOSIS OF INDUCTION MOTOR UNDER VARYING SPEED AND LOAD CONDITION
+3709
+Fig. 11.
+2-D t-SNE visualization of features of data-set B via deep learning methods.
+Fig. 12.
+Confusion matrices of data-set B via deep learning methods.
+points in each transient sample should be identical with trained
+stable sample. Compared with the SDP images in Fig. 13(c),
+it can be observed that when the load changes within a certain
+range, it has little effect on the SDP image. In other words, the
+images in transient state and steady state are highly consistent.
+Therefore, the SDP method can be applied to diagnosis when
+load is changing.
+The SDP images in Fig. 13(a) and (b) are random selected
+as HC samples in D1, E1 respectively, and BF, BBF, ITSF, and
+RBF samples are produced in the same way. The data-set D2
+E2 and D3 E3 contain the samples with the speed of 1250 and
+1500 r/min, respectively. The detail information of data-sets is
+listed in Table V.
+2) Comparison With Baseline Methods: Based on models
+trained by data-sets C, the ROC plots (microaverage) for dif-
+ferent methods based on data-sets D and E are shown in Fig. 14.
+For data-set D, the GCPAT reaches the highest AUC values of
+0.9960, 0.9950, and 0.9917 for D1, D2, and D3, respectively.
+For data-set E, the GCPAT obtains the highest AUC values of
+0.9987, 0.9987, and 0.9927 for E1, E2, and E3, respectively. It
+is demonstrated that the proposed method trained by samples
+in steady state can make the diagnosis when load is changing
+in the corresponding range. The results prove that the proposed
+method has the satisfying generalization ability in load transient
+state.
+D. Experimental Results in Transient State: Speed
+Changed and Load Fixed
+1) SDP Images for Transient State Data-Sets: Fig.15 shows
+SDP images of BBF motor when load ﬁxed at 2 hp, and speed
+continuous rises or falls at a rate about 50 r/min/s. The signals
+cost 10 s and are divided into ﬁve parts to generate corresponding
+SDP images. Also, the number of points of each sample should
+stay the same with steady samples. Compared Fig. 15(a) and
+(b) with (c), it can be found that images change with rotating
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 9 =====
+
+3710
+IEEE TRANSACTIONS ON INDUSTRIAL INFORMATICS, VOL. 18, NO. 6, JUNE 2022
+Fig. 13.
+SDP images of HC motors when speed is ﬁxed at 1000 r/min.
+(a) Load is increased from 0 to 2 hp. (b) Load is decreased from 2 to
+0 hp. (c) Load is ﬁxed.
+Fig. 14.
+ROC curves via deep learning methods based on (a) data-set
+D and (b) data-set E.
+speed. When the speed is changing, the SDP images generated
+in a certain range of speed is similar to the steady-state SDP
+images which are close to that range, and it is effective both for
+the rising and the falling curves. Thereby, the conclusion can
+Fig. 15.
+SDP images of BBF motor when load is ﬁxed at 2 hp. (a)
+Speed is increased from 1000 to 1500 r/min. (b) Speed is decreased
+from 1500 to 1000 r/min. (c) Speed is ﬁxed.
+Fig. 16.
+ROC curves via deep learning methods based on (a) data-set
+F and (b) data-set G.
+be drawn that the SDP method is an effective signal-to-image
+method for diagnosis when speed is in transient state.
+The SDP images formed from Fig. 15(a) and (b) are random
+selected as BBF samples in F3, and G3 respectively, and HC,
+BF, ITSF, and rotor bow fault (RBF) samples are produced in
+the same way. The data-set F1 G1 and F2 G2 contain the samples
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 10 =====
+
+TANG et al.: GCPAT FOR FAULT DIAGNOSIS OF INDUCTION MOTOR UNDER VARYING SPEED AND LOAD CONDITION
+3711
+with the load of 0 and 1 hp, respectively. The detail information
+of data-sets is listed in Table VI.
+2) Comparison With Baseline Methods: Based on models
+trained by data-sets C, the ROC plots (microaverage) for differ-
+ent methods based on data-set F and G are shown in Fig. 16. For
+data-setF,theGCPATreachesthehighestAUCvaluesof0.9888,
+0.9912, and 0.9914 for F1, F2, and F3 respectively. For data-set
+G, the GCPAT obtain the highest AUC values of 0.9921, 0.9978,
+and 0.9957 for G1, G2, and G3, respectively. The results prove
+thattheproposedmethodtrainedwithsamplesinsteadystatecan
+make the diagnosis when speed is changing in the corresponding
+range. These results prove that the superior generalization ability
+of GCPAT in speed transient state.
+V. CONCLUSION
+In this article, a fault diagnosis method based on GCPAT was
+proposed for accurate fault diagnosis under steady and transient
+condition. The proposed method was trained by steady state
+data, which were graphs formed based on SDP method and SLIC
+method. The results showed that the SDP images in steady and
+transient state were similar. The SDP method was effective for
+fault diagnosis when load or speed was changing. The analysis
+of experiment results also revealed that the proposed method
+achieved the strong diagnosis ability in steady state and superior
+generalization ability in the transient state. The proposed method
+suggested a promise for real-world industrial applications of
+motor fault diagnosis.
+REFERENCES
+[1] S. Munikoti, L. Das, B. Natarajan, and B. Srinivasan, “Data-driven ap-
+proaches for diagnosis of incipient faults in DC motors,” IEEE Trans. Ind.
+Informat., vol. 15, no. 9, pp. 5299–5308, Sep. 2019.
+[2] M. Martinez-Garcia, Y. Zhang, K. Suzuki, and Y.-D. Zhang, “Deep re-
+current entropy adaptive model for system reliability monitoring,” IEEE
+Trans. Ind. Informat., vol. 17, no. 2, pp. 839–848, Feb. 2021.
+[3] R. Razavi-Far, E. Hallaji, M. Farajzadeh-Zanjani, and M. Saif, “A semi-
+supervised diagnostic framework based on the surface estimation of faulty
+distributions,” IEEE Trans. Ind. Informat., vol. 15, no. 3, pp. 1277–1286,
+Mar. 2019.
+[4] O. Abdeljaber, S. Sassi, O. Avci, S. Kiranyaz, A. A. Ibrahim, and M.
+Gabbouj, “Fault detection and severity identiﬁcation of ball bearings by
+online condition monitoring,” IEEE Trans. Ind. Electron., vol. 66, no. 10,
+pp. 8136–8147, Oct. 2019.
+[5] R. Huang, J. Li, S. Wang, G. Li, and W. Li, “A robust weight-shared
+capsule network for intelligent machinery fault diagnosis,” IEEE Trans.
+Ind. Informat., vol. 16, no. 10, pp. 6466–6475, Oct. 2020.
+[6] J. Jiao, M. Zhao, J. Lin, and C. Ding, “Deep coupled dense convolutional
+network with complementary data for intelligent fault diagnosis,” IEEE
+Trans. Ind. Electron., vol. 66, no. 12, pp. 9858–9867, Dec. 2019.
+[7] J. Zhu, N. Chen, and W. Peng, “Estimation of bearing remaining useful
+life based on multiscale convolutional neural network,” IEEE Trans. Ind.
+Electron., vol. 66, no. 4, pp. 3208–3216, Apr. 2019.
+[8] D. Peng, H. Wang, Z. Liu, W. Zhang, M. J. Zuo, and J. Chen, “Multibranch
+and multiscale CNN for fault diagnosis of wheelset bearings under strong
+noise and variable load condition,” IEEE Trans. Ind. Informat., vol. 16,
+no. 7, pp. 4949–4960, Jul. 2020.
+[9] B. Zhang, W. Li, X.-L. Li, and N. G. See-Kiong, “Intelligent fault diagnosis
+under varying working conditions based on domain adaptive convolutional
+neural networks,” IEEE Access, vol. 6, pp. 66367–66384, 2018.
+[10] L. Guo, Y. Lei, S. Xing, T. Yan, and N. Li, “Deep convolutional transfer
+learning network: A new method for intelligent fault diagnosis of ma-
+chines with unlabeled data,” IEEE Trans. Ind. Electron., vol. 66, no. 9,
+pp. 7316–7325, Sep. 2019.
+[11] Y. Lei, F. Jia, J. Lin, S. Xing, and S. X. Ding, “An intelligent fault diagnosis
+method using unsupervised feature learning towards mechanical big data,”
+IEEE Trans. Ind. Electron., vol. 63, no. 5, pp. 3137–3147, May 2016.
+[12] X. Zhu, J. Zhao, D. Hou, and Z. Han, “An SDP characteristic informa-
+tion fusion-based CNN vibration fault diagnosis method,” Shock. Vib.,
+vol. 2019, 2019, Art. no. 3926963.
+[13] X. Zhu et al., “Rotor fault diagnosis using a convolutional neural net-
+work with symmetrized dot pattern images,” Measurement, vol. 138,
+pp. 526–535, May 2019.
+[14] H. Li, W. Wang, P. Huang, and Q. Li, “Fault diagnosis of rolling bearing us-
+ing symmetrized dot pattern and density-based clustering,” Measurement,
+vol. 152, 2019, Art. no. 107293.
+[15] H. Wang, J. Xu, R. Yan, and R. X. Gao, “A new intelligent bearing fault
+diagnosis method using SDP representation and SE-CNN,” IEEE Trans.
+Instrum. Measurement, vol. 69, no. 5, pp. 2377–2389, May 2020.
+[16] Y. Gu, L. Zeng, and G. Qiu, “Bearing fault diagnosis with varying con-
+ditions using angular domain resampling technology, SDP and DCNN,”
+Measurement, vol. 156, May 2020, Art. no. 107616.
+[17] T. Ince, S. Kiranyaz, L. Eren, M. Askar, and M. Gabbouj, “Real-time motor
+fault detection by 1-D convolutional neural networks,” IEEE Trans. Ind.
+Electron., vol. 63, no. 11, pp. 7067–7075, Nov. 2016.
+[18] X. Zhao, M. Jia, and Z. Liu, “Semi-supervised graph convolution deep
+belief network for fault diagnosis of electormechanical system with limited
+labeled data,” IEEE Trans. Ind. Informat., vol. 17, no. 8, pp. 5450–5460,
+Aug. 2021.
+[19] X. Zhao, Z. Liu, T. Wang, J. Bin, and M. Jia, “Unsupervised fault diagnosis
+of machine via multiple-order graphical deep extreme learning machine,”
+in Proc. Asia-Paciﬁc Int. Symp. Adv. Rel. Maintenance Model. (APARM),
+2020, pp. 1–6.
+[20] D. Zhang, E. Stewart, M. Entezami, C. Roberts, and D. Yu, “Intelligent
+acoustic-based fault diagnosis of roller bearings using a deep graph con-
+volutional network,” Measurement, vol. 156, May 2020, Art. no. 107585.
+[21] P. Velikovi, G. Cucurull, A. Casanova, A. Romero, P. Liò, and Y. Bengio,
+“Graph attention networks,” 2017. [Online]. Available: https://arxiv.org/
+abs/1710.10903
+[22] S. Zhang and L. Xie, “Improving attention mechanism in graph neural
+networks via cardinality preservation,” 2019. [Online]. Available: https:
+//arxiv.org/abs/1907.02204
+[23] X. Xu, H. Liu, H. Zhu, and S. Wang, “Fan fault diagnosis based on
+symmetrized dot pattern analysis and image matching,” J. Sound Vib.,
+vol. 374, pp. 297–311, Jul. 2016.
+[24] R. Achanta, A. Shaji, K. Smith, A. Lucchi, P. Fua, and S. Su¨Sstrunk,
+“SLIC superpixels compared to state-of-the-art superpixel methods,”
+IEEE Trans. Pattern Anal. Mach. Intell., vol. 34, no. 11, pp. 2274–2282,
+Nov. 2012.
+[25] Y. J. Liu, M. Yu, B. J. Li, and Y. He, “Intrinsic manifold SLIC: A simple
+and efﬁcient method for computing content-sensitive superpixels,” IEEE
+Trans. Pattern Anal. Mach. Intell., vol. 40, no. 3, pp. 653–666, Mar. 2018.
+[26] J. B. Lee, R. A. Rossi, S. Kim, N. K. Ahmed, and E. Koh, “Attention
+models in graphs: A survey,” 2018. [Online]. Available: https://arxiv.org/
+abs/1807.07984v1
+[27] K. Simonyan and A. Zisserman, “Very deep convolutional networks for
+large-scale image recognition,” 2014, arXiv:1409.1556.
+[28] Z. Zhang et al., “Hierarchical graph pooling with structure learning,” 2019.
+[Online]. Available: https://arxiv.org/abs/1911.0595
+[29] Y. Lecun and L. Bottou, “Gradient-based learning applied to document
+recognition,” Proc. IEEE, vol. 86, no. 11, pp. 2278–2324, Nov. 1998.
+[30] S. K. Pal and S. Mitra, “Multilayer perceptron, fuzzy sets, and classiﬁca-
+tion,” IEEE Trans. Neural Netw., vol. 3, no. 5, pp. 683–697, Sep. 1992.
+[31] S. Hochreiter and J. Schmidhuber, “Long short-term memory,” Neural
+Comput., vol. 9, no. 8, pp. 1735–1780, 1997.
+[32] L. van der Maaten and G. Hinton, “Visualizing data using t-SNE,” J. Mach.
+Learn. Res., vol. 9, pp. 2579–2605, Nov. 2008.
+Yao Tang received the B.S. degree from Bei-
+jing Forestry University, Beijing, China, in 2019.
+She is currently working toward the M.S. degree
+with Hunan University, Changsha, China, both
+in electrical engineering.
+Her research interests include fault diagnosis,
+machine learning, and information fusion.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 11 =====
+
+3712
+IEEE TRANSACTIONS ON INDUSTRIAL INFORMATICS, VOL. 18, NO. 6, JUNE 2022
+Xiaofei Zhang was born in 1983. He received
+the M.S. and Ph.D. degrees in mechanical engi-
+neering from the Science and Technology on In-
+tegrated Logistics Support Laboratory, National
+University of Defense Technology, Changsha,
+China, in 2006 and 2013, respectively.
+He is currently an Assistant Professor with
+Hunan University, Changsha. He has chaired
+more than ten projects including NSFC projects.
+He has published more than 20 academic pa-
+pers in journals. His research interests include
+fault diagnostics, prognostics and health management, condition moni-
+toring and structural health monitoring, and nondestructive testing.
+Guojun Qin was born in 1970. He received the
+B.Sc. degree in instrument science and tech-
+nology and the Ph.D. degree in mechanical en-
+gineering from the National University of De-
+fense Technology, Changsha, China, in 1992
+and 1998, respectively.
+He is currently a Professor with Hunan Uni-
+versity, Changsha. He has chaired more than
+ten projects including NSFC 863 projects. He
+has authored or coauthored more than 60 aca-
+demic papers in journals. His research interests
+include condition monitoring and fault diagnostics, prognostics, health
+management, etc.
+Zhuo Long received the B.S. and M.S. degrees
+in electrical engineering and automation from
+the School of Electrical and Electronic Engi-
+neering, Huazhong University of Science and
+Technology, Wuhan, China, in 2012 and 2015,
+respectively. He is currently working toward the
+Ph.D. degree in electrical engineering with the
+College of Electrical and Information Engineer-
+ing, Hunan University, Changsha, China.
+His current research interests include fault di-
+agnosis, intelligent prognosis, and information
+fusion.
+Shoudao Huang (Member, IEEE) was born in
+Hunan, China, in 1962. He received the B.S.
+and Ph.D. degrees in electrical engineering from
+Hunan University, Changsha, China, in 1981
+and 2005, respectively.
+From 2008 to 2009, he was a Visiting
+Scholar with Aalborg University, Aalborg, Den-
+mark. Since 2006, he has been a Professor of
+electrical engineering with the College of Elec-
+trical and Information Engineering, Hunan Uni-
+versity. His research interests include distributed
+power generation and motor driver and control.
+Dianyi Song received the Ph.D. degree in civil
+engineering from Hunan University, Changsha,
+China, in 2019.
+He is currently an Associate Professor with
+the National University of Defense Technol-
+ogy, Changsha. He has authored more than
+30 scientiﬁc publications. His current research
+interests
+include
+structural
+health
+monitor-
+ing, fault diagnosis, and virtual maintenance
+training.
+Haidong Shao received the B.S. degree in elec-
+trical engineering and automation and the Ph.D.
+degree in vehicle operation engineering from
+the School of Aeronautics, Northwestern Poly-
+technical University, Xi’an, China, in 2013 and
+2018, respectively.
+He is currently an Assistant Professor with the
+College of Mechanical and Vehicle Engineer-
+ing, Hunan University, Changsha, China. His
+research interests include fault diagnosis, in-
+telligent prognosis, maintenance decision, and
+information fusion.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:27:04 UTC from IEEE Xplore.  Restrictions apply.

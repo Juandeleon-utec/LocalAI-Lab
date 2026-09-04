@@ -1,0 +1,567 @@
+
+
+===== PAGE 1 =====
+
+ 
+Feature Reduction of SVM-Based Classifier For 
+Predictive Maintenance OF Rotating Machines 
+Ahmed Mokhtar ElSayed 
+School of Electrical and Electronic Engineering 
+Coventry University 
+Ahmed.Raafat@tkh.edu.eg 
+ 
+Abstract—This study proposes a predictive maintenance 
+approach aimed at diagnosing motor faults, particularly 
+bearing failures, at an early stage to avoid costly unplanned 
+machine downtime. The proposed method leverages vibration 
+analysis and a Support Vector Machine (SVM) classifier to 
+identify fault types based on frequency-domain features. A key 
+contribution is the optimization of both model accuracy and 
+computational efficiency through dimensionality reduction. The 
+ReliefF feature selection algorithm was applied to identify the 
+most significant statistical features which reduced the number 
+of features from 11 to 7 while maintaining a classification 
+accuracy of 93.3%. As a result, the reduced model exhibits a 
+20.8% improvement in prediction speed, which makes it better 
+suited for edge-computing deployment.  
+Keywords— Industry 4.0, Fault Diagnosis, Predictive 
+maintenance, Vibration Analysis, Machine Learning, DSP. 
+I. INTRODUCTION 
+Bearings-problems are very common cause for machines-
+failure [1]. They resemble about 40% of the major problems 
+that face induction machines [2]. This has been the main drive 
+for selecting the bearings as the major problem to be predicted. 
+To achieve this predictive diagnosis approach, the root causes 
+of bearings failure should be captured. The root causes will be 
+diagnosed and captured through vibration analysis and 
+machine-learning deployment. Furthermore, the machine 
+learning model will be optimized through a feature-
+dimensionality reduction technique to fasten the speed of the 
+prediction as an early stage for developing edge-computing 
+capabilities for the system. This paper does not only aim to 
+achieve a great accuracy in the fault diagnosis while 
+considering a single axis but also to study the significance of 
+the most common used statistical features in this field in 
+industry 4.0 to filter out those with the least importance. This 
+is expected to enhance the generalization of the machine-
+learning model and increase its speed of prediction. The 
+studied vibrational dataset is obtained from [3]. This 
+vibrational dataset consists of 5 lab-scale water pumps with 
+different physical conditions. One motor is running at 
+completely normal conditions. The second and the third 
+motors encounter different magnitudes of unbalances; 6 
+gm.cm and 27 gm.cm respectively. The fourth motor 
+deliberately experienced a misalignment offset of 3mm from 
+the center. The fifth motor’s bearings are damaged (inner and 
+outer raceway faults). The signal-processing techniques and 
+feature-extraction methods applied to the raw data in this 
+study are consistent with state-of-the-art approaches reported 
+in the literature. 
+II. LITERATURE REVIEW 
+Numerous studies have been conducted in this field, 
+highlighting multiple possible routes toward achieving a 
+robust solution, ranging from the type of data collected to the 
+choice of signal-processing techniques and the application of 
+suitable machine learning models. Starting with the data-
+collection technique, some papers install acoustic sensors 
+(e.g. Microphones) to collect sound data of the operating 
+machine [4]. This approach depends on the variation of the 
+sound data when there is an abnormality in the machine. 
+Other approaches that rely upon accelerometers for anomaly 
+detection, had also been introduced. Accelerometers give 
+insights of the vibrations of the rotating parts of the machine 
+in order to detect any abnormality within its activity. To make 
+it clear, depending on the power and magnitude of the 
+vibrations, the activity is classified as normal or abnormal. 
+This approach is used by [5] and [6]. A third approach has 
+also been studied in the past couple of years. This approach 
+focused on the electrical signal analysis in detecting the 
+abnormality of the machine. As stated by [2], this method 
+depends on installing current and voltage sensors to analyze 
+the electrical signals coming out of the machines. When it 
+comes to the signal processing steps, there are three different 
+signal-processing techniques that could be done; Time-
+domain analysis, frequency-domain analysis and time-
+frequency analysis which is also known as wavelet transform. 
+[4].Numerous papers had previously compared between 
+analyzing the raw data through these three domains. Wavelet 
+transforms are used in a recognizable amounts of papers such 
+as [1] which used a type of wavelet transform called 
+daubechies transform, yet declared that the frequency-
+domain analysis is the most common used technique in 
+detecting bearings-failure. Another type of wavelet 
+transformed had been utilized by [7] called DWT for 
+detecting shaft misalignment under variable loading 
+conditions. On the other hand, several papers applied Fast-
+Fourier transform as a signal-processing technique, proofing 
+that it is the most common technique and proofing its great 
+accuracy of detecting different patterns of data. [6] Used FFT 
+for rotating-shafts unbalance detection. Moreover FFT is 
+used by the paper whose dataset was used [3] and used also 
+by [7] besides utilizing the DWT technique. Afterwards, in 
+order to close the main cycle of this project, the most suitable 
+type of machine-learning model should be chosen in order to 
+focus on the features selection later as a crucial step in this 
+study. The research published by [8] applied CNN (Alex Net 
+architecture) for detecting the levels of wear that encountered 
+the different parts of the bearings and achieved an accuracy 
+of 98.84% and the performance of the SVM in the same study 
+reached up to 98.5 %. ANN also was utilized by [1] to detect 
+different types of bearings‘ faults reaching an accuracy of 
+94.7 %. Not to mention that a crucial review paper that is 
+published by [9] which compared and summarized the pros 
+and cons of the most relevant models in this field. The 
+comparison is summarized in the following table. 
+979-8-3315-9168-7/25/$31.00 ©2025 IEEE
+Proceedings of NILES2025:
+7th Novel Intelligent and Leading Emerging Sciences Conference
+482
+2025 7th Novel Intelligent and Leading Emerging Sciences Conference (NILES) | 979-8-3315-9168-7/25/$31.00 ©2025 IEEE | DOI: 10.1109/NILES68063.2025.11232435
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+TABLE I Models performances 
+Algorithm 
+Advantage 
+Disadvantage 
+SVM 
+High accuracy 
+Slow response 
+for larger data 
+K-NN 
+Robust to noise 
+ 
+Slow in real 
+time 
+ANN 
+Parallel processing 
+ 
+Hardware and 
+over fitting 
+DT and RF 
+Easy to understand 
+ 
+Over fitting  
+Naïve Bayes 
+Robust to noise 
+Takes Time for 
+Training 
+Deep Learning 
+Low computation 
+cost and extracts 
+its own features 
+Large data and 
+time for 
+training 
+Finally, a very effective SVM had been implemented by [5]. 
+When it comes to feature engineering, there are common 
+features that are used in almost every paper for training the 
+machine-learning models. It is also worth mentioning that the 
+majority of the studies take into consideration the vibrations 
+of the three axis (x, y and z) while doing the signal processing 
+and extracting the features. For example, 18 features were 
+used in [7] composing of 6 various statistical features utilized 
+in the three different axis. The features are skewness, 
+kurtosis, minimum, maximum, RMS and entropy. Moreover, 
+7 statistical features had been used in [1] for bearing-fault 
+detection using ANN which are kurtosis, skewness, variance, 
+standard deviation, speed and load. Another published review 
+paper in this field declared the common statistical features 
+which are mean, standard deviation, skewness and kurtosis 
+[9]. Also [3] utilized FFT and then extracted statistical 
+features from the output of the FFT in the three axis (x, y and 
+z) as well. The features obtained from each axis are: shape 
+factor, RMS, Impulse Factor, peak-to-peak, kurtosis, crest 
+factor, mean, standard deviation and skewness (27 
+concatenated features).  
+III. METHODOLOGY 
+The whole process could be summarized via the 
+following block diagram. 
+  
+ 
+ 
+Fig. 1 Process Brief 
+A. Type of data and faults of interest 
+Starting with the choice of the fault-detection 
+technique, vibration analysis using accelerometers will be 
+used in this project. This is because vibration analysis, 
+compared to sound analysis, is considered to be a more 
+effective way for detecting a motor’s fault. Vibration analysis 
+is more sensitive to mechanical problems and is the most 
+common used technique. It carries out dynamic information 
+and shows immediate response to any change as stated by 
+many papers [1]. This study targets the early prediction of the 
+bearing’s failure through capturing two of its main root 
+causes which will eventually lead to the bearings failure 
+itself. It is stated in [10] that some of the root causes for 
+bearings are shaft misalignment and unbalance. This had 
+been supported by a real industrial problem discussed in the 
+same study where the vibrations of a 75-hp blower motor 
+indicated a reduced efficiency. This observed behavior 
+reflected a shaft-misalignment problem.  
+B. Preprocessing technique 
+Despite being applicable, it is still challenging to extract 
+important features of signals from the time-domain analysis 
+only. Hence there are two most common used methods for 
+analyzing the raw signal; frequency-domain analysis and 
+wavelet transform analysis. It is worth mentioning that the 
+wavelet transform is the most accurate and latest DSP 
+technique. Moreover it is applied in a variety of projects as 
+stated in the previous section. However the chosen one in this 
+project would be the frequency domain (FFT specifically). 
+This technique would be applied on the time-domain raw 
+data. FFT is chosen because it is easier to interpret and it is 
+proofed to be as efficient as required. Moreover, to ensure a 
+fair comparison with [3], the same preprocessing techniques 
+were applied, thereby isolating dimensionality reduction as 
+the main point of difference. This technique is also applied in 
+various experiments as well, and proofed to be a good 
+technique for features’ extraction as deduced in the literature 
+review.  Furthermore, when it comes to the comparison 
+between the time domain and the frequency domain analysis, 
+it would be more advantageous to use the frequency-domain 
+analysis (FFT) because frequency domain gives the luxury of 
+breaking down the vibrations into individual components and 
+thus the sources of defects can be detected separately [11].  
+C. Dataset Utilized 
+The vibrational dataset that will be used is prepared by 
+[3]. The data is composed of 4000 csv files. Each file contains 
+around 100,000 data points (vibrations x, y, z and timestamp) 
+because data is acquired at a sampling rate of 20 KHz for 5s. 
+The FFT of the 4000 files is computed, resulting in complex 
+outputs. Afterwards, the magnitudes of the FFT of the raw 
+data points (of the x-axis only) in each of the 4000 files are 
+extracted and saved. The next stage included applying the 
+features-extraction algorithm so that each csv file is replaced 
+with a single multi-dimensional data point (11 features) so 
+that the resultant output is 4000 different data points stored in 
+a single file available for training as follows: 
+•File 1:1000 data points – Normal condition 
+•File 2:1000 data points - Misalignment condition  
+•File 3: 1000 data points – Unbalance features  
+•File 4: 1000 data points- Damaged-bearings features  
+These files are all combined in a single CSV file showing 
+4000 data points with their corresponding target (machine 
+condition).  
+D. Feature Engineering and machine learning model 
+selection 
+1) Features 
+According to numerous papers in this field, the most 
+commonly used statistical features in training models are: 
+Mean, Minimum, Maximum, Standard deviation RMS, 
+Crest factor, Peak-to-peak, Skewness, Kurtosis,  
+Proceedings of NILES2025:
+7th Novel Intelligent and Leading Emerging Sciences Conference
+483
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+Shape Factor and Impulse factor. Note that these features 
+are the same used by [3]. 
+2) Model selection 
+Even though, the CNN is widely used, it will be an excluded 
+option because this study has a potential to have edge-
+computing capabilities. Adding a computer-vision task will 
+consume a lot of processing power. Besides CNN, ANN was 
+a strong competitor that is implemented in a variety of papers. 
+However, since it depends on neural networks as well, the 
+SVM will be advantageous since it is expected to consume 
+less power than neural networks. By referring to table I, a 
+direct comparison has been made between ANN and other 
+machine learning algorithms. The table proofs that ANN has 
+hardware limitations compared to others. Not to mention, the 
+over fitting disadvantage which is not required at all in this 
+project (the project requires a generalized machine learning 
+model that is adaptable to different types of machines). 
+Briefly, the selected machine learning model is the SVM. By 
+referring to table 1 again, SVM shows a great accuracy. 
+Moreover, as previously mentioned, SVM had been 
+implemented in various papers and showed great-accuracy 
+results. Even though, some papers mentioned other 
+algorithms and techniques of machine learning that could be 
+used, they compare the performance of those proposed 
+algorithms with SVM classifier most of the time as being the 
+classical machine learning algorithm.  
+IV. RESULTS 
+For the classical vibration analysis without the 
+intervention of the machine learning, each fault could be 
+matched with a unique signature onto its FFT plot; this is 
+actually one of the advantages of using vibration analysis as 
+previously mentioned since each rotating component will 
+appear onto the spectrum correspondent to its frequency of 
+rotation. With that being said, the dataset is tested for 
+verification through plotting a random file from each type of 
+fault to make sure each fault matches its anticipated 
+signatures.  
+A. FFT plots of data (Analysis by inspection). 
+It is worth mentioning that the fundamental frequency of 
+the machine is 50 Hz since its RPM is 3000.  
+The FFT of the x-axis vibrations of a two randomly chosen 
+data files (100,000 data points each); one for misalignment 
+and one for unbalance, is calculated and plotted as in the 
+following figures (Fig. 2-5).  
+By observing the following plots, in case of an unbalance, the 
+dominant frequency component is almost at 50 Hz (see fig. 
+2). This could be validated in the normalized plot (fig. 4) 
+where the x-axis values are divided by 60 so that they are 
+resembled as multiples of the fundamental frequency. Thus 
+in fig. 4, the dominant component was almost at 1x (The 
+fundamental frequency). On the other hand, by inspecting the 
+normalized misalignment plot (fig. 5), it could be declared 
+that the dominant frequency component is at 2x. These 
+observations match the theory of the classical vibration 
+analysis when studying the misalignment and unbalance 
+signatures (2x and 1x respectively). [12] 
+ 
+         
+    
+ 
+   
+Fig. 2 Unbalance spectrum signature            Fig. 3 Misalignment spectrum signature 
+ 
+          
+ 
+          
+ 
+ Fig. 4 Normalized unbalance plot  
+Fig. 5 Normalized misalignment plot 
+ 
+ 
+B. Accuracy of the model, before and after feature scaling 
+First of all, grid search was initially applied to compare 
+kernel types, where the RBF kernel showed superior 
+performance. For subsequent experiments, the RBF kernel 
+was employed with default hyperparameters (C = 1.0, γ = 
+‘scale’), as further tuning seemed unnecessary given the 
+stable and satisfactory results obtained. The model’s 
+accuracy was evaluated on unseen data using a train–test split 
+of 70%–30%, ensuring that 30% of the input data remained 
+unseen during testing the accuracy. The first run of the trained 
+SVM showed a poor performance of 37.1%. By comparing 
+the range of values of each feature to the other, it is concluded 
+that there are some features with huge magnitudes compared 
+to others which could introduce a bias to the model. 
+Therefore, the proposed solution is to standardize the features 
+using the following formula: 
+ Standardization=
+(𝑿𝑿−𝒙𝒙_𝒎𝒎𝒎𝒎𝒎𝒎𝒎𝒎)
+𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔𝒔 𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅𝒅. 
+ 
+ Fortunately, after scaling the features, the performance of 
+the model had been enhanced, reaching an accuracy of 
+93.3%. The following figure shows the confusion matrix of 
+this high-accuracy trained model. 
+ 
+              Fig. 6 Confusion Matrix 
+ 
+Some of the parameters that the confusion matrix show are 
+the bearings recall of the model = 94.2% , misalignment 
+recall of the model= 96.8%, normal-condition recall of the 
+model= 92.7%, unbalance recall of the model= 89.97% 
+Proceedings of NILES2025:
+7th Novel Intelligent and Leading Emerging Sciences Conference
+484
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+C. Feature Ranking Algorithm for dimensionality reduction 
+As one of the aims of this study is to maintain the high 
+performance of the model with the least possible number of 
+features to reduce overfitting, achieve generalization and 
+reduce 
+prediction 
+time, 
+two 
+main 
+techniques 
+are 
+implemented; the first technique is extracting features from 
+data of the x-axis only and exclude the y-axis and the z axis 
+data. The second technique involves applying a feature 
+ranking algorithm called ReliefF algorithm so that all the 
+statistical features that are utilized in the majority of the 
+papers will be reduced according to their significance as 
+indicated by the ranking scores. Those ranking scores will be 
+provided by the ReliefF algorithm. This algorithm was 
+proposed previously by [7]. Briefly, ReliefF estimates feature 
+importance by examining each sample and its closest 
+neighbors so that features that keep samples of the same class 
+close while separating those from different classes are 
+assigned higher weights, whereas less informative features 
+receive lower weights. Features score rankings were as 
+follows: 
+TABLE II Features Ranking 
+Rank 
+Feature Name 
+Importance Score 
+1 
+Shape Factor 
+0.3912 
+2 
+RMS 
+0.3083 
+3 
+Standard deviation 
+0.3066 
+4 
+Mean 
+0.2728 
+5 
+Peak to peak 
+0.2402 
+6 
+Maximum 
+0.2402 
+7 
+Skewness 
+0.0561 
+8 
+Crest Factor 
+0.0333 
+9 
+Impulse Factor 
+0.0333 
+10 
+Kurtosis 
+0.0301 
+11 
+Minimum 
+0.0000 
+ 
+According to table II, only the first seven features will be 
+selected to retrain the model and analyze its performance 
+when the dimension of the model’s hyperplane reduced from 
+(4000, 11) to (4000, 7). To validate the new model’s 
+performance, some of the data was prepared separately and 
+fed to the model to predict their nature.  
+ 
+TABLE III Test Results 
+Model Type 
+SVM 
+SVM 
+# of Features 
+11 
+7 
+Time Elapsed/ms 
+24 
+19 
+Accuracy 
+93.3 % 
+93.3 % 
+The table shows that the model’s prediction was much faster 
+(down from 24 ms to 19 ms) which is a recognizable change 
+regarding edge-implementations. 
+V. CONCLUSION 
+This study focuses on diagnosing motor faults, 
+particularly bearing failures, which account for about 40% of 
+motor issues, through predictive maintenance. It targets early 
+detection by identifying root causes like shaft misalignment 
+and unbalance, using vibration signals analyzed by a Support 
+Vector Machine (SVM) model. The SVM model achieved a 
+93.3% accuracy in classifying water pump conditions using 
+11 common features. To improve generalization and 
+prediction speed, a two-stage dimensionality reduction 
+strategy was applied: using only x-axis vibration data and 
+selecting top-ranked features via the ReliefF algorithm. This 
+approach retained high accuracy while significantly reducing 
+the number of features compared to [3]. Compared to the 
+benchmark study [3], which used the same dataset and 
+classifier with 27 features, this study reduces the input to just 
+7 features by utilizing single-axis vibration data (instead of 
+triaxial vibrational data), and applying the ReliefF algorithm 
+to take into account the most important features only. Despite 
+a slight reduction in accuracy, the model maintained a high 
+93.3% classification performance while achieving a 20.8% 
+improvement in prediction speed (reducing latency from 
+24 ms to 19 ms). This time reduction, though seemingly 
+small, is significant in industrial settings where large volumes 
+of sensor data must be processed in real time. This 
+demonstrates a key contribution: developing a lightweight, 
+efficient SVM-based diagnostic model suitable for real-time, 
+edge-deployable predictive maintenance without sacrificing 
+diagnostic reliability. 
+VI. ACKNOWLEGEMENT 
+I would like to express my deepest gratitude to Dr. 
+Khaled ElGeneidy for his exceptional guidance, mentorship, 
+and continuous support throughout this project. His expertise, 
+encouragement, and constructive feedback have been pivotal 
+in its successful completion and in shaping my academic and 
+professional growth. I am also sincerely thankful to Eng. 
+Mohamed Wahba from ElSewedy Electric for generously 
+sharing his expertise in vibration analysis, which provided 
+valuable insights and greatly enriched the technical depth of 
+this work. Finally, I acknowledge Spectro Systems Company 
+for offering the industrial exposure that initially inspired this 
+project. 
+VII. REFERENCES 
+ 
+[1] 
+M. Vaibhav, A. Kalhapure, and R. R. Navthar, “Vibration Analysis and Fault 
+Diagnosis of Induction Motor Bearing Using Artificial Neural Network (ANN),” 
+Int. J. Eng. Tech., vol. 2, [Online]. Available: http://www.ijetjournal.org. 
+[2] 
+E. L. Bonaldi et al., “Predictive Maintenance by Electrical Signature Analysis to 
+Induction Motors,” Induction Mot. - Model. Control, Nov. 2012, doi: 
+10.5772/48045. 
+[3] 
+B. T. Atmaja, H. Ihsannur, Suyanto, and D. Arifianto, “Lab-Scale Vibration 
+Analysis Dataset and Baseline Methods for Machinery Fault Diagnosis with 
+Machine Learning,” J. Vib. Eng. Technol., 2023, doi: 10.1007/s42417-023-00959-
+9. 
+[4] 
+D. Goyal and B. S. Pabla, “The Vibration Monitoring Methods and Signal 
+Processing Techniques for Structural Health Monitoring: A Review,” Arch. 
+Comput. Methods Eng., vol. 23, no. 4, pp. 585–594, 2016, doi: 10.1007/s11831-
+015-9145-0. 
+[5] 
+M. Sonowal, B. B. Gogoi, M. Boruah, and J. Kumar Barman, “Health Monitoring 
+of Induction Motor through Vibration Analysis,” ADBU J. Electr. Electron. Eng. 
+|, vol. 3, no. 1, 2019, Accessed: Jul 09, 2023. [Online]. Available: 
+www.tinyurl.com/ajeee-adbu. 
+[6] 
+O. Mey, W. Neudeck, A. Schneider, and O. Enge-Rosenblatt, “Machine Learning-
+Based Unbalance Detection of a Rotating Shaft Using Vibration Data,” IEEE Int. 
+Conf. Emerg. Technol. Fact. Autom. ETFA, vol. 2020-September, pp. 1610–1617, 
+2020, doi: 10.1109/ETFA46521.2020.9212000. 
+[7] 
+A. M. Umbrajkaar, A. Krishnamoorthy, and R. B. Dhumale, “Vibration Analysis 
+of Shaft Misalignment Using Machine Learning Approach under Variable Load 
+Conditions,” Shock Vib., vol. 2020, 2020, doi: 10.1155/2020/1650270. 
+[8] 
+L. A. Pinedo-Sánchez, D. A. Mercado-Ravell, and C. A. Carballo-Monsivais, 
+“Vibration analysis in bearings for failure prevention using CNN,” J. Brazilian 
+Soc. Mech. Sci. Eng., vol. 42, no.12, 2020, doi: 10.1007/s40430-020-02711-w. 
+[9] 
+P. Kumar and A. S. Hati, “Review on Machine Learning Algorithm Based Fault 
+Detection in Induction Motors,” Arch. Comput. Methods Eng., vol. 28, no. 3, pp. 
+1929–1940, 2021, doi: 10.1007/s11831-020-09446-w. 
+[10]     B. Lu, D. B. Durocher and P. Stemper, "Predictive maintenance     techniques," in IEEE 
+Industry Applications Magazine, vol. 15, no. 6, pp. 52-60, November-December 
+2009, doi: 10.1109/MIAS.2009.934444. 
+[11] 
+ 
+ 
+Ifm, 
+“Vibration 
+Technology 
+| 
+Frequency 
+Domain 
+- 
+ifm.” 
+https://www.ifm.com/us/en/us/real-time-
+maintenance/vibration/technology/frequency-domain (accessed Jul. 15, 2023). 
+[12]        H. Morton, “Spectrum analysis,” J. Franklin Inst., vol. 88, no. 1, pp. 56–62, 1869, 
+doi: 10.1016/s0016-0032(69)90237-3. 
+ 
+ 
+Proceedings of NILES2025:
+7th Novel Intelligent and Leading Emerging Sciences Conference
+485
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:08 UTC from IEEE Xplore.  Restrictions apply.

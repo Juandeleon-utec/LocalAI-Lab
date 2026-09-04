@@ -1,0 +1,875 @@
+
+
+===== PAGE 1 =====
+
+ 
+2025 3rd International Conference on Advances in Computation, Communication and Information Technology (ICAICCIT) 
+979-8-3315-7767-4/25/$31.00 ©2025 IEEE
+ 
+ 
+Enhance Predictive Maintenance with AI
+Models: Utilizing Real-Time Sensor Data with
+Industrial IoT to Prevent Equipment Failure
+ 
+Pradeep G 
+Department of Computer Science and 
+Engineering 
+KGISL Institute of Technology, 
+Saravanampatti, Coimbatore 641035           
+Pradeep.be2012@gmail.com 
+ 
+ 
+Maram Y. Al-Safarini 
+Computer Science Department, Zarqa 
+University,zarqa, Jordan.  
+University of Business and 
+Technology, Jeddah, 21448, Saudi 
+Arabia. 
+maram@zu.edu.jo
+R.Rekha   
+Department of Computer Science and 
+Engineering,  
+Chennai Institute of Technology, 
+Chennai, Tamil Nadu, India 
+rekharadhakrishnan.cse@citchennai.net 
+ 
+ 
+P. Nishitha,  
+Department of Computer Science and 
+Information Technology,  
+MLR Institute of Technology, 
+Hyderabad, Telangana, India 
+nishitha.p@mlrinstitutions.ac.in
+S. Ganga 
+Department of Computer Science and 
+Engineering  
+CMR Institute of Technology, 
+Hyderabad  
+ ganga.sanuvala@cmritonline.ac.in 
+ 
+ 
+G. Karthikeyan 
+Department of VLSI Microelectronics 
+Saveetha School of Engineering,  
+Saveetha Institute of Medical and 
+Technical Sciences (SIMATS), 
+Saveetha University, Chennai. 
+ pgkarthikmy@gmail.com 
+ 
+Abstract— Maintenance Practices in the Industry are 
+Changing As predictive maintenance (PdM) is transforming 
+how industries operate, managing and replacing parts after 
+they broke or on a fixed calendar schedule to intervention 
+only as needed based on the data that the part will fail before 
+it does. Traditional maintenance plays critical roles in 
+industrial systems, maintaining the equilibrium of either too-
+much downtime or over-servicing that derive performance-
+robbing inefficiencies with specific consequences including 
+safety hazards and costs. The growing world of Industrial 
+Internet of Things (IIoT) and Artificial Intelligence (AI) has 
+opened up new ways to take advantage of real time sensor 
+data, and how we can leverage this data for deeper insights 
+into the health and prognosis of a machine. This study 
+presents a holistic framework that incorporates AI models 
+into IIoT based real-time monitoring systems to improve the 
+predictive maintenance to reduce equipment downtime. The 
+system operates through a network of sensors placed in the 
+machinery on an industrial scale, which collect the data 
+constantly from the parameters – such as vibration, 
+temperature, pressure, acoustic signals and current flow. 
+Various machine learning (ML) and deep learning (DL) 
+models like Random Forests, SVMs, CNNs, LSTM are fed 
+with these data streams to model the data. The same each 
+algorithm is used to help prevent anomalies ahead of time, 
+predict failure patterns and predict RUL. The network layers 
+of edge/fog computing stream the data into the system with 
+real-time data ingestion for instant analysis and decision 
+making. One of its key characteristics is that it is compatible 
+with various types of machines and industrial contexts. It 
+automatically enables the system for use with specific 
+equipment—rotating 
+machinery, 
+HVAC 
+systems 
+or 
+conveyor motors—an example of a data preprocessing 
+approach combined with feature selection that allows for 
+retraining the model. On the plus side, including 
+unsupervised learning methods also means we can identify 
+new/unseen failure modes and further improve our 
+maintenance system's robustness. We experimentally 
+validated our method on public benchmark datasets and 
+real-world industrial testbeds. That study shows that 
+predictive maintenance using AI tools is 35% more effective 
+in reducing the duration of unexpected stops and increases 
+the accuracy of scheduling time for service by 40%, 
+compared to traditional methods. This work presents a 
+promising approach to develop smart maintenance and asset 
+management using real-time sensor data coupled with 
+cutting-edge AI analytics.  
+ 
+Keywords —Equipment Failure Prediction, Real-Time 
+Monitoring, Machine Learning, Edge Computing, Remaining 
+Useful Life (RUL). 
+ 
+1. INTRODUCTION 
+ 
+Modern 
+industries 
+require 
+the 
+maintenance 
+of 
+complicated machinery and equipment so that they run 
+smoothly. Unexpected failures of any kind can put 
+equipment out-of-order, cause unexpected downtime (which 
+in turn might increase costs and risks related to its use). 
+Until now, maintenance strategies used to be of two types—
+from reactive (break down and fix) to preventive one 
+(maintenance on specific time interval). The only downside 
+of these approaches – which has also been shared previously 
+– is that they might be efficient, but not all that necessary 
+and in some cases end up replacing too many parts or 
+responding late when more planning could have helped [1]. 
+ 
+With predictive maintenance, or PdM, we use data to 
+predict when a machine is likely to fail. This approach 
+guarantees that maintenance is only carried out when 
+needed, promoting the durability of assets and decreasing 
+costs. While PdM has long been a part of the manufacturing 
+world, its prospects have been taken to new heights with the 
+Industrial Internet of Things (IIoT) which allows equipment 
+to be monitored 24/7 via thousands of possible sensors [2-
+4]. These sensors provide real-time data streams like — 
+233
+2025 3rd International Conference on Advances in Computation, Communication and Information Technology (ICAICCIT) | 979-8-3315-7767-4/25/$31.00 ©2025 IEEE | DOI: 10.1109/ICAICCIT68829.2025.11434315
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:48 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+temperature, vibration, acoustic signals and current that can 
+point to the early signs of wear or degradation. 
+ 
+The size and number of sensors generate a lot of data 
+that are complex and require algorithms to extract value. 
+And this is where Artificial Intelligence (AI) comes barging 
+in. AI models, especially machine learning and deep 
+learning types, are good at finding patterns, detecting 
+anomalies, and doing predictions. The ability of the system 
+to learn from historical and live data will detect an 
+oncoming failure, and accurately predict the Remaining 
+Useful Life (RUL) of components [5,6]. 
+ 
+This is because only a strong architecture which can run 
+with edge level computation and be able to handle real-time 
+operations of data acquisition will enable the processing 
+mechanism and scale out in the presence of multiple 
+equipment types, in varied environments. Edge computing is 
+vital, receiving data and processing it in the device local 
+reduces data latency response time which further takes load 
+off central servers. Cloud or fog layers, in tandem, enable 
+deeper analytics and long-term storage which provides a 
+layered ecosystem catering to both — speed and 
+computational capacity [7,8]. Such distributed intelligence 
+makes the decision for maintenance to be time optimal, 
+without compromising system response time. 
+ 
+Furthermore, AI models are capable of adapting to a 
+variety of industrial use cases. Predictive maintenance 
+systems can be customized to a wide range of contexts: both 
+within the factory and beyond its walls in energy plants, 
+manufacturing, logistics and transportation. There can be 
+progress 
+and feedback loops with custom 
+feature 
+engineering, model retraining for continuous improvement, 
+and adaptation over time [9,10]. This dynamic capability 
+addresses one of the recurrent inconsistencies in previous 
+maintenance 
+practices 
+with 
+static 
+and 
+context-less 
+procedures, suitable for any case. In this research, a holistic 
+framework was proposed that leverages real-time sensor 
+data with AI-driven analytics for building an intelligent 
+predictive maintenance ecosystem.  
+  
+2. LITERATURE REVIEW 
+ 
+The roots of the predictive maintenance approach go 
+back to initial attempts at condition monitoring in early 
+20th-century 
+industry. 
+Originally, 
+this 
+work 
+was 
+concentrated 
+in 
+the 
+realm 
+of 
+vibration 
+analysis 
+thermography and oil samples for machine health. Although 
+powerful in specific use cases, they were neither real-time 
+nor scalable techniques [11]. The Industrial Internet of 
+Things (IIoT) has transformed predictive maintenance for 
+the better by providing a growing network of sensors, 
+imbedded in equipment and industrial systems that provide 
+real-time data acquisition. 
+A number of studies have investigated traditional 
+statistical models i.e. Autoregressive Integrated Moving 
+Average (ARIMA) and regression analysis for equipment 
+failure prediction. Even though we know these models yield 
+fantastic results when there is linear and stationary data, 
+they are not adept at capturing the complex, non-linear 
+patterns that exist in industrial settings. This limitation 
+drove a move to machine learning (ML) and deep learning 
+(DL) models that can extract complex patterns from big 
+data, sans detailed programming [12,13]. 
+In maintenance scenarios, Decision Trees and Support 
+Vector Machines (SVM) were used as machine learning 
+algorithms, in addition to Random Forests that can handle 
+classification and regression tasks. These techniques are 
+especially powerful in supervised scenarios where we can be 
+given data that is normal and/or faulty [14]. Lately, 
+unsupervised methods such as K-means clustering and 
+autoencoders have made their way to detect abnormal 
+behavior in unlabeled datasets enabling the model to catch 
+unexpected activity not observed during its training. 
+These are then layered on top of the existing analytics 
+capabilities but made greatly more powerful in effectiveness 
+by means of deep learning. In recent years, Convolutional 
+Neural Networks (CNNs) have been employed to represent 
+sensor signals and apparent images for maintaining rolling 
+equipment 
+in 
+running 
+condition. 
+Recurrent 
+Neural 
+Networks, like 
+Long Short-Term Memory (LSTM) 
+networks, are being applied to represent time-series data and 
+to predict the remaining useful life (RUL) of components 
+[15,16]. These methods are able to incorporate the temporal 
+context and learn as patterns in real-time equipment 
+behaviour dynamics change, which enables more accurate 
+failure forecasts. 
+Real-Time Predictive Maintenance: Edge and Fog 
+Computing as Game Changers This enables low-latency 
+data processing near the source and results in real-time 
+anomaly detection and alerting. A series of hybrid 
+anatomies have been suggested where edge devices are used 
+for rapid first-pass filtering before deeper analytics is 
+performed on high-end cloud platforms. It ensures a blend 
+of short-term responsiveness and long-term learning. 
+However, standardization of protocols, data interoperability 
+and model accuracy over different systems continue to be 
+challenges. 
+In particular, the literature revealed in a previous section 
+that there is considerable interest in how AI technologies 
+can be integrated with maintenance management systems 
+(MMS) to complete the feedback cycle between detection 
+and action. Today, modern PdM systems routinely include 
+automated alerts, work order generation — and decision-
+making tools. Unlike other related concept studies, this work 
+attempts to fill the research gap with a comprehensive and 
+standard open framework that leverages IIoT, edge 
+intelligence, and AI analytics for predictive maintenance in 
+industrial environments. 
+ 
+3. SYSTEM IMPLEMENTATION 
+ 
+This 
+research 
+architecture 
+has 
+been 
+depicted 
+comprehensively in Figure 1 for the development of an 
+industrial monitoring and predictive maintenance system 
+using AI. The work starts with clearly defining the research 
+goals and scope to make sure that study is in accordance 
+with actual industrial requirements and technological voids. 
+The first of phases is very important as it identifies in-depth 
+further KPI (key performance indicators) + operational 
+constraints the system needs to fulfil with business 
+objectives. After the scope is set, the model goes on to pick 
+up optimal industrial environments and assets where 
+234
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:48 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+predictive maintenance can bring about tangible results — 
+like reduction in downtime and longevity of equipment. 
+ 
+After the assets are selected, strategically also choose 
+and deploy sensors to get various operational parameters 
+from vibrations, temperature to energy consumption among 
+others. Data acquisition also involves integration with edge 
+gateway devices that provide an intermediary service for 
+data collection and processing in real time at the source to 
+save latency and bandwidth. The data is then transmitted to 
+a storage and management software, central or distributed, 
+that organizes, opens up and transforms the data for further 
+analysis. Here the efficient handling of data during this will 
+play a major role in giving meaningful input to the AI 
+model, and thereby helping with creating a more reliable 
+and accurate model. 
+ 
+Feature engineering & data labelling – This step creates 
+attributes out of raw sensor data that can be fed to machine 
+learning algorithms. In the case of supervised learning 
+models, labeling what is normal and faulty behavior is 
+important. These large bodies of information facilitate the 
+development and training of AI models such that in order to 
+select the right algorithm for use with a given dataset, the 
+complexity of the system, type of faults and scale of 
+available data are taken into account. After it is trained, the 
+model becomes part of a real-time-inference engine that can 
+identify anomalies, predict failures and recommend 
+maintenance actions as conditions on the shop floor change. 
+ 
+The third phase of the framework is centered on system 
+execution and monitoring It establishes an alert system 
+along with a maintenance decision support interface to keep 
+the operators and engineers informed about the emerging 
+aspects, it tries to assist them taking informed steps 
+concerning troubleshooting. Lastly the entire system is again 
+validated by means of performance benchmarking under 
+controlled or real-world conditions to ensure all together the 
+package now performs correctly and robustly and in a 
+timely manner. Finally, the model is deployed at scale and 
+turned into a learning model updated continuously with data 
+on operational efficiency as it comes in. This will ensure the 
+relevance and efficiency of the solution in various industrial 
+setups even over long periods. 
+ 
+ 
+ 
+Fig.1.  The workflow of the development of an industrial 
+monitoring and predictive maintenance system using AI 
+4. RESULT AND DISCUSSION: 
+ 
+ 
+Table I The analysis of uptime of the equipment 
+ 
+Machine Type 
+Reactive 
+Scheduled 
+AI-Based 
+Predictive 
+Industrial Motor 
+87.4 
+91.6 
+97.2 
+CNC Machine 
+84.2 
+89.9 
+96.5 
+Conveyor System 
+85.7 
+90.3 
+96.9 
+Hydraulic Press 
+86.1 
+91.2 
+97.6 
+ 
+Table I shows The analysis of uptime of the equipment. 
+Figure 2 shows a side-by-side comparison of equipment 
+uptime for machines of four different types—Industrial 
+Motor, CNC Machine, Conveyor System and Hydraulic 
+Press—among three different maintenance strategies: 
+Reactive, Scheduled, and AI-Predictive. One of the most 
+important performance indicators is equipment uptime 
+which tells us how much percentage of time if equipment 
+worked properly without breaking down. This makes it 
+more crucial for industrial environments working on 
+improving maintenance strategies as high uptime signifies 
+low downtime, better resource utilization and increased 
+productivity. 
+ 
+These insights were most revealing in a graph that one of 
+our data scientists created which shows overall machine 
+uptime going up almost all the way to 100% for all types of 
+machines when running AI-Based Predictive maintenance. 
+This demonstrates the benefits of using predictive 
+techniques and algorithms to predict equipment failure, in 
+order to plan well-organized maintenance activity to reduce 
+future unplanned outage. The lowest uptime time over the 3 
+years is by scheduled maintenance as represented by the 
+yellow line, but at a bit lower than AI-based methods. This 
+method adheres to fixed service intervals, regardless of the 
+true condition of the equipment, risking either unnecessary 
+downtime or missing signs that a failure is on the horizon. 
+ 
+ 
+Fig.2. The analysis of uptime of the equipment 
+ 
+The orange line shows that Reactive maintenance is 
+consistently below 90 percent, contrasting with Predictive. 
+This would constitute a Reactive maintenance strategy in 
+which the equipment is repaired only after some undesired 
+event has occurred, varying from prolonged downtimes to 
+serious damage on other equipment or operation. The data 
+clearly points to the need of a move towards AI based 
+235
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:48 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+Predictive maintenance, particularly in complex and high-
+value industrial environments where every hour of uptime is 
+worth its weight in gold with savings, operational efficiency 
+and competitive advantage upstream. This trend—for all 
+four machine types and at every level of the performance 
+spectrum—demonstrates that AI can drive improvement in 
+maintenance planning effectively at scale, regardless of the 
+specific manufacturing environment. 
+ 
+Table II The evaluation of MTBF (mean time between 
+failures) 
+ 
+Equipment Type 
+Reactive 
+Scheduled 
+AI-Based 
+Predictive 
+Compressor Unit 
+480 
+680 
+980 
+Assembly Robot 
+520 
+710 
+1030 
+Lathe Machine 
+500 
+695 
+990 
+Gearbox Assembly 
+465 
+640 
+960 
+ 
+Table II shows The evaluation of MTBF (mean time 
+between failures).The graph in Fig. Figure 3 provides an 
+MTBF comparative analysis between Compressor Unit, 
+Assembly Robot, Lathe Machine and Gearbox Assembly for 
+semiconductor equipment under three different maintenance 
+strategies: Reactive Maintenance, Scheduled Maintenance 
+and AI-Based Predictive Maintenance. MTBF: The Average 
+Time Between Failures, an important measure of equipment 
+reliability and maintenance performance. Across equipment 
+types, the data demonstrates that AI-Based Predictive 
+maintenance vastly outperforms both those strategies 
+delivering MTBFs in the low 900%s to above 1050% at 
+equivalent ten-once measurements. This means that 
+predictive modeling with the help of AI will be able to 
+predict failures more precisely, and maintenance schedules 
+are likely to become more efficient and downtime can go 
+way down. 
+ 
+The ST is just a little better than the RM strategy as, 
+although it reaches MTBF between 650% and 720%, 
+defining this period seek to have fixed frequencies for 
+maintenance works, while recognizing the most critical 
+equipment’s. While it reduces the probability of unplanned 
+failures by servicing based on a schedule, the strategy has 
+no flexibility to the real-time health of equipment and may 
+result in both over-maintenance and under-maintenance. An 
+exception is the peak for Scheduled Maintenance in the 
+Assembly Robot which indicates that certain types of 
+machinery may receive a larger benefit from regular service 
+due to their more structured operating conditions. Even so, it 
+does not hold a candle to the dynamic responsiveness that 
+AI-Based Predictive systems offer. 
+ 
+The MTBF values for reactive maintenance are 
+fluctuating between 470% and 520%, the lowest of all, 
+which means that this policy assured the highest frequency 
+of equipment failures. Not only is this a less efficient way to 
+problem solve, it also tends to hit the pockets on both time 
+and resources terms harder when down-time and repairs are 
+needed after the issue already happened. This balanced 
+underperformance on all types of equipment make it clear 
+that the technology has its limitations in modern industrial 
+environments. The trend see in the graph perfectly illustrates 
+why forward-looking data-driven approaches to predictive 
+maintenance are valuable; not only for uptime, but as a 
+method to automate levels of operational risk and extract 
+every last bit of useful life out of critical assets. 
+ 
+ 
+Fig.3. The evaluation of MTBF (mean time between 
+failures) 
+ 
+Table III The examination of conservation cost per unit per 
+month 
+ 
+Equipment 
+Type 
+Reactive 
+Scheduled 
+AI-Based 
+Predictive 
+Packaging Unit 
+850 
+610 
+420 
+Cooling Pump 
+900 
+660 
+440 
+Drill Press 
+880 
+640 
+430 
+Robotic Arm 
+920 
+675 
+450 
+ 
+Table III shows The examination of conservation cost 
+per unit per month.Figure 4 illustrates comparisons for four 
+equipment types, namely Packaging Unit, Cooling Pump, 
+Drill Press and Robotic Arm, in terms of maintenance cost 
+per unit each month in USD and three maintenance 
+strategies — Reactive vs Scheduled vs AI-Based Predictive. 
+Results show that on average Reactive maintenance cost the 
+most with scores ranging from approximately 850% to over 
+900%. This higher cost is mostly as a result of breakdowns 
+that surprise the set up, and in addition charges for disaster 
+repairs and unscheduled problems. In particular, the Robotic 
+Arm experiences a high cost of maintenance under utility-
+based and reactive models, hinting that sophisticated 
+machinery running on tons of automation can be hit hard by 
+reactive animalistic practices. 
+ 
+Scheduled 
+Maintenance: 
+Scheduled 
+maintenance 
+(yellow) sits in the middle with costs ranging from about 
+620% to around 680%. Economic, but less than Reactive), 
+by forcing us into a schedule we can catch some premature 
+failures that otherwise would have occurred undetected. 
+This approach, while relatively stable throughout equipment 
+types, does seem to be a bit more effective at managing 
+costs among systems like the Drill Press, where chronic 
+conditions are most likely to display few operational 
+limitations. Even so, due to its lack of real-time 
+responsiveness to equipment conditions, even scheduled 
+maintenance can lead to inefficiencies over time. 
+ 
+236
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:48 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+The cost is 422% and 462% of the lowest value of all 
+predictive maintenance methods for AI-Based Predictive 
+maintenance, across all types (see top row in each section). 
+This almost-perfect cost decrease demonstrates the use of 
+predictive analytics to predict equipment demand in advance 
+avoiding burst failures, repair strength and facade towards 
+zero downtime. Maintenance is only conducted when 
+necessary through machine learning models and real-time 
+sensor data, helping to conserve resources and extend the 
+lifetime of equipment. The cost differential is most visible in 
+every type of equipment, and more pronounced in complex 
+systems like Robotic Arms, showcasing the economic 
+advantage that AI-driven maintenance can bring to new age 
+industrial operations. 
+ 
+ 
+Fig.4. The examination of conservation cost per unit per 
+month 
+ 
+Table IV The loss of production because of downtime  
+ 
+Production Unit 
+Reactive 
+Scheduled 
+AI-Based 
+Predictive 
+Beverage Filling 
+Line 
+22.5 
+13.2 
+3.7 
+Automotive Chassis
+25.6
+15.1
+4.3
+Pharmaceutical 
+Blister 
+23.8 
+14.5 
+4.0 
+Steel Fabrication
+26.1
+16.3
+4.5
+ 
+Table IV shows The loss of production because of 
+downtime. Fig. 5 shows the production loss to downtime per 
+month in hours for four different production units: Beverage 
+Filling Line, Automotive Chassis, Pharmaceutical Blister, 
+and Steel Fabrication. The curve makes obvious that 
+Reactive 
+maintenance 
+generally 
+yields 
+the 
+highest 
+production loss by a margin between 22% and 27%, 
+dependent on the moment in time. This is mainly because 
+equipment is fixed only after a problem has risen and that 
+creates extended unplanned downtime resulting in the 
+disruption of production regulations. The loss suffered by 
+Steel Fabrication unit due to Reactive maintenance which is 
+the highest among all units pointing towards its complex 
+intricate and running nature contributing significantly to 
+elongated down time while recovering from break downs. 
+ 
+Better, scheduled maintenance is resulting in a 13% to 
+16% production loss. This approach, despite providing some 
+transparency and lessens the impact of outages, downtimes 
+for regular maintenance (which may not be always 
+mandatory) are inevitable. For example, the Automotive 
+Chassis and Steel Fabrication units show slightly worthead 
+development even in Schedule testing, which indicates that 
+more perishable production rates may interact. This strategy 
+is an improvement upon reactive practices in that it should 
+lead to more equipment reliability, but as the checks are 
+carried out according to a schedule—rather than responding 
+to actual equipment condition—the ability to reduce 
+downtime at the best time (i.e. proactive maintenance) is 
+limited. 
+ 
+Once more, AI-Based Predictive maintenance shows it's 
+worth by keeping the lowest production losses encountered 
+across all units within an approximately 4% to 5% range. 
+Using real-time data, predictive algorithms provide a heads 
+up before equipment breaks down and more preventive 
+measures can be taken thus drastically decreasing the 
+downtime due to unplanned maintenance. As a clear 
+example, 
+this 
+is 
+particularly 
+useful 
+in 
+production 
+environments which require both high-availability and must 
+include continuous operation, i.e. In Pharmaceutical Blister 
+line even 30 or less milliseconds delay can create lots of 
+overheads. This is evident from the reduction in downtime 
+across a wide range of production units comprising modern 
+manufacturing systems, owing to the use of AI-Based 
+Predictive maintenance mechanism. 
+ 
+ 
+Fig.5. The loss of production because of downtime 
+ 
+Table V The analysis of frequency maintenance 
+ 
+Equipment 
+Type 
+Reactive 
+Scheduled 
+AI-Based 
+Predictive 
+Conveyor Belt 
+System 
+6.5 
+4.0 
+1.3 
+Milling Machine 
+5.8 
+3.7 
+1.0 
+Air Compressor 
+6.2 
+4.1 
+1.2 
+Vacuum Pump 
+5.5 
+3.5 
+1.1 
+ 
+Table 
+V 
+shows 
+The 
+analysis 
+of 
+frequency 
+maintenance.Fig. 6 presents a comparative analysis of 
+maintenance frequency by equipment’s type (measured as 
+number of interventions per quarter) for: Conveyor Belt 
+System, Milling Machine, Air Compressor and Vacuum 
+Pump. Proactive maintenance also poses the second lowest 
+number of interventions, with only about 10–20% of tasks. 
+And as expected, Reactive maintenance results in the largest 
+number of interventions at a rate from 5.5% to even 6.5%.     
+This is as we would expect, given that Reactive 
+maintenance deals with problems as and when they happen 
+which normally requires further repeated, urgent action to 
+rectify operations. The Conveyor Belt System demonstrates 
+the person-years spent under that scenario and shows 
+237
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:48 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+reactive methods leave frequently used or continuous-
+operation equipment to suffer from high downtime and 
+frequent disruptions. 
+ 
+Scheduled maintenance exhibits an intermediate level of 
+action with rates ranging from 3.5% to 4.2%. This process, 
+one based on fixed time intervals regardless of the state of 
+equipment, results in either unnecessary interventions or 
+delays in response. Thus, it appears that some machinery 
+might benefit from more adaptively scheduled maintenance, 
+although the Air Compressor shows only a small increase in 
+Scheduled 
+maintenance 
+frequency 
+over 
+Corrective. 
+Although this method decreases the sporadic nature of 
+failures as opposed to Reactive maintenance, it still leads to 
+unnecessary maintenance activities and does not account for 
+real wear of current equipment or patterns of use in 
+equipment. 
+ 
+Some are competitive propositions, with AI-based 
+predictive maintenance being clearly the lowest intervention 
+frequency while staying in a narrow band between 1.0% and 
+1.3% across all equipment types. They achieve this by 
+continuously monitoring the performance of components 
+and processes in real time using predictive models, and 
+triggering interventions only when predictive maintenance 
+analytics indicate that a failure is likely. The low frequency 
+without fail for all the equipment types is a proof of how 
+predictive systems can scale and adapt to different use cases, 
+even for complex systems such as Vacuum Pump and 
+Conveyor Belt System. Such a strategy not only cuts 
+operational disruptions by reducing maintenance tasks to be 
+performed on assets but also drives efficient utilization of 
+labor and resources that result in an overall leaner and cost-
+effective maintenance framework. 
+ 
+ 
+Fig.6. The analysis of frequency maintenance 
+ 
+5. CONCLUSION 
+ 
+This study provides a foundational scalable predictive 
+maintenance framework by seamlessly combining real-time 
+sensor data, AI models and Industrial IoT. The system 
+leverages state-of-the-art machine learning and deep 
+learning algorithms to forecast equipment failures, estimate 
+the Remaining Useful Life (RUL) and assist maintenance 
+teams with decision-making. This architecture provides real-
+time response based on timely processing and minimal 
+latency which is beneficial for the crucial industrial 
+environment. In this work, we will consider adding an 
+aspect of federated learning to increase predictive accuracy 
+as well while keeping data privacy across industrial sites. 
+This will be support of the maintenance staff by providing 
+explanations of decisions made as well as building trust 
+using explainable AI (XAI) techniques.  
+ 
+ 
+ 
+6.REFERENCES 
+ 
+1. Molęda, M., Małysiak-Mrozek, B., Ding, W., Sunderam, V., & 
+Mrozek, 
+D. 
+(2023). 
+From 
+Corrective 
+to 
+Predictive 
+Maintenance—A Review of Maintenance Approaches for the 
+Power Industry. Sensors, 23(13), 5970. 
+2. Hector, I., & Panjanathan, R. (2024). Predictive maintenance in 
+Industry 4.0: a survey of planning models and machine 
+learning techniques. PeerJ. Computer science, 10, e2016. 
+3. Nagy, M., Figura, M., Valaskova, K., & Lăzăroiu, G. (2025). 
+Predictive Maintenance Algorithms, Artificial Intelligence 
+Digital Twin Technologies, and Internet of Robotic Things in 
+Big Data-Driven Industry 4.0 Manufacturing Systems. 
+Mathematics, 13(6), 981. 
+4. Mohamed Almazrouei, S., Dweiri, F., Aydin, R. et al. (2023). 
+A review on the advancements and challenges of artificial 
+intelligence based models for predictive maintenance of water 
+injection pumps in the oil and gas industry. SN Appl. Sci. 5, 
+391. 
+5. Taye, M. M. (2023). Understanding of Machine Learning with 
+Deep Learning: Architectures, Workflow, Applications and 
+Future Directions. Computers, 12(5), 91. 
+6. Sarker I. H. (2022). AI-Based Modeling: Techniques, 
+Applications and Research Issues Towards Automation, 
+Intelligent and Smart Systems. SN computer science, 3(2), 158. 
+7. Anitha, C., Praveena., V., Samuthira Pandi, V., Kumar, S., 
+Shiva, B., Muniyappan, A. (2024). Maximizing Cloud 
+Security: Empirical Evaluation of an Efficient Identity oriented 
+Signature Verification Scheme for Wireless Networks, 2024 
+2nd World Conference on Communication & Computing 
+(WCONF), RAIPUR, India,1-6. 
+8. Hamdan, S., Ayyash, M., & Almajali, S. (2020). Edge-
+Computing Architectures for Internet of Things Applications: 
+A Survey. Sensors, 20(22), 6441. 
+9. Elahi, M., Afolaranmi, S.O., Martinez Lastra, J.L. et al. A 
+comprehensive literature review of the applications of AI 
+techniques through the lifecycle of industrial equipment. 
+Discov Artif Intell 3, 43 (2023). 
+10. Molęda, M., Małysiak-Mrozek, B., Ding, W., Sunderam, V., & 
+Mrozek, 
+D. 
+(2023). 
+From 
+Corrective 
+to 
+Predictive 
+Maintenance—A Review of Maintenance Approaches for the 
+Power Industry. Sensors, 23(13), 5970. 
+11. Romanssini, M., de Aguirre, P. C. C., Compassi-Severo, L., & 
+Girardi, A. G. (2023). A Review on Vibration Monitoring 
+Techniques for Predictive Maintenance of Rotating Machinery. 
+Eng, 4(3), 1797-1817. 
+12. Kaur, J., Parmar, K.S. & Singh, S. (2023). Autoregressive 
+models in environmental forecasting time series: a theoretical 
+and application review. Environ Sci Pollut Res 30, 19617–
+19641. 
+13. Lv, P., Wu, Q., Xu, J., & Shu, Y. (2022). Stock Index 
+Prediction Based on Time Series Decomposition and Hybrid 
+Model. Entropy, 24(2), 146. 
+14. Uddin, S., Khan, A., Hossain, M. E., & Moni, M. A. (2019). 
+Comparing different supervised machine learning algorithms 
+for disease prediction. BMC medical informatics and decision 
+making, 19(1), 281. 
+15. Krichen, M. (2023). Convolutional Neural Networks: A 
+Survey. Computers, 12(8), 151. 
+16. Elizar, E., Zulkifley, M. A., Muharar, R., Zaman, M. H. M., & 
+Mustaza, S. M. (2022). A Review on Multiscale-Deep-
+Learning Applications. Sensors, 22(19), 7384. 
+238
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:38:48 UTC from IEEE Xplore.  Restrictions apply.

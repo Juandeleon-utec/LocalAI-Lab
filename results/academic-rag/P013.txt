@@ -1,0 +1,973 @@
+
+
+===== PAGE 1 =====
+
+The 27th International Conference on Electrical Machines and Systems
+(ICEMS2024-Fukuoka)
+- 1 -
+©2024 The Institute of Electrical Engineers of Japan (IEEJ)
+Abstract--Detecting
+and
+classifying
+gear
+faults
+with
+limited labeled data is essential for effective fault diagnosis
+in electromechanical systems. This paper presents a novel
+Frequency Adaptation Graph Prototype Network (FAGPN)
+for classifying various gear faults in geared motors. FAGPN
+employs
+customized
+low-pass
+and
+high-pass
+filters,
+integrated with an attention mechanism, to enhance multi-
+scale
+feature
+fusion
+from
+vibration
+signals
+processed
+through
+various
+frequency-time
+methods.
+Additionally,
+FAGPN projects embeddings onto hyperspherical space
+with
+a
+consistency
+constraint
+to
+improve
+accuracy.
+Experimental
+results
+on
+real-world
+datasets
+involving
+multiple gear sets in different states demonstrate the
+superior performance of FAGPN. Remarkably, with a
+training ratio of 1%, FAGPN achieves over 99% accuracy.
+Keywords—fault diagnosis, geared induction motor, graph
+neural network, limited data sample.
+I. INTRODUCTION
+Efficient
+condition
+monitoring
+and
+diagnosis
+of
+electric drives are essential for maintaining industrial
+electromechanical systems [1-4]. Existing predictive and
+diagnostic
+methods
+often
+require
+extensive
+prior
+experience and data to identify emerging issues, such as
+gear faults like tooth damage and wear , and various
+bearing faults (as shown in Fig. 1), in order to obtain a
+comprehensive analysis [5]. This necessity arises because
+data collected at different times is non-repeatable, and
+characteristic values representing machine conditions can
+vary within a certain range for the same model [6-8].
+However, in real-world industrial settings, diagnosing
+faults is challenging due to datasets collected by sensors
+often
+being
+incomplete,
+imbalanced
+in
+fault
+classifications, and containing numerous unlabeled, noisy,
+or anomalous data. Therefore, it is crucial to develop
+methods that can accurately and promptly detect and
+prevent potential catastrophic failures, even with limited
+fault samples, to save both time and financial resources.
+This work was mainly supported by the funding support to State Key
+Laboratories in Hong Kong from the Innovation and Technology
+Commission (ITC) of the Hong Kong Government. Authors would also
+like to express their sincere thanks to the financial support from the
+Research and Innovation Office (Project code: P0046009 and BBX2) of
+The Hong Kong Polytechnic University (PolyU). This work was also
+supported in part by Start-up Fund for RAPs under the Strategic Hiring
+Scheme (P0043917) from PolyU and Research Committee of PolyU
+(Project code: RMCJ). (*Corresponding author: Dr. Zaixin Song; Email:
+zaixin.song@polyu.edu.hk)
+Fig.1. Examples of gear and bearing faults [5].
+The most widely measured and studied fault detection
+indicator is unwanted mechanical vibration, typically
+caused by reciprocating forces, looseness, or resonance
+[9]. By manually or adaptively extracting and analyzing
+features from the time, frequency, and time-frequency
+domains,
+representative
+and
+distinguishable
+fault
+characteristics can be identified in data-driven diagnostic
+techniques for rolling electric drives. For example, phase
+demodulation
+in
+time-domain
+analysis,
+time-domain
+synchronous averaging using key phase signals for
+periodic
+truncation,
+power
+spectrum
+analysis
+in
+frequency-domain
+methods,
+high-resolution
+refined
+spectrum analysis, and cepstrum analysis for periodic
+components in the frequency domain [10-12]. Although
+these methods are effective, they heavily depend on
+expert knowledge for feature extraction and interpretation.
+To address the labor-intensive nature of traditional
+feature extraction methods, deep learning techniques have
+been extensively studied using vibration root mean square
+values, shape factor, crest factor, kurtosis factor, and
+other features. For instance, integrating a self-attention
+mechanism with convolutional neural networks (CNNs)
+[13], and incorporating graph neural networks (GNNs) to
+effectively manage data interdependencies for multi-scale
+feature fusion [14-16]. Nevertheless, these approaches
+generally require large datasets for optimal performance,
+which is challenging due to the scarcity of fault data
+relative to normal data in practice.
+To
+address
+the
+challenge
+of
+small-sample
+fault
+classification for bearings and gearboxes, it is essential to
+develop effective methods. These methods could include
+improving the representativeness of features learned from
+limited data or employing transfer learning techniques
+[17-18]. In response to this challenge, we have developed
+a GNN designed to capture data interdependencies and
+dynamically aggregate multi-scale fault information from
+Gear Fault Diagnosis in Geared Motors based
+on Frequency Adaptation Graph Prototype
+Network with Limited Data
+Yidan Ma1,2, Zaixin Song1*, Yongtao Liang1 and Jianfu Cao2
+1 State Key Lab of Ultra-precision Machining Technology, Department of Industrial and Systems Engineering, The Hong
+Kong Polytechnic University, Hong Kong, China
+2 School of Automation Science and Engineering, Xi'an Jiaotong University, Xi’an, China
+- 1 -
+- 3340 -
+OS3L-5
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:29:16 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+The 27th International Conference on Electrical Machines and Systems
+(ICEMS2024-Fukuoka)
+- 2 -
+limited data. This frequency adaptation graph prototype
+network (FAGPN) utilizes customized low-pass and
+high-pass graph filters, integrated with an attention
+mechanism, to enhance multi-scale graph structure fusion
+through fast Fourier transform (FFT) and short-time
+Fourier transform (STFT). Furthermore, FAGPN projects
+the learned embeddings onto hyperspherical space with a
+consistency constraint to improve accuracy.
+The remainder of this paper is organized as follows:
+Section II outlines the proposed methodology, Section III
+offers an overview of the dataset, comparative methods,
+and experimental results, and Section IV presents the
+conclusions of the study.
+II. FREQUENCY ADAPTATION GRAPH PROTOTYPE
+NETWORK
+This section presents the FAGPN model, which
+integrates graph structures derived from FFT and STFT
+and adaptively learns the relevant proportions to extract
+information pertinent to the node labels. Fig. 2 illustrates
+the workflow of the FAGPN model.
+Our classification task is based on the feature matrix
+�∈ℝ�×�, which consists of vibration signals and the
+sample size, feature dimensionality are denoted as �, �,
+respectively. The feature matrix �is then transformed
+into �1 and �2
+using STFT and FFT. Subsequently,
+the RadiusGraph method is employed to construct the
+feature graphs �1
+and �2 , where ��∈ℝ�×�, �= 1,2
+based on �1
+and �2 . Besides, the graph Laplacian
+matrix �= ��−�−1/2��−1/2 has eigenvectors {��}�=1
+�
+∈ℝ�
+and corresponding eigenvalues {��}�=1
+�
+∈[0,2] ,
+where �∈ℝ�×�is the diagonal degree matrix and ��∈
+ℝ�×�is an identity matrix. The detailed methodology for
+obtaining the classification results is described as follows.
+A.
+Adaptive Frequency-based Feature Extraction
+To tackle fault classification in real-world scenarios,
+we use low-pass and high-pass graph filters to extract
+both low-frequency and high-frequency information.
+Integrating
+these
+types
+of
+information
+in
+varying
+proportions enables the model to handle situations where
+neighboring nodes may or may not share the same label.
+By employing graph Fourier transform with tailored
+convolutional kernels ��, we can transform a signal �
+into the frequency domain using {��}�=1
+�
+. The filtered
+signal �can be represented as:
+�= ���(�)���,
+(1)
+where �is the matrix of {��}�=1
+�
+, �is the diagonal
+matrix of eigenvalues {��}�=1
+�
+, and ��(�) is a diagonal
+matrix with the filter ��(��) applied to each ��.
+Furthermore, we can separate the low-frequency and
+high-frequency graph signals into multi-scale frequency
+domains by defining two convolutional kernels ��(��)
+and ��(��) as follows [18]:
+��(��) = (1 −��+ �)2, ��(��) = (��−1 + �)2,
+(2)
+where �∈[0,1] is an adjustment parameter.
+These operations smooth the input signal (in the case
+of ��) or emphasize the differences (in the case of ��)
+between
+nodes
+based
+on
+their
+graph
+frequencies,
+facilitating the subsequent task. After employing the
+attention mechanism, the respective contributions of
+frequency components can be determined using ��and
+��to represent their proportions.
+B.
+Consistency-Driven Message Passing
+Subsequently, we extract the embeddings �1, �2 from
+two graphs �1(�1, ����) and �2(�2, ����), where the
+updated feature matrix
+����
+originates from the
+aforementioned
+frequency
+adaptation
+component.
+Involving two graph convolution operations that run
+concurrently and share the same structure with parameter
+sharing, the process at the �-th layeris as follows:
+�1
+(�) = ReLU(�1
+−1
+2�1
+ई�1
+−1
+2�1
+(�−1)�(�)),
+(3)
+�2
+(�) = ReLU(�2
+−1
+2�2
+ई�2
+−1
+2�1
+(�−1)�(�)),
+(4)
+where �1
+ईand �2
+ईare the adjacency matrices with self-
+loops, �1
+(�−1) and �2
+(�−1) are the embeddings from the
+previous layer (with �1
+(0) = �2
+(0) = ����), and �(�)
+is
+the common weight matrix used in the �-th layer.
+To enhance the consistency of information extraction
+across various spatial representations, we introduce a
+consistency constraint. Specifically, let ��∙��
+�for �=
+1,2 represent the similarity matrices [20]. The aim of this
+constraint is to minimize the divergence between these
+matrices, thereby enhancing the similarity and coherence
+of the extracted common information. The corresponding
+formula ℒ�is illustrated below :
+ℒ�= �1 ∙�1
+�−�2 ∙�2
+�
+�
+2,
+(5)
+where
+∙
+�
+2 is the squared Frobenius norm of a matrix.
+Fig.2. The workflow of the FAGPN model.
+- 1 -
+- 3341 -
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:29:16 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+The 27th International Conference on Electrical Machines and Systems
+(ICEMS2024-Fukuoka)
+- 3 -
+TABLE I
+STATISTICS OF THE DATASETS.
+Considering that the classification results might be
+linked to one or a combination of factors, we employ the
+attention
+mechanism
+to
+determine
+their
+respective
+importance through weights
+�1
+and
+�2 . It aims to
+extract the most relevant information, denoted as Z.
+To ensure the classifier is effective for few-shot
+classification with limited examples of new classes, we
+employ hyperspheres as output spaces [21]. This ensures
+that the embedding matrix Z gradually align with class
+prototypes
+��(�= 1, . . . , �) obtained by unifying the
+output space and utilizing its positive portion prior to
+learning, rather than relying on one-hot vectors. Here, �
+is the number of categories.
+Accordingly, the complete loss function comprises the
+consistency loss ℒ�, the hyperspherical output space ℒℎ,
+and the cross-entropy loss ℒ�. The overall loss function
+with adaptive weights can be expressed as:
+ℒ= �1ℒ�+ �2ℒℎ+ �3ℒ�,
+(6)
+where ��(�= 1,2,3) are hyperparameters.
+III. EXPERIMENTS
+In this section, we employ real-world benchmark
+datasets with limited training samples to evaluate the
+effectiveness of the proposed FAGPN. Additionally, we
+present the results along with corresponding discussions
+to provide a comprehensive analysis.
+A.
+Datasets
+We focuses on a motor-gearbox system consisting of
+Fig. 4. Classification workflow based on the proposed FAGPN.
+an electrical component (the geared induction motor) and
+a mechanical component (the gearbox). Uneven gear load,
+irregular tooth spacing, and load fluctuations caused by
+faults are reflected in vibration amplitude. The objective
+is to detect and classify failures in spur gears and
+planetary gears using vibration signals from multiple
+sensors. Datasets from XJTUGearbox and XJTUSpurgear
+were selected for the experiments [5]. Details about the
+datasets are provided in Table I.
+The XJTUGearbox dataset includes four planetary
+gear failure modes: tooth surface wear, missing tooth,
+root cracks, and broken tooth. Besides, it encompasses
+four bearing failure modes: ball fault, inner race fault,
+outer race fault, and a mixed fault involving the three
+aforementioned
+bearing
+faults.
+The
+XJTUSpurgear
+dataset contains four types of root cracks on the spur gear
+with crack lengths of 0.2 mm, 0.4 mm, 1 mm, and 1.4
+mm.
+B.
+Baselines
+Several baseline GNN models in fault diagnosis, such
+as GCN, ChebyNet, SGCN, GAT, and GIN, are chosen
+Dataset
+Driving
+motor
+Fault types
+Class
+XJTU
+Gearbox
+3 Phase and
+3 HP motor
+Normal state (1)
+Bearing failure modes (4)
+Planetary gear failure modes (4)
+9
+XJTU
+Spurgear
+AC
+variable
+frequency
+motor
+Under 2 working conditions:
+Normal states (2)
+Spur gear failure modes (8)
+10
+Fig.3. Graph construction using the RadiusGraph method.
+- 1 -
+- 3342 -
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:29:16 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+The 27th International Conference on Electrical Machines and Systems
+(ICEMS2024-Fukuoka)
+- 4 -
+TABLE II
+NODE DISTRIBUTION IN TWO DATASETS.
+for comparison [22-25].
+
+GCN uses spectral graph convolutions to aggregate
+local node features effectively from neighboring
+nodes by stacking multiple convolutional layers.
+
+ChebyNet approximates spectral graph convolutions
+using Chebyshev polynomials, allowing it to handle
+larger neighborhoods with fewer parameters.
+
+SGCN reduces the complexity of GCN by collapsing
+multiple graph convolution layers into a single
+linear transformation followed by neighborhood
+aggregation.
+
+GAT introduces attention mechanisms to assign
+different weights to nodes in the neighborhood,
+enabling the model to focus on more relevant nodes.
+
+GIN distinguishes different graph structures more
+effectively
+than
+other
+GNNs
+by
+using
+sum
+aggregation followed by a multi-layer perceptron.
+All models are built in a hardware environment using
+Python 3.8 and the PyTorch 1.10 framework on an Intel
+Xeon Platinum 8255C CPU @ 2.50GHz and an RTX
+2080 Ti GPU. For each method, we ensure that the
+implementations align as closely as possible with those
+provided in the original papers, such as the learning rate
+is set to 0.004, weight decay to 10−4, epoch to 1000 and
+dropout to 0.5. Additionally, all methods use average
+accuracy as the metric across 10 runs.
+C.
+Data preprocessing
+The preprocessing steps for time-series vibration data
+are as follows. Initially, the raw signals undergo Min-max
+normalization
+and
+wavelet
+decomposition
+and
+reconstruction for denoising, creating the feature matrix X
+for network input. Subsequently, the data is transformed
+using FFT to obtain the amplitude spectrum as a new
+feature matrix �1 and STFT to derive the power spectral
+density as another feature matrix �2 . The transformed
+data is then continuously sampled using a sliding window
+with a length of 1024 and no overlap.
+The resulting subsamples are processed using the
+RadiusGraph method, which creates connections between
+nodes within a certain radius to construct graph data. Fig.
+3 illustrates the process of constructing graph structures
+using the RadiusGraph method. Additionally, Fig. 4
+presents a flowchart detailing the entire process from data
+preprocessing
+to
+network
+training
+and
+the
+final
+classification results.
+IV. RESULTS AND DISCUSSION
+To conduct a thorough assessment of the classification
+task,
+we
+utilize
+consistent
+splits
+for
+the
+training,
+validation, and testing sets across the XJTUSpurgear
+dataset,
+which
+contains
+9,000
+nodes,
+and
+the
+XJTUGearbox dataset, which contains 1,0000 nodes. The
+training sets are divided into 1%, 5%, and 10% for
+performance validation under limited data scenarios, and
+50% and 80% to represent traditional training set
+proportions. The validation set consists of 1% of the total
+nodes, while the testing set contains 10%. Table II
+presents the number of nodes in the training, validation,
+and
+testing
+sets
+for
+each
+dataset
+under
+different
+proportions mentioned above.
+Furthermore, Table III shows the average accuracy for
+each method with the top-performing results highlighted
+in bold and the second-best results underlined. It can be
+seen that when the training ratio is 50% and 80%, most
+models, including GCN, ChebyNet, SGCN, GAT, and
+GIN, perform well, with scores close to 1.000. This
+indicates a high level of model robustness and the
+capability of these methods to generalize well from a
+significant portion of the training data. Specifically, in the
+XJTUGearbox dataset, GCN, SGCN, and GAT achieve
+perfect scores at the 80% training ratio and maintain high
+scores at 50%. Additionally, Fig. 5 presents a visual
+representation
+utilizing
+the
+t-distributed
+stochastic
+neighbor embedding (T-SNE) algorithm, which further
+elucidates the separability of embeddings within the
+XJTUGearbox and XJTUSpurgear datasets [26]. This
+visualization complements the model's performance by
+Dataset
+Train
+Ratio
+Training
+Nodes
+Validation
+Nodes
+Testing
+Nodes
+XJTU
+Gearbox
+80%
+8000
+100
+1000
+50%
+5000
+10%
+1000
+5%
+500
+1%
+100
+XJTU
+Spurgear
+80%
+7200
+90
+900
+50%
+4500
+10%
+900
+5%
+450
+1%
+90
+TABLE III
+ACCURACY COMPARISON OF TWO DATASETS.
+Datasets
+Train
+Ratio
+GCN
+ChebyNet
+SGCN
+GAT
+GIN
+FAGPN
+XJTU
+Spurgear
+80%
+0.9913
+0.9961
+0.9940
+0.9990
+0.9970
+1.0000
+50%
+0.9885
+0.8760
+0.9321
+0.9970
+0.9911
+1.0000
+10%
+0.9733
+0.8667
+0.8703
+0.9901
+0.9158
+1.0000
+5%
+0.9441
+0.7040
+0.7984
+0.9667
+0.9049
+1.0000
+1%
+0.9366
+0.6708
+0.7640
+0.9590
+0.8981
+0.9828
+XJTU
+Gearbox
+80%
+1.0000
+1.0000
+1.0000
+1.0000
+0.9992
+1.0000
+50%
+1.0000
+0.9396
+0.9999
+1.0000
+0.9972
+1.0000
+10%
+0.9120
+0.9091
+0.9119
+0.9073
+0.8957
+1.0000
+5%
+0.9140
+0.7906
+0.9114
+0.8709
+0.9049
+1.0000
+1%
+0.9071
+0.7008
+0.8986
+0.9007
+0.8992
+1.0000
+- 1 -
+- 3343 -
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:29:16 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+The 27th International Conference on Electrical Machines and Systems
+(ICEMS2024-Fukuoka)
+- 5 -
+(a) XJTUGearbox
+(b) XJTUSpurgear
+Fig. 5. T-SNE visualization results of learned embeddings on (a)
+XJTUGearbox and (b) XJTUSpurgear.
+demonstrating its ability to effectively capture and
+distinguish between different classes in the feature space.
+However, as the training ratio decreases to 10%, 5%,
+and 1%, models such as ChebyNet and SGCN begin to
+struggle with the constraints of limited training data. For
+example, ChebyNet's performance on the XJTU Spurgear
+dataset declines significantly, dropping from 0.876 at the
+50%
+training
+ratio
+to
+0.704
+at
+5%,
+and
+further
+deteriorating to 0.671 at 1%. Fig. 6 provides a visual
+representation
+of this
+trend, clearly illustrating the
+performance retention of various methods at different
+training ratios through line graphs. The figures highlight
+how the models' abilities to maintain accuracy weaken as
+the amount of available training data diminishes.
+This performance degradation can largely be attributed
+to the inherent mechanisms by which these models
+aggregate and propagate information. ChebyNet, which
+depends heavily on spectral methods, exhibits sensitivity
+to the quantity of training data, making it less capable of
+generalizing effectively when faced with sparse data. The
+spectral filtering process, central to ChebyNet's operation,
+becomes less effective with limited data, leading to a
+sharp decline in performance. Similarly, SGCN, designed
+to simplify the convolution process, may inadvertently
+lose crucial information during propagation, particularly
+Fig. 6. Accuracy comparison on XJTU Spurgear and XJTU Gearbox.
+when the training data is insufficient. This simplification,
+while beneficial in certain scenarios, proves to be a
+disadvantage under conditions of data scarcity. GAT and
+GIN, although more robust, still show performance drops,
+indicating challenges with limited data. In contrast,
+FAGPN consistently delivers high performance across all
+training
+ratios,
+demonstrating
+its
+sophisticated
+aggregation mechanism and better feature extraction
+capabilities, allowing it to use available information
+effectively even with scarce training data.
+V.
+CONCLUSIONS
+This paper introduces a novel FAGPN for diagnosing
+gear faults in geared motors, particularly under conditions
+of limited data. The proposed FAGPN is designed to
+effectively
+learn
+and
+prioritize
+the
+most
+relevant
+information by utilizing a combination of multi-scale
+filters,
+hyperspherical
+prototype
+projection,
+and
+a
+consistency constraint. FAGPN employs customized low-
+- 1 -
+- 3344 -
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:29:16 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+The 27th International Conference on Electrical Machines and Systems
+(ICEMS2024-Fukuoka)
+- 6 -
+pass and high-pass filters specifically tailored to enhance
+the fusion of multi-scale features. These features are
+extracted from vibration signals processed using FFT and
+STFT techniques. By integrating these filters with an
+attention mechanism, the model focuses on the most
+informative aspects of the data, thereby improving the
+accuracy and reliability of fault diagnosis. Experimental
+results demonstrate FAGPN's effectiveness in scenarios
+characterized
+by
+data
+scarcity
+and
+imbalance.
+Remarkably, the model maintains high accuracy even
+when the available training data is extremely limited.
+Notably, when the training ratio is reduced to just 1%,
+FAGPN
+still
+achieves
+over
+99%
+accuracy
+on
+the
+XJTUSpurgear
+and
+XJTUGearbox
+datasets.
+Future
+research may focus on incorporating additional domain-
+specific features, extending the model to other types of
+mechanical faults, and addressing complex compound
+fault scenarios.
+REFERENCES
+[1]
+H. Zhao, C. Liu, et al, "Analytical model for magnetic-geared
+doubler-rotor machines and its d-q-axis determination," in IET
+Electric Power Applications, vol.14, no.2, pp. 175-183, 2020.
+[2]
+Z. Song and Y. Liang, "Overview of High Overload Motors," in
+IEEE Transactions on Industry Applications, doi:10.1109/TIA.20
+24.3429081.
+[3]
+W. Wang, C. Liu, H. Zhao and Z. Song, "Improved Deadbeat-
+Direct
+Torque
+and
+Flux
+Control
+for
+PMSM
+With
+Less
+Computation and Enhanced Robustness," in IEEE Transactions on
+Industrial Electronics, vol. 70, no. 3, pp. 2254-2263, March 2023,
+doi: 10.1109/TIE.2022.3170619.
+[4]
+H. Zhao, C. Liu, Z. Song and J. Yu, "A Fast Optimization Scheme
+of Coaxial Magnetic Gears Based on Exact Analytical Model
+Considering Magnetic Saturation," in IEEE Transactions on
+Industry Applications, vol. 57, no. 1, pp. 437-447, Jan.-Feb. 2021,
+doi: 10.1109/TIA.2020.3040142.
+[5]
+W. Wang, C. Liu, Z. Song and Z. Dong, "Harmonic Current
+Suppression for Dual Three-Phase PMSM Based on Deadbeat
+Control and Disturbance Observer," in IEEE Transactions on
+Industrial Electronics, vol. 70, no. 4, pp. 3482-3492, April 2023,
+doi: 10.1109/TIE.2022.3177818.
+[6]
+T. Li, Z. Zhou, S. Li, et al, "The Emerging Graph Neural
+Networks for Intelligent Fault Diagnostics and Prognostics: A
+Guideline and a Benchmark Study," in Mechanical systems and
+signal processing, vol.168, 2022.
+[7]
+Z. Song, C. Liu, H. Zhao and R. Huang, "Nonlinear Force and
+Vibration Analysis of an Interior Permanent Magnet Synchronous
+Generator
+With
+Eccentricity
+Detection,"
+in
+IEEE/ASME
+Transactions on Mechatronics, vol. 27, no. 5, pp. 2545-2555, Oct.
+2022, doi: 10.1109/TMECH.2021.3118316.
+[8]
+Z. Song, Y. Yu, F. Chai and Y. Tang, "Radial Force and Vibration
+Calculation for Modular Permanent Magnet Synchronous Machine
+With Symmetrical and Asymmetrical Open-Circuit Faults," in
+IEEE Transactions on Magnetics, vol. 54, no. 11, pp. 1-5, Nov.
+2018, Art no. 8107105, doi: 10.1109/TMAG.2018.2848724.
+[9]
+Y. Li, F. Chai, Z. Song, et al, "Analysis of Vibrations in Interior
+Permanent Magnet Synchronous Motors Considering Air-gap
+Deformation," in Energies, vol.10, no.9, pp. 1259, 2017.
+[10] Z. Jiang, K. Zhang, L. Xiang, et al, "A Time-Frequency Spectral
+Amplitude Modulation Method and Its Applications in Rolling
+Bearing Fault Diagnosis," in Mechanical systems and signal
+processing, vol.185, 2023.
+[11] S. Ai and H. Li, "Gear Fault Detection Based on Ensemble
+Empirical Mode Decomposition and Hilbert-Huang Transform,"
+2008 Fifth International Conference on Fuzzy Systems and
+Knowledge Discovery, Jinan, China, 2008, pp. 173-177, doi:
+10.1109/FSKD.2008.64.
+[12] L. Wang, S. Liu, X. Sun, et al, "An Order Tracking-free Method
+for Variable Speed Fault Diagnosis based on Adaptive Chirp
+Mode Decomposition," in Measurement, vol.185, 109949, 2021.
+[13] H. Lv, J. Chen, et al, “Attention Mechanism in Intelligent Fault
+Diagnosis
+of
+Machinery:
+A
+Review
+of
+Technique
+and
+Application,” in Measurement, vol.199, pp.111594, 2022.
+[14] T. Li, C. Sun, O. Fink, Y. Yang, X. Chen and R. Yan, "Filter-
+Informed Spectral Graph Wavelet Networks for Multiscale
+Feature Extraction and Intelligent Fault Diagnosis," in IEEE
+Transactions on Cybernetics, vol. 54, no. 1, pp. 506-518, Jan.
+2024, doi: 10.1109/TCYB.2023.3256080.
+[15] P. Ni, Y. Zhang, et al, "MSGAFN: Multi-scale Graph Attention
+Fusion Network for Machine Fault Diagnosis," in Proceedings of
+the Institution of Mechanical Engineers, Part C: Journal of
+Mechanical Engineering Science, 2024.
+[16] D. Zhang, E. Stewart, et al, "Intelligent Acoustic-based Fault
+Diagnosis of Roller Bearings using a Deep Graph Convolutional
+Network," in Measurement, vol.156, pp.107585, 2020.
+[17] X. Shao and C. S. Kim, "Adaptive Multi-scale Attention
+Convolution Nural Network for Cross-domain Fault Diagnosis," in
+Expert Systems with Applications, vol.236, pp.121216, 2024.
+[18] J. Si, H. Shi, et al, "Unsupervised Deep Transfer Learning with
+Moment Matching: A New Intelligent Fault Diagnosis Approach
+for Bearings," in Measurement,vol.172, pp.108827, 2021.
+[19] D. Bo, X. Wang, et al, "Beyond low-frequency information in
+graph convolutional networks," in Proceedings of the AAAI
+conference on artificial intelligence, vol.35, no.5, pp. 3950-3957,
+2021.
+[20] X. Wang, M. Zhu, D. Bo, et al, "AM-GCN: Adaptive Multi-
+Channel Graph Convolutional Networks," in Proceedings of the
+26th ACM SIGKDD International conference on knowledge
+discovery & data mining, pp.1243-1253, 2020.
+[21] P. Mettes, E. Pol, and C. Snoek, "Hyperspherical Prototype
+Networks,"
+in Advances
+in
+Neural
+Information
+Processing
+Systems, pp. 1485-1495, 2019.
+[22] T. Li, Z. Zhao, C. Sun, R. Yan and X. Chen, "Multireceptive Field
+Graph Convolutional Networks for Machine Fault Diagnosis," in
+IEEE Transactions on Industrial Electronics, vol. 68, no. 12, pp.
+12739-12749, Dec. 2021, doi: 10.1109/TIE.2020.3040669.
+[23] G. Ai, H. Yan and Y. Chen, "Discriminative Graph Convolutional
+Networks for Semi-supervised Node Classification," 2022 IEEE
+34th International Conference on Tools with Artificial Intelligence
+(ICTAI),
+Macao,
+China,
+2022,
+pp.
+372-376,
+doi:
+10.1109/ICTAI56018.2022.00061.
+[24] F. Lei, X. Luo, Z. Chen and H. Zhou, "Signal Feature Extract
+Based on Dual-Channel Wavelet Convolutional Network Mixed
+With Hypergraph Convolutional Network for Fault Diagnosis," in
+IEEE Sensors Journal, vol. 23, no. 22, pp. 28378-28389, 15
+Nov.15, 2023, doi: 10.1109/JSEN.2023.3319537.
+[25] Z. Chen, J. Ji, W. Yu, et al, "A Multi-scale Graph Convolutional
+Network
+with
+Contrastive-learning
+Enhanced
+Self-attention
+Pooling
+for
+Intelligent
+Fault
+Diagnosis
+of
+Gearbox,"
+in
+Measurement, vol.230, pp.114497, 2024.
+[26] L. Van der Maaten and G. Hinton, "Visualizing Data using T-
+SNE," in Journal of machine learning research, vol. 9, no. 11,
+2008.
+- 1 -
+- 3345 -
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:29:16 UTC from IEEE Xplore.  Restrictions apply.

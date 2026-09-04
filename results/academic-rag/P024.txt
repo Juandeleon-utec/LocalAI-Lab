@@ -1,0 +1,308 @@
+
+
+===== PAGE 1 =====
+
+ScienceDirect
+Available online at www.sciencedirect.com
+Procedia Computer Science 281 (2026) 1022–1028
+1877-0509 © 2026 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (https://creativecommons.org/licenses/by-nc-nd/4.0)
+Peer-review under responsibility of the scientific committee of MMIA conference Program Committee
+© 2026 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (https://creativecommons.org/licenses/by-nc-nd/4.0)
+Peer-review under responsibility of the scientific committee of MMIA conference Program Committee
+Keywords: Vibration signals, Motors; Fault diagnosis, Graph convolutional Network, Recurrent neural network 
+1. Introduction 
+Electric motors are critical equipment in power systems. Once a fault or shutdown occurs, it will not only damage 
+the motor itself but also lead to huge economic losses and even potential casualties. Therefore, the early prediction 
+and diagnosis of potential motor faults are of great significance [1-2]. At present, motor fault diagnosis approaches 
+could be classified into two categories: traditional diagnosis approaches and the methods with utilizing deep learning 
+algorithms. Traditional fault diagnosis methods rely on manual extraction of effective signal features from recorded 
+motor operation data, and then use shallow machine learning algorithms such as support vector machines, random 
+ 
+ 
+* Corresponding author. Tel.: +0-000-000-0000 ; fax: +0-000-000-0000 . 
+E-mail address: 000447@sdipct.edu.cn 
+The 6th International Conference on Multi-modal Information Analytics 
+Motor Fault Prediction Based on Graph Convolutional 
+Networks with Signal Association Mining 
+Beibei Zhang, Yue Zhong, Hao Cui *, Hongli Liu, Ziyu Cao, Junjie Li 
+Department of Computer Science and Engineering, Shandong Institute of Petroleum and Chemical Technology, Dongying, China 
+Abstract 
+Vibration signals are often used to analyze and recognize the characters of faults that verify in the operation of induction motors. 
+At present, the processing method of fault data is mainly through expert judgment and analysis, and the processing cost is high. 
+In recent years, induction motor fault data processing models with deep learning method have been utilized in induction motor 
+fault diagnosis tasks. In the study, a type of deep learning algorithm of graph convolutional neural network based on multi-head 
+attention enhancement is proposed to determine the fault type of induction motor by using time series fault data. The proposed 
+method firstly obtains the extended time sequence feature representation, encodes the input fault node data through utilizing 
+graph convolutional network, and finally realizes the obtained fault type classification of induction motor through recurrent 
+neural network and nonlinear layer. The corresponding experimental results shown that the proposed approach could achieve the 
+competitive performance in certain dataset.
+
+
+===== PAGE 2 =====
+
+	
+Beibei Zhang  et al. / Procedia Computer Science 281 (2026) 1022–1028
+1023
+forests, and fuzzy inference to learn the operation and fault modes from manually constructed features, so as to 
+realize motor fault classification and diagnosis [3]. Traditionally, motor fault diagnosis has been regarded as a 
+knowledge-driven discipline [4-5]. It requires researchers to possess sufficient professional domain knowledge—
+including expertise in signal processing, vibration mechanics, and fault mechanisms—to manually design and 
+construct effective features [6]. In the feature processing stage, researchers need sufficient professional domain 
+knowledge for feature construction, and the time cost is relatively high [7-9]. With the rapid development of sensor 
+method, the detectable motor operation signals have shown a trend of large volume, diversity, and high speed in both 
+accuracy and signal types [10]. Of course, we note that the previously proposed corresponding algorithms that might 
+only consider the analysis model or certain algorithms on certain specific problems such as population migration and 
+disease transmission [11]. Traditional manual feature design and extraction methods have become extremely 
+difficult, and the corresponding time and labor costs are also unbearable [12]. It seems a small real world. To be 
+specific, in a social network, adjacency matrix is an important representation method for a graph. However, 
+adjacency matrix only keeps the local information of network node structure and the citation network node structure 
+information of non-adjacent nodes cannot be kept. 
+By constructing a graph where nodes represent sensor signals or extracted features and edges denote their 
+physical or statistical relationships, the GCN can explicitly model the non-Euclidean structure of the data [13]. 
+Furthermore, the multi-head attention mechanism enables the method to comprehensively obtain to node information 
+from the various dimension representation node subspaces at different locations, capturing nuanced cross-channel 
+dependencies and yielding more refined temporal encodings than conventional approaches. In AGM algorithm, a 
+social network is divided into overlapping part and non-overlapping part, which can be attributed a larger edge 
+connection density than the non-overlapping part; therefore a probabilistic node graph structure is emerged to the 
+structure and the nodes can be partitioned into communities by using different network node layer; MDDBMS 
+employs the degree of each node to evaluate the density of each node, then the node with largest density is selected 
+as the initial node of a cluster; the cluster is extended by neighbourhood search and all nodes which belong to the 
+current cluster are added into the cluster by the discriminant criterion [14]. 
+Firstly, the multi-head attention mechanism maps low-dimensional signal features into different embedding 
+spaces, and the enhanced signals of the final time-series nodes are obtained through signal fusion [15]. For the 
+encoded enhanced signals of different time nodes, the cosine similarity scores between every two time-series node 
+embeddings are calculated and sorted. The Top-K potentially correlated node pairs are selected to construct an 
+adjacency matrix with 0/1 weights. However, notwithstanding the evaluate methods above obtained competitive 
+performance, they only consider the value of different link weightings between different subspace layers, which can 
+be cause an effect on evaluation experimental results. Inspired by the MOEE model framework, the graph node 
+network structure can be utilized to encode the time-series nodes to achieve motor structure operation node 
+information. Finally, the LSTM network and fully connected layers are adopted to achieve context learning of time-
+series data and classification of the motor operation state at the current time node, namely the classification of motor 
+fault types. The corresponding experimental results shown that the proposed method achieved the competitive 
+performance in terms of high-precision fault type prediction, which can be used to motor operation monitoring 
+positively. 
+2. Model Design for Motor Fault Diagnosis Analysis 
+Motor fault signals are usually single time-series vibration signals, and the cost of manual data processing and 
+analysis is high. To tackle the problems above, we propose an approach based on graph convolutional network 
+enhanced by the multi-head attention mechanism (GCN-MHAM) to mine and obtain the original fault vibration 
+signals of motors. As illustrated in Fig. 1, the overall framework comprises four main modules: 
+(1) Multi-head attention layer: this multi-head attention framework [9] can be utilized to map the original 
+differential fault signals into different vector spaces. After vector concatenation, the original fault feature signals are 
+extended to higher feature dimensions. Also, the algorithm uses conductivity and modularity to discover the nodes in 
+the same cluster; the algorithm selects two nodes with maximum edge weight as an initial cluster; then it selects a 
+node from neighborhood nodes with maximum edge weight.
+
+
+===== PAGE 3 =====
+
+1024	
+Beibei Zhang  et al. / Procedia Computer Science 281 (2026) 1022–1028
+(2) Graph convolutional neural network layer: this graph convolutional layer calculates the corresponding 
+subspace cosine similarity between the extended node vector value at different time instants to obtain similarity 
+scores. The Top-K feature vector pairs are selected as node pairs with potential edge connections in the graph, so as 
+to construct an adjacency matrix composed of 0/1 weights. Through the aggregation operation between nodes, 
+feature encoding among nodes at different distances, especially long-range nodes in the time series, is realized. To 
+be more specific, the network structure node relevance between two different layers are primarily affected by two 
+analysis elements, namely, structure similarity (relation-based) and interaction layer structure (shape-based). Assume 
+that the network node relevance between two different interaction layers is excellent whether the corresponding 
+nodes could achieve more topology value of the node structure. 
+(3) Sequential learning module: The LSTM network is introduced to further learn temporal features in the 
+sequence, and finally a comprehensive temporal representation within a certain range is obtained. 
+(4) Classifier network: An effective prediction of fault types is achieved by using a classification activation 
+function based on Softmax. 
+The detailed functions and formulas of each module are given below. 
+ 
+Fig. 1. GCN-MHAM model structure diagram 
+Since the original vibration signals are a series of discrete signals at each time step, this paper adopts the 
+differential processing method to construct a basic mapping vector for the vibration signal at each time step in the 
+time series. The signal after differential processing at each time step is given by the Equation (1): 
+                                                                                     (1) 
+in which      - , T denotes the temporal length of a segment of vibration signal input into the model. After 
+obtaining the initial features at time t, the multi-head attention mechanism can be introduced to the map constructed
+
+
+===== PAGE 4 =====
+
+	
+Beibei Zhang  et al. / Procedia Computer Science 281 (2026) 1022–1028
+1025
+initial feature signals into different vector spaces, respectively. Of course, for the i-th projection element head, the 
+mapped representation obtained after the attention mechanism is given by Equation (2): 
+{
+                          
+  
+         (
+      
+√ )                                                                 (2) 
+in which                   and          are all projection matrices. The final feature vector obtained by 
+multi-head and concatenation is   ̅    
+    
+        
+     ，     . In addition, there are much redundant 
+information in adjacency matrix because adjacency matrix is a symmetric matrix. Thus, this study proposed an 
+approaches which can utilize and obtain the global structure information of nodes and transform the corresponding 
+advanced matrix into the node network with higher weight value. 
+Based on the concatenated vector obtained above, the cosine similarity between every two nodes on the time 
+series is calculated to obtain the similarity ranking among nodes, so that the potential correlations between different 
+nodes can be established. The Top-K node pairs in the ranking score are selected as the node tuples in the graph 
+construction, thereby constructing a binary adjacency matrix composed of 0/1 weights on the time series with length 
+T        ，according to the obtained node representations  ̅    ̅   ̅       ̅       , the convolution operation 
+performed by the model in the l-th layer of the Graph Convolutional Network (GCN) is shown in Equation (3): 
+  
+       ( ̃
+ 
+  ̃ ̃
+ 
+  ̅ 
+    -     
+   )                                                          (3) 
+in which   ̃    ， ̃ denotes degree matrix value of  ̃ ，  
+         denotes the mapping vector ，
+    denotes the sigmoid activation function. After encoding through L layers of GCN, the model feeds the obtained 
+embeddings into an LSTM network in the directed learning module to capture the contextual information along the 
+sequence, as shown in Equation (4). 
+           ⃗⃗⃗⃗⃗⃗⃗⃗⃗⃗⃗      
+        
+                                                                (4) 
+Finally, the hidden states        within the learned time series T are fed into a nonlinear layer for classification, 
+and the classification formula is given by Equation (5). 
+ 
+ 
+ 
+                                                                          (5) 
+3. Experiments and Analysis 
+To validate the effectiveness of the proposed method, we conduct a series experiments on a publicly available 
+motor fault diagnosis dataset [10]. The dataset comprises time-series vibration signals acquired under eight different 
+operating conditions: one healthy state and seven faulty states (including bearing defects, unbalanced rotors, and 
+broken rotor bars). Each signal is collected at a specified sampling frequency value of 12 kHz. Furthermore, the 
+dataset contains eight types of motor operating conditions, including the normal working condition. Furthermore, 
+during the training process, the optimal hyperparameters obtained by the model through grid search are listed in Tab. 
+1. 
+It can be found from Tab. 2 that the corresponding comparison experimental results between the proposed study 
+and the other methods such as as Convolutional Neural Network (CNN) model between the Long Short-Original-
+Term Memory (LSOTM) mechanism. These results validate the advantage of integrating multi-head attention with 
+sequential modeling for this task. Non-negative matrix factorization is an effective method to decrease the dimension 
+of data and keeps the good explanation of decomposition result. This study utilize the higher value advanced matrix 
+factorization to achieve the node relation structure due to the more complex topology network structure.
+
+
+===== PAGE 5 =====
+
+1026	
+Beibei Zhang  et al. / Procedia Computer Science 281 (2026) 1022–1028
+Table 1. Hyperparameter Settings of the Proposed Model 
+Parameter 
+Hyperparameter value 
+Training Epochs 
+100 
+T 
+32 
+Learning rate 
+1e-3 
+GCN layers 
+2 
+q
+d ,
+k
+d ,
+v
+d 
+{3,3,5} 
+It can be observed from Tab. 2 that the simple LSTM-based method can barely extract effective information from 
+the constructed differential features. This is mainly because the input differential signals are low-dimensional 
+features, making it difficult for LSTM to learn representative features directly from abstract time-series signals. 
+By incorporating CNN into the model and combining it with attention-weighted computation, the model is more 
+advanced at to adaptively focus on critical node network information within the input batch data. We note that the 
+integration and development of the attention mechanism approach, the model performance is significantly improved. 
+Moreover, corresponding the results of the specific model and the corresponding algorithms on the obtained data sets. 
+From the results, it is known that GGE-NMF algorithm and NMF algorithm obtain 2 best results and MDDBMS 
+obtains 1 best result. The mean modularity of GGE-NMF algorithm is the mean value of all test objects. The 
+corresponding results demonstrated that GGE-NMF framework can be viewed an competitive method for addressing 
+network node discovery. On dolphins and football data sets, the performance of k-means algorithm and NMF 
+algorithm is better than GGE-NMF algorithm and the advantages of k-means algorithm and NMF algorithm are 
+obvious. For dolphins and football data set, the sparsity degrees of the two data sets are larger than the other data sets 
+and it means that dolphins and football data sets are dense network 
+Nevertheless, the aforementioned approaches still fail to capture the interdependencies among temporal features 
+at different time steps. For this reason, this paper introduces the GCN module, which enables the model to achieve 
+the highest fault recognition accuracy. After the clusters of nodes are obtained, an adjustment method theory is 
+interacted to revise and optimize the final network node and interaction layer result. To achieve the simplify of the 
+framework, we only adjust partition of nodes and does not introduce the mechanism of merging communities. 
+Furthermore, this paper investigates the influence of the number and structure of GCN layers on the method 
+performance test, the experimental results can be found in Fig. 2. 
+Table 2. Precision scores of models with different configurations 
+Model 
+Accuracy (%) 
+LSTM 
+36.54 
+Attention + LSTM 
+70.21 
+CNN+LSTM 
+85.46 
+Attention + CNN 
+92.22 
+GCN-MHAM 
+95.77 
+It is clear in Fig. 2 that the model performance does not increase monotonically with the variation in the number 
+of GCN layers. Instead, due to the over-smoothing problem of GCN [11], it first rises and then declines. Therefore, 
+in the experimental setup, the number and the specific network structure of GCN layers should not be set too large; 
+otherwise, it will risk degrading model performance.
+
+
+===== PAGE 6 =====
+
+	
+Beibei Zhang  et al. / Procedia Computer Science 281 (2026) 1022–1028
+1027
+ 
+Fig. 2. Model performance with variations in the number of GCN layers 
+4. Conclusion 
+ In this study, a fault motor classification model based on multi-head attention-enhanced graph convolutional 
+neural network is proposed. After differential processing on the data, the adopted multi-head attention mechanism 
+can obtain high-dimensional signal feature representations from low-dimensional features through multi-head 
+mapping. The graph convolutional network is then used to perform graph construction and node aggregation 
+operations to achieve better temporal feature encoding, thereby improving the performance of motor fault 
+classification. In the future, based on the above ideas, this paper will focus on the over-smoothing problem in graph 
+convolutional networks, so as to improve the prediction performance of the model when a large number of graph 
+convolutional layers are employed. Moreover, we would like to verify the topology structure of the network 
+structure layer and specific number. For instance, the effect of proposed model framework might lead to the 
+interaction of the corresponding entity layers. Actually, the dynamic and variation can be evaluated certain other 
+evaluation metrics such as TTSC and TOSST. Of course, we note that a series factor selection methods are mainly 
+based on the network topology structure. 
+References 
+[1] Han P, Liu Z, He X, et al. Multi-condition fault diagnosis of dynamic systems: A survey, insights, and prospects[J]. IEEE Transactions on 
+Automation Science and Engineering, 2025. 
+[2] Attallah O, Ibrahim R A, Zakzouk N E. A lightweight deep learning framework for transformer fault diagnosis in smart grids using multiple 
+scale CNN features[J]. Scientific reports, 2025, 15(1): 14505. 
+[3] Wang P, Zhang Y, Linjama M, et al. Fault identification and localization for the fast switching valve in the equal-coded digital hydraulic 
+system based on hybrid CNN-LSTM model[J]. Mechanical Systems and Signal Processing, 2025, 224: 112201. 
+[4] Xu H, Liu Z, Jiang D, et al. Deep Transfer Learning Technology-Based Condition Monitoring and Fault Diagnosis of Electric Vehicle 
+Electric Powertrain Systems: A Review[J]. IEEE Transactions on Power Electronics, 2025. 
+[5] Li K, Yu X, Ou S, et al. Fault location in distribution network based on rnn and transfer learning[J]. International Journal of High Speed 
+Electronics and Systems, 2025, 34(02): 2440043. 
+[6] Sun J, Mao X, Jiang W, et al. Bearing Fault Diagnosis Using Deep CNN and LSTM[J]. Mechanical Science and Technology, 
+2021,40(7):1091-1099. 
+[7] Husari F, Seshadrinath J. Sensitive inter-tum fault identification in induction motors using deep learning based methods[C]//2020 IEEE 
+International Conference on Power Electronics, Smart Grid and Renewable Energy (PESGRE2020). IEEE, 2020: 1-6. 
+[8] Ao B, Zeng L, Chen X, et al. Motor fault diagnosis system fused with attention mechanism[J]. Journal of South west University (Natural 
+Science Edition), 2022, 44(12), 163-175. 
+[9] Vaswani A, Shazeer N, Parmar N, et al. Attention is all you need[J]. Advances in neural information processing systems, 2017, 30.
+
+
+===== PAGE 7 =====
+
+1028	
+Beibei Zhang  et al. / Procedia Computer Science 281 (2026) 1022–1028
+[10] Wang Y. Research on the multi-fault intelligent diagnosis and separation methods for squirrel cage asynchronous motor[D]. Taiyuan 
+University of Technology, 2017. 
+[11] Li Q, Han Z, Wu X M. Deeper insights into graph convolutional networks for semi-supervised learning[C]//Proceedings of the AAAI 
+conference on artificial intelligence. 2018, 32(1). 
+[12] Sahu D, Dewangan R K, Matharu S P S. Hybrid CNN-LSTM model for fault diagnosis of rolling element bearings with operational 
+defects[J]. International Journal on Interactive Design and Manufacturing (IJIDeM), 2025, 19(8): 5737-5748. 
+[13] Wei L, Peng X, Cao Y. Enhanced fault diagnosis of rolling bearings using an improved inception-lstm network[J]. Nondestructive Testing 
+and Evaluation, 2025, 40(7): 3274-3293. 
+[14] Yong-Zhan C, Jian-Ling Q U, Xiao-Fei W, et al. Rolling Bearing Fault Diagnosis Based on CNN-LSTM with Time Sequential Memory 
+Enhancement[J]. Noise and Vibration Control, 2025, 45(1): 105. 
+[15] Meng W, Zhao P, Shi Y, et al. Intelligent fault diagnosis of mechanical engineering using NLF-LSTM optimized deep learning model[J]. 
+Optimization and Engineering, 2025, 26(2): 891-912.

@@ -1,0 +1,1373 @@
+
+
+===== PAGE 1 =====
+
+5044
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+Cloud–Edge Collaborative Intelligent Fault
+Diagnosis of Rotor-Bearing System:
+Methodology and Experiment
+Hongwei Fan , Member, IEEE, Haowen Xu , Wei Fan, Buran Chen , Qingshan Li ,
+Teng Zhang , Xiangang Cao , and Xuhui Zhang , Member, IEEE
+Abstract—The condition monitoring and fault diagnosis of
+rotor-bearing systems are crucial for rotating machinery. The
+traditional methods rely on either a single edge computing
+of limited data processing capabilities or a single cloud
+computing of large data transmission volumes. In this article,
+a novel monitoring and diagnosis framework for rotor-bearing
+systems is proposed by combining cloud and edge comput-
+ing. First, a cloud–edge collaborative diagnosis architecture
+is designed, where data acquisition, signal processing, and
+feature extraction are assigned to the edge end, and a
+deep learning-based diagnosis task is assigned to the cloud
+end. The edge ends collect acceleration and displacement
+signals in real time through piezoelectric and eddy current
+sensors and uses empirical mode decomposition (EMD) and
+time–frequency feature extraction to realize preliminary fea-
+ture expression of the obtained signals. Second, the feature
+data are sent to the cloud end from the edge end, where an
+improved 1-D residual network (1D-ResNet) is used to clas-
+sify the feature data and realize data-driven fault diagnosis.
+To verify the effectiveness of the methodology, a cloud–edge collaborative fault diagnosis system is developed, including
+a rotor-bearing unit simulation platform, an edge-end condition monitoring device, and a cloud-end diagnosis and
+visualization platform. The results show that the cloud–edge collaborative fault diagnosis method and system excel
+in terms of accuracy and real-time performance, where the accuracy reaches 99.9% at 1400 r/min and the consuming
+time is about 1.4 s.
+Index Terms— Cloud–edge collaboration, empirical mode decomposition (EMD), fault diagnosis, feature extraction,
+residual network (ResNet), rotor-bearing system.
+I. INTRODUCTION
+T
+HE intelligent fault diagnosis of mechanical equipment
+has become an important means to ensure the safe
+Received 9 October 2024; accepted 4 December 2024. Date of publi-
+cation 13 December 2024; date of current version 31 January 2025. This
+work was supported in part by the National Natural Science Foundation
+of China under Grant 52275131, in part by the Special Project of
+Shaanxi Provincial Department of Education for Local Service under
+Grant 23JC052, and in part by the “Scientist and Engineer” Team
+Construction Project of Shaanxi Qin Chuang Yuan under Grant
+2024QCY-KXJ-164. The associate editor coordinating the review of
+this article and approving it for publication was Dr. Zhiliang Liu.
+(Corresponding author: Hongwei Fan.)
+Hongwei Fan, Haowen Xu, Buran Chen, Qingshan Li, Teng Zhang,
+Xiangang Cao, and Xuhui Zhang are with the College of Mechanical
+Engineering, Xi’an University of Science and Technology, Xi’an 710054,
+China
+(e-mail:
+hw_fan@xust.edu.cn;
+haowen_xu@stu.xust.edu.cn;
+brown_chen@stu.xust.edu.cn; qingshan_li@stu.xust.edu.cn; teng_z@
+stu.xust.edu.cn; caoxg@xust.edu.cn; zhangxh@xust.edu.cn).
+Wei Fan is with the Anhui Linkedti Technology Company Ltd., Hefei
+230088, China (e-mail: wei.fan@linkedti.com).
+Digital Object Identifier 10.1109/JSEN.2024.3513644
+and stable operation of a production system in the context
+of the fourth industrial revolution and the rapid develop-
+ment of artificial intelligence technology [1]. As the core
+component of rotating machinery, the operating status of a
+rotor-bearing system directly affects the performance and life
+of the entire equipment and may even cause serious safety
+accidents [2]. Thus, using artificial intelligence technology to
+realize mechanical fault diagnosis is of great significance to the
+safe production and reliable operation of industrial equipment.
+The development of cloud computing and edge computing
+has provided new solutions for intelligent fault diagnosis.
+Cloud computing has powerful data storage and processing
+capabilities and can perform in-depth analysis of massive
+amounts of data [3]. It usually uploads the collected on-site
+equipment status data to a cloud server, which completes
+a large number of computing tasks and displays the results
+remotely or sends them to the site [4]. With the development
+of intelligent diagnosis technology, the number of on-site
+machines and sensors is quickly increasing. The process of
+1558-1748 © 2024 IEEE. All rights reserved, including rights for text and data mining, and training of artificial intelligence
+and similar technologies. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5045
+uploading original data to the cloud end will generate PB-level
+or even ZB-level data capacity, which can easily lead to
+some problems such as high latency, large data loss, and
+serious network blockage [5]. As a supplement to cloud
+computing, edge computing can process original data in a
+timely manner near the machine, reducing data transmission
+delays and bandwidth consumption [6]. However, the limited
+computing ability of edge devices sometimes makes it difficult
+to support complex data processing [7]. The cloud–edge
+collaborative scheme combines the advantages of both and
+provides a more scientific and efficient solution for intelligent
+fault diagnosis [8]. Xiang et al. [9], in order to solve the
+problem of difficult and time-consuming fault diagnosis of the
+transformer, extracted its features using principal component
+analysis (PCA) at the edge end, and deployed extreme gradient
+boosting (XGBoost) model at the cloud end for state identi-
+fication, which realizes the transformer monitoring and fault
+diagnosis based on cloud–edge collaboration. Chen et al. [10]
+proposed a cloud–edge collaborative deep learning scheme
+for infrared thermal images to carry out intelligent fault
+diagnosis of electrical equipment. Ren et al. [11] proposed
+a cloud–edge collaborative monitoring and diagnostic method
+to deal with the problems of fault data missing and imbal-
+ance, which proved the effectiveness of the proposed method.
+Sima et al. [12] proposed a cloud–edge collaborative method
+based on transfer learning and federated learning, which solves
+the problem of fault diagnosis of power lines. In summary,
+cloud–edge collaboration is an effective manner for equipment
+fault diagnosis.
+For rotor-bearing system fault diagnosis, when a data-driven
+approach is used [13], the equipment status can be charac-
+terized by different signals, such as vibration [14], infrared
+thermal imaging [15], and sound [16], and the fault diag-
+nosis can be achieved by analyzing and processing these
+signals or using the machine learning method. In recent
+years, with the gradual application of deep learning in the
+field of mechanical fault diagnosis [17], it is expected to
+improve the fault diagnosis capability of mechanical equip-
+ment. Sun et al. [18] proposed a bearing fault diagnosis
+method based on empirical mode decomposition (EMD) and
+improved Chebyshev distance. Shao et al. [19] proposed a
+transfer learning and improved convolutional neural network
+(CNN)-based fault diagnosis method for rotor-bearing systems
+under variable conditions, in which the infrared thermal image
+was used to characterize the health condition of the equipment.
+Wang et al. [20] proposed a fault diagnosis method based
+on variational mode decomposition (VMD)-Hilbert spectrum
+and ShuffleNet-V2, which solves the problem of difficulty in
+extracting the fault characteristics of gears affected by coal
+flow load and power frequency. Zeng et al. [21] proposed
+a fault diagnosis method for belt conveyor rolling bearings
+based on CGM-MobileNet, which overcomes the diagnostic
+challenges of rolling bearings under various operating con-
+ditions and high noise interference. Xin et al. [22] proposed
+an infrared thermal image-based improved Gaussian convo-
+lutional deep belief network (GCDBN) for intelligent fault
+diagnosis of rotor-bearing systems at variable speeds. Hong-
+wei et al. [23] used an information fused EMD-polar angle
+adaptive distribution of vibration images with CNN and
+support vector machine (SVM) for feature extraction and
+data classification to realize compound fault diagnosis of a
+rotor-bearing system. Yuan et al. [24] proposed a fault diag-
+nosis method for multichannel rotor-bearing systems based
+on multistructure collaborative discriminant embedding, which
+improves the performance of the fault diagnosis model.
+In addition, Fan et al. [25], [26] converted the vibration signals
+into grayscale texture images, and investigated the intelligent
+fault diagnosis method for the rotor-bearing system of variable
+duty motors in terms of improving the model generalization
+ability and lightweight. In summary, it can be seen that signal
+processing combined with deep learning methods can realize
+the accurate fault diagnosis of mechanical equipment.
+The cloud–edge collaboration provides a new solution
+for fault diagnosis of mechanical equipment, which utilizes
+the advantages of edge computing and cloud computing,
+respectively, to make the diagnosis process more accurate
+and efficient. In this article, a cloud–edge collaborative
+intelligent fault diagnosis framework is proposed for rotor-
+bearing systems. EMD-based vibration signal analysis with
+time–frequency feature extraction and improved 1-D residual
+network (1D-ResNet) is investigated, which reduces the trans-
+mission amount of data between the edge end and the cloud
+end while ensuring accuracy and improving efficiency. On this
+basis, a set of edge computing and cloud service platforms
+suitable for online monitoring and fault diagnosis is developed,
+and the corresponding algorithms are integrated into the edge
+device and cloud server to realize cloud–edge collaborative
+intelligent fault diagnosis of the rotor-bearing system.
+This article is organized as follows. Section II builds
+the cloud–edge collaborative fault diagnosis framework.
+Section III introduces the algorithms and datasets used in this
+work. Section IV performs the experimental validation of fault
+diagnosis algorithms. Section V performs the deployment of
+the algorithms and system test, and finally, the conclusion is
+provided in Section VI.
+II. FRAMEWORK OF CLOUD–EDGE COLLABORATIVE
+FAULT DIAGNOSIS
+The cloud–edge collaborative platform designed in this
+study is shown in Fig. 1. The edge end is responsible for
+collecting data, executing signal processing, and transmit-
+ting data to the cloud end. The cloud end is responsible
+for managing the data from the edge end, executing the
+fault diagnosis, and sending the results to the site. The
+cloud and edge work together to accomplish the online fault
+diagnosis task of a rotor-bearing system. The solution can
+make full use of distributed computing resources to achieve
+localized processing of monitored data and reduce the bur-
+den of cloud computing while improving data security and
+privacy.
+A. Edge-End Scheme
+As shown in Fig. 1, the hardware devices [6] at the
+edge end mainly include sensors, conditioning circuits, A/D
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+5046
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+Fig. 1. Cloud–edge collaborative framework of fault diagnosis.
+conversion units, microprocessors, and wireless transmission
+modules, in order to realize signal acquisition, edge com-
+puting, and data transmission. Signal acquisition is realized
+by sensors, conditioning circuits, and A/D conversion units.
+The sensors include piezoelectric sensors (Model 608A11, IMI
+SENSORS Inc.) and eddy current sensors (OD900503-03-03-
+50-00, OUDUO Ltd.), which acquire vibration acceleration
+and displacement signals, respectively. The conditioning cir-
+cuits mainly consist of coupling capacitors to remove the dc
+bias from the excitation source required for sensor operation.
+The A/D conversion unit is mainly composed of an A/D
+converter chip (AD7606, Analog Devices Inc.) and peripheral
+circuits to realize the conversion of analog signals to digital
+signals. The edge computation is realized by a microcontroller
+unit (MCU; STM32F407, STMicroelectronics Inc.), which
+mainly completes the execution of signal processing and
+feature extraction algorithms. The AD7606 and MCU are
+connected to each other using serial peripheral interface (SPI)
+communication. The data transmission is implemented using
+a Wi-Fi module (ESP-01, Ai-Thinker Ltd.), which realizes
+the bidirectional data sending between the edge end and the
+cloud end.
+B. Cloud-End Scheme
+As shown in Fig. 1, the cloud platform (Linkedti Ltd.)
+consists of data management, a rule engine, and decision
+suggestions. The data management section stores, recalls,
+and displays signal waveform results of multiple measur-
+ing points from the edge end and can analyze the signal
+spectrum of the original data and display the data features
+obtained from the edge end. The rule engine mainly carries
+out fault diagnosis, fetches feature data and sends them to the
+classification model for fault inference to get the predicted
+labels, in which the classification model is a deep learning
+model trained in advance. The decision suggestion is based
+Fig. 2. Flowchart of fault diagnosis algorithm.
+on the prediction label obtained by the rule engine to give
+the fault diagnosis results and then send the disposal decision
+to the site, thus realizing the cloud–edge collaborative fault
+diagnosis.
+III. ALGORITHMS AND DATASETS OF CLOUD–EDGE
+COLLABORATIVE FAULT DIAGNOSIS
+The algorithms in this study are divided into two parts, i.e.,
+signal processing and deep learning. The signal processing
+includes EMD and time–frequency feature extraction, which is
+done at the edge end. The deep learning model is 1D-ResNet,
+which is done at the cloud end. As shown in Fig. 2, it is a
+flowchart of the cloud–edge collaborative fault diagnosis tech-
+nology. The original signal is collected at the edge end. The
+preparation of the feature set is completed by performing EMD
+and time–frequency domain feature extraction on the original
+signals, splicing the features, and performing normalization
+operations. The diagnostic model construction is completed
+by training the deep learning model using the feature set
+prepared at the edge end. The edge-end algorithms and the
+cloud-end model are deployed on the edge device and cloud
+server, respectively, to realize cloud–edge collaborative fault
+diagnosis of a rotor-bearing system. It is worth noting that,
+as indicated by the dotted line in Fig. 2, the normalization
+parameters used for diagnosis come from the normalization
+parameters used when the algorithm was built.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5047
+A. Edge-End Signal Processing
+1) EMD Algorithm: EMD [27] is an adaptive analysis
+algorithm for nonlinear, nonstationary time series signals,
+whose core idea is to decompose the signal into a number
+of intrinsic mode functions (IMFs) and a residual component.
+Each IMF represents a different frequency component of the
+signal, and the residual component represents the trend of the
+signal.
+The EMD of the edge-end signal is as follows:
+x(t) =
+k
+X
+i=1
+IMFi(t) + rk(t)
+(1)
+where x(t) is the original signal; IMFi(t)(i = 1, 2, . . . , k)
+is the EMD effective component; and rk(t) is the residual
+component.
+The specific steps of EMD are as follows [27], [28].
+Step 1: Find all maximum and minimum values from the
+original signal.
+Step 2: Using the cubic spline interpolation method, the
+upper envelope emax(t) is constructed through all local max-
+imum points, and similarly, the lower envelope emin(t) is
+constructed through all local minimum points.
+Step 3: Calculate the mean values of the upper and lower
+envelopes to obtain the mean mi(t)
+mi(t) = (emax(t) + emin(t))/2.
+(2)
+Step 4: Extract the IMF and subtract the mean from the
+original signal to obtain a new signal hi(t)
+hi(t) = x(t) −mi(t).
+(3)
+Step 5: Check whether hi(t) satisfies the IMF termination
+condition and, if so, hi(t) is recorded as an IMF component.
+Otherwise, treat hi(t) as a new signal and repeat the above
+steps until the termination condition is satisfied. The modal
+function IMFi(t) is
+IMFi(t) = hi(t).
+(4)
+Step 6: Use the original signal to subtract the modal function
+to get a new residual component ri(t)
+ri(t) = x(t) −IMFi(t).
+(5)
+Step 7: Replace x(t) in Step 1 with ri(t), and repeat the
+above steps until the second IMF component IMFk(t) or the
+residual component rk(t) therefore is less than a predetermined
+value. Alternatively, the EMD process terminates when the
+residual component rk(t) is a monotonic function or a constant.
+The layer number of EMD and the threshold of the residual
+component are set in advance at the edge end, and the
+information of the original signal in different frequency bands
+is obtained by EMD, which lays a foundation for feature
+extraction.
+2) Feature Extraction Algorithm: The edge-end features
+include 15 time-domain features and five frequency-domain
+features [29], where the time-domain metrics are shown in
+Table I. Frequency-domain feature extraction requires a fast
+Fourier transform (FFT) of the original signal and then
+the power spectrum; the power spectrum is used to obtain
+TABLE I
+TIME-DOMAIN CHARACTERISTIC PARAMETERS AND THEIR FORMULAS
+the frequency-domain features, and the formula is shown
+in Table II. Time-domain features reflect the changes in the
+signal over time and can detect the instantaneous changes or
+shocks in the signal. The frequency-domain features reflect
+the changes in the signal over the spectrum and can be used
+to analyze the periodicity of the signal, the harmonic com-
+ponents, and the changes in the frequency components [30].
+Considering the influence of working conditions and fault sen-
+sitivity, two types of quantitative and dimensionless indicators
+are selected [31].
+The time-domain features in Table I form a vector TF
+TF =
+
+xmax, |x|max, xmin, ¯x, xPP, |x|, RMS
+xr, σ, xK, xS, M, W, I, C
+
+.
+(6)
+The frequency-domain features in Table II form a vector
+FF = [CF, MF, RMSF, VF, PSE], which is spliced with TF to
+form the final feature vector F = [TF, FF].
+B. Cloud-End CNN Modeling
+ResNet as a CNN model is designed to solve the problems
+of gradient vanishing or exploding and convolutional network
+degradation due to increasing network depth [32]. In a normal
+convolutional network, the input passed to the next layer is
+H(x) = F(x) and is directly fit to H(x). In ResNet, the input
+passed to the next layer becomes H(x) = F(x) + x and the
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+5048
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+TABLE II
+FREQUENCY-DOMAIN CHARACTERISTIC PARAMETERS
+AND THEIR FORMULAS
+Fig. 3. Structure of residual block.
+residuals are fit to F(x) = H(x) −x. The residual block does
+the constant mapping on the one hand, and on the other hand
+fits the residuals relative to the original network, correcting
+the bias of the original network without making the network
+fit the full underlying mapping. The essence of ResNet is that
+the network learns that the layer parameters are redundant,
+it can directly choose to skip the redundant layers and the
+deeper network will not be worse than the shallow network
+after adding the constant mapping [33]. The structure of the
+residual block is shown in Fig. 3.
+Constant mapping is applied to each stacked layer using
+residual learning, and the residual block formula is defined as
+y = F(x, {Wi}) + x
+(7)
+where x and y are the input and output of the residual block,
+respectively; and F(x, {Wi}) is the residual mapping to be
+learned. If the dimensions of F(x, {Wi}) and x do not match,
+they need to be matched by an execution square or a linear
+projection Ws
+y = F(x, {Wi}) + Wsx.
+(8)
+The classification model at the cloud end uses 1D-ResNet.
+Inputs of 1D-ResNet are 1-D vectors, and the convolu-
+tion kernel and feature vectors are also in 1-D form [34].
+1D-CNN is more suitable for dealing with 1-D time-series
+data. 1D-ResNet mainly consists of an input layer, a convo-
+lutional layer, a pooling layer, a batch normalization layer,
+a fully connected layer, and an output layer.
+The convolutional layer is the core part of the CNN.
+It performs a convolution operation on the feature vectors of
+the previous layer through convolution to obtain corresponding
+features and uses a nonlinear activation function to construct
+new output features. The output of each layer is the convolu-
+tion result of multiple input features, and the formula is
+yl+1
+i
+(k) = Wl
+i ∗xl(k) + bl
+i
+(9)
+where Wl
+i is the weight of the ith convolution kernel in layer l;
+xl(k) is the kth local region feature to be convolved in layer l;
+bl
+i is the bias of the ith convolution kernel in layer l; yl+1
+i
+(k) is
+the output of the kth neuron after the ith convolution operation
+in layer l, i.e., it is used as the input of layer l + 1; and ∗
+denotes the dot-product operation of the convolution kernel
+and the local region.
+After completing the convolution operation, the activation
+function performs a nonlinear transformation of the convolu-
+tion output. ReLU function is used as the activation function,
+denoted as
+zl+1
+i
+(k) = max
+
+0, yl+1
+i
+(k)
+	
+(10)
+where zl+1
+i
+(k) is the output of convolution operation and
+zl+1
+i
+(k) is the activation value of yl+1
+i
+(k).
+The pooling layer is used to reduce the size of the feature
+vectors, and computational complexity and prevent overfitting.
+The input feature vectors are downsampled to extract the main
+features. Maximum pooling is used, denoted as
+pk
+i = max xk
+ab(a, b ∈Ri)
+(11)
+where Ri is the pooling region, xk
+ab is the neurons in the
+pooling region, and pk
+i is the kth feature mapping output of
+the pooling operation.
+The batch normalization layer is used to speed up the
+training process of the network and improve its stability by
+normalizing the inputs of each layer to suppress the problem
+of vanishing or exploding gradients. The batch normalization
+is denoted as
+ql
+i = γ l
+ 
+xl
+i −µl
+p
+(σ l)2 + ε
+!
++ βl
+(12)
+where xl
+i is the input; µl and (σ l)2 are the mean and variance
+of the input, respectively; γ l and βl are the scaling and
+translation parameters, respectively; ql
+i is the batch normalized
+output; and ε is a very small constant.
+The fully connected layer transforms the output of the last
+pooling layer and maps the input to get a vector. The fully
+connected layer is
+ul+1( j) = f
+ W l
+i j(m)zl
+i(m) + bl
+i
+
+(13)
+where W l
+i j(m) is the weight value between the mth neuron
+of the ith channel of the lth layer and the output neuron of
+the jth channel of layer l + 1 is the output value of the mth
+neuron of the ith channel of the previous layer, zl
+i(m) is the
+bias of the network, ul+1( j) is the output value of the mth
+neuron of the jth channel, and f (·) is the activation function.
+The output layer uses softmax as the classifier. The structure
+of 1D-ResNet is shown in Fig. 4. Experimental validation of
+fault diagnosis algorithms.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5049
+Fig. 4. Structure of 1D-ResNet.
+TABLE III
+MAIN PARAMETERS OF THE EXPERIMENTAL PLATFORM
+Fig. 5. Fault simulation platform of rotor-bearing system.
+C. Experimental Platform Development
+The experimental platform used is shown in Fig. 5, and
+it consists of a motor, a shaft system, a gearbox, a brake,
+and a control cabinet, and the main parameters are shown in
+Table III. As shown in Fig. 5, the faults simulated are located
+in the shaft system, in which the rolling bearing fault is set
+at the bearing near the drive end and the rotor fault is set
+on the disk. As shown in Fig. 6(a)–(c), the fault types of
+the rotor-bearing system include inner ring fault, outer ring
+fault, and rolling element fault of rolling bearing, as well as
+the normal state. Inner and outer ring faults are fabricated as
+rectangular grooves across the raceways, and rolling element
+fault is produced by laser ablation. Rotor faults include rotor
+imbalance (RI) and rub-impact, where RI is generated by
+screwing six screws of the same material and size in the disk,
+and rub-impact is realized by touching between the copper
+screws on the stationary holder and the rotating disk, as shown
+in Fig. 6(d) and (e).
+The parameters of the data acquisition system are shown in
+Table IV. The sampling rate is set to 6000 Hz, the number of
+sampling points is set to 102 400, and the sampling duration
+is 17.07 s.
+Fig. 6.
+Fault scheme of rotor-bearing system. (a) Inner ring fault
+(BI). (b) Outer ring fault (BO). (c) Ball fault (BB). (d) RI. (e) Rotor
+rub-impact (RR).
+TABLE IV
+MAIN PARAMETERS OF DATA ACQUISITION SYSTEM
+D. Dataset Construction
+In the experiment, the motor speeds were 700 and
+1400 r/min, and no load and 25 N·m load were simulated
+by setting 0 and 0.5 A currents to the magnetic brake. The
+typical data collected are shown in Fig. 7. Five groups of data
+are collected for each fault type and each working condition,
+and the length of a single group of data is 2048, so the number
+of samples for each fault type and each working condition is
+250, and the total number of samples is 2 × 6 × 250 = 3000.
+This experiment uses the load-related input strategy and
+unlabeled load output strategy. The load types include no
+load and a load of 25 N·m. The 3000 samples were divided
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 7 =====
+
+5050
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+Fig. 7.
+Time-domain waveform of original signal. (a) No load and 1400 r/min. (b) 25 N·m and 1400 r/min. (c) No load and 700 r/min. (d) 25 N·m
+and 700 r/min.
+into datasets A and B. Dataset A contains 400 samples for
+each fault type, totaling 2400 samples. Dataset B contains
+100 samples of each fault type, totaling 600 samples. Divide
+the samples in dataset A into a training set and a test set for
+model training and test. Use dataset B for the test only to
+simulate the data collected at the edge end.
+IV. VALIDATION OF CLOUD–EDGE COLLABORATIVE
+FAULT DIAGNOSIS METHOD
+A. Edge-End Signal Processing
+When making feature samples, the original data are first
+decomposed by EMD to obtain multiple IMF components;
+then, the time–frequency features are extracted sequentially
+from each component, and finally, the features are spliced after
+being spread out in the order of components to obtain the
+feature vector. If the number of decomposition layers is n, the
+length of the final feature vector is n times the length of the
+vector obtained by direct feature extraction of original data.
+1) EMD of Tested Data: Taking the bearing inner ring fault
+at 1400 r/min as an example, the number of decomposition
+layers is set to 5, the IMF components obtained are shown in
+Fig. 8(a), and Fig. 8(b) shows the FFT results of the original
+signal and its components. From Fig. 8(a), it can be seen that
+the time-domain waveform of IMF1 is close to that of the
+original signal, and with the increase of the number of decom-
+position layers, the time-domain waveform of the component
+gradually tends to flatten. From Fig. 8(b), it can be seen that
+with the increase of the number of decomposition layers, the
+frequency bands in the spectrum of the component change
+from high frequency to low frequency, and the bandwidths
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 8 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5051
+Fig. 8.
+EMD results for bearing inner ring fault. (a) Time-domain
+waveform of IMF components. (b) FFT spectrum for IMF components.
+add up to be approximately equal to the total width of the
+frequency bands of the original signal.
+2) Feature Extraction and Sample Construction: After the
+above EMD, the IMF components are obtained, and 20
+time–frequency feature values are extracted for these compo-
+nents in turn. The feature vector extracted for each component
+can be denoted as FIMFi, i.e.,
+FIMFi =
+
+
+xi
+max, |x|i
+max, xi
+min, ¯xi, xi
+PP, |x|
+i, RMSi
+xi
+r, σ i, xi
+K, xi
+S, Mi, W i, I i, Ci, CFi
+MFi, RMSFi, VFi, PSEi
+
+.
+(14)
+The feature vectors extracted from all IMF components are
+spliced sequentially, and then, the feature vector FSample for
+each sample can be obtained, i.e.,
+FSample = [FIMF1, FIMF2, . . . , FIMFn]
+(15)
+where n is the number of EMD layers.
+According to the above, five-layer EMD, time–frequency
+feature extraction, and feature vector splicing are performed
+sequentially on the samples of six states in datasets A and B;
+finally, feature sample sets AF and BF are obtained.
+Fig. 9. Schematic of normalization operation.
+In the feature datasets AF and BF, each feature sample vector
+contains multiple features, and the different features differ in
+dimension and order of magnitude. If the feature data are
+directly fed into the model for training, it will result in certain
+features having too much or too little influence on the training
+process, thus affecting the convergence speed and stability
+of the model. If each feature sample vector is normalized
+according to its own, the differences between different features
+cannot be eliminated. The normalization according to feature
+dimensions can scale all features to the same magnitude so
+that the model can better learn the relative importance of each
+feature, and at the same time, it can inhibit the overfitting of
+the model to certain features to a certain extent, and improve
+the generalization of the model.
+In this study, the feature samples are maximum–minimum
+normalized
+according
+to
+the
+feature
+dimensions,
+such as
+FNord( j) =
+FSample( j) −max(FSample)
+max(FSample) −min(FSample)
+(16)
+where j = 1, 2, . . . , 20 × n, in which n is the layer
+number of EMD, and FNord( j) is the normalized feature
+sample.
+As shown in Fig. 9, taking the dataset AF as an example,
+the feature samples (Sample 1, 2, . . . , m, where m = 2400) are
+arranged in the way shown in the figure, and the maximum
+and minimum values of features in each column are taken to
+form the maximum value vector MAX and the minimum value
+vector MIN. Then, the feature samples of the dataset AF are
+normalized using the maximum and minimum value vectors
+to obtain new feature samples (Nord_sample 1, 2, . . . , m,
+where m = 2400). For the dataset BF, because of the small
+number of samples, BF is normalized with the normalization
+parameters MAX and MIN of the dataset AF in order to ensure
+consistency with the feature distribution of the dataset AF and
+that the feature space of the subsequent test model is uniform.
+After datasets AF and BF are normalized as described above,
+datasets AFN and BFN are finally obtained for subsequent
+model training and test.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 9 =====
+
+5052
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+TABLE V
+PARAMETERS OF IMPROVED 1D-RESNET MODEL
+Fig. 10. Accuracy and loss error of model training.
+B. Cloud-End CNN Modeling
+In order to ensure the accuracy and efficiency of fault
+diagnosis, 1D-ResNet18 is used as the base classification
+model. Since the time–frequency feature extraction has been
+performed on the original signal, the number of convolutional
+layers is reduced for the original 1D-ResNet18. It is found
+that the model size is reduced from 14.80 to 1.79 MB while
+reducing the convolutional layers, and the parameters of the
+improved model are shown in Table V.
+The dataset AFN is divided into a training set and test set
+according to 7:3, and the number of samples is 1680 and 720,
+respectively, to train the model. First, different hyperparameter
+values are taken to train the model, and a set of more
+appropriate hyperparameters is determined by combining the
+stability and convergence speed of the training process and the
+accuracy of the test set. After many times of parameter tuning,
+the cross entropy is finally determined as the loss function, the
+optimizer is Adam, the learning rate is 0.0001, the batch size is
+64, and the number of training epochs is 20. Then, the model is
+trained for five times using the determined hyperparameters,
+and the error bands of the accuracy and loss are shown in
+Fig. 10. It can be seen that the accuracy values of five training
+epochs have a small fluctuation at the beginning and stabilizes
+to 100% at the later stage, and the loss values have a small
+fluctuation in general, and finally stabilizes to 0. The average
+standard deviation of the accuracy and loss is calculated to be
+0.00522 and 0.00752, which makes the model training more
+stable.
+The final epoch of the model for each training is tested using
+the test set with an average accuracy of 99.9%. Meanwhile,
+the model is comprehensively evaluated using the confusion
+Fig. 11. Confusion matrix of test set.
+TABLE VI
+MODEL EVALUATION RESULTS
+matrix, precision, recall, and F1-score, as shown in Fig. 11
+and Table VI. From the confusion matrix, it can be seen
+that only one rotor rub-impact sample is misclassified as RI,
+and all other category samples are classified correctly. From
+the evaluation metrics in Table VI, the precision, recall, and
+F1-score for each category are very close to 100%. Looking
+at the metrics of each category, for N, BI, BO, and BB, the
+model reaches 100% in recall, precision, and F1-score. For
+RI, the recall is 100% but the precision is 99.2%, indicating
+that a small number of samples are misclassified as other
+categories. For RR, the precision is 100% but the recall is
+99.2%, indicating that a small number of samples in this
+category are misclassified as other categories. It can be seen
+that the overall performance of the proposed model in this
+work is excellent on the task of classifying the state data of
+the rotor-bearing system.
+C. Comparative Analysis of Model Settings at 1400 r/min
+Using dataset BFN to simulate actually collected data, the
+sample length, layer number of EMD, and deep learning model
+are varied to set up different schemes for comparative experi-
+ments. The different schemes are evaluated by training curves,
+confusion matrix, and t-SNE results. Here, the hyperparameter
+values used for the model training are kept the same as in
+Section IV-B.
+In the comparative experiments, the sample length is set to
+1024 and 2048, the layer number of EMD is set to 4, 5, and 6,
+and the deep learning model is the original 1D-ResNet18
+and its improved model. The initial settings are 1024, 4, and
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 10 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5053
+TABLE VII
+DESIGN OF COMPARATIVE EXPERIMENTS
+TABLE VIII
+ACCURACY VALUES OF COMPARATIVE EXPERIMENTS
+1D-ResNet18. A layer-by-layer approach is taken, i.e., the
+better result of the previous step is retained for use in the next
+step, and a total of five different scenarios are set up, as shown
+in Table VII. The diagnostic results of the five scenarios for
+the sample BFN are shown in Table VIII. In each case, five
+trainings are performed and the mean (Avg) and standard
+deviation (Std) are calculated.
+In Table VIII, the average accuracy of No.2 is 1.4% higher
+than that of No.1, and the standard deviation of the accuracy
+is lower, i.e., the model stability is improved, which proves
+that when the sample length is 2048; the data contains more
+information, and the feature differences between different
+categories are amplified after feature extraction, while the
+feature similarity among samples within each category is
+increased. Comparing No.2–No.4, the average accuracy of
+five-layer EMD is higher compared to those of 4 and 6,
+reaching 99.7%, with the lower standard deviation and bet-
+ter stability, proving that the feature dissimilarity between
+different categories is amplified after five-layer EMD. If the
+decomposition is insufficient, the differences between different
+categories will not be sufficiently amplified, and the similarity
+within categories will not be adequately reflected. If the
+decomposition is excessive, the components at the back will
+basically tend to be linear, amplifying the similarity between
+different categories and resulting in a decrease in the accuracy
+of classification. Comparing No.3 and No.5, the final average
+accuracy and stability are further improved.
+To further explain five comparative experiments, the training
+error bands of each experiment are given, as shown in Fig. 12.
+From Fig. 12(a)–(d), it can be seen that No.1–No.4 have
+large fluctuations in accuracy and loss during model training,
+and the model stability is poor, which can easily lead to a
+decrease in the model generalization performance, which is
+not conducive to site applications. From Fig. 12(e), it can be
+seen that the training accuracy and loss of No.5 are stable,
+indicating that No.5 has the most reasonable matching of each
+Fig. 12.
+Error bands for the model training process for the five sets of
+experiments. (a) No.1. (b) No.2. (c) No.3. (d) No.4. (e) No.5.
+parameter and high model stability, which is suitable for use
+in practice.
+The classification results for the dataset BFN are illustrated
+by selecting the confusion matrix with the worst results in
+each experiment, as shown in Fig. 13. Misclassification occurs
+for the normal state, ball fault, and RI in Fig. 13(a), with
+the worst misclassification occurring for RI. A small amount
+of misclassification occurs for RI in Fig. 13(b). There are
+individual samples misclassified in Fig. 13(c)–(e), which are
+generally better. From Fig. 13(a), (b), and (d), it can be seen
+that there are some samples of RI that are misclassified as
+rotor rub-impact. From the data, the original data of the two
+categories are more similar. From the model, rotor rub-impact
+is given more weight. From Fig. 13(a) and (c) to (e), it can be
+seen that there is a misclassification between the normal state
+and ball fault, which indicates that there is a higher similarity
+between data of the two categories, and the model is prone to
+errors when recognizing the two categories of fault. From the
+confusion matrix, Fig. 13(e) has the best performance, which
+again proves that the parameter setting of No.5 is the most
+reasonable.
+In order to reveal the feature distributions of different
+models, the feature distributions at three key positions are
+downscaled to give t-SNE visualization results, as shown in
+Fig. 14. No.X-A shows the feature distribution of the original
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 11 =====
+
+5054
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+Fig. 13.
+Confusion matrix of different models for the five sets of
+experiments. (a) No.1. (b) No.2. (c) No.3. (d) No.4. (e) No.5.
+data input layer, and the feature distribution of No.1 is different
+from the other models. No.X-B shows the feature distribution
+of the model input layer, i.e., the sample feature distribu-
+tion after signal processing and feature extraction. No.X-C
+shows the model linear input layer feature distribution, i.e.,
+the feature distribution after convolutional feature extraction.
+Compared to No.X-A with No.X-B, the initial separation of
+features can be completed, which verifies the effectiveness of
+signal processing and feature extraction. Compared to No.X-B
+with No.X-C, the convolutional layer carries out the secondary
+feature extraction, which finally separates each category. The
+results of No.2–No.5 are better than No.1, and there is no
+obvious overlapping of their features, while the feature distri-
+butions of the normal state, ball fault, RI, and rub-impact in
+No.1 overlap. Compared to No.2-C with No.4-C, it can be seen
+that there are individual samples with misclassification and
+intersecting feature distributions, while from No.5-C, it can
+be seen that the features are correctly separated, and the
+classification effect is the best.
+D. Comparative Analysis of Diagnostic Models at
+1400 r/min
+The proposed method is compared with other deep neu-
+ral networks widely used in fault diagnosis. The input
+Fig. 14.
+Feature distributions using t-SNE: “A” represents the original
+data input layer, “B” represents the model input layer, and “C” repre-
+sents the model linear input layer. (a) No.1-A. (b) No.1-B. (c) No.1-C.
+(d) No.2-A. (e) No.2-B. (f) No.2-C. (g) No.3-A. (h) No.3-B. (i) No.3-C.
+(j) No.4-A. (k) No.4-B. (l) No.4-C. (m) No.5-A. (n) No.5-B. (o) No.5-C.
+samples of different methods are all feature samples obtained
+by signal processing and feature extraction of the original
+data collected by the edge end. Seven different CNNs, i.e.,
+LeNet-5 [35], AlexNet [36], VGG-19 [36], ResNet-18 [32],
+DenseNet-121 [37], ShuffleNet-V2 [20], and MobileNet-V3
+[21], are selected to compare their classification capabilities
+on the same dataset. In the training, the learning rate is set
+to 0.0001, the optimizer is Adam, the batch size is 64, and
+the number of training epochs is 20. Each model is trained
+five times, and the model obtained after the last epoch is
+selected for each training, and its performance is verified on
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 12 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5055
+TABLE IX
+PERFORMANCE OF DIFFERENT MODELS AT 1400 r/min
+the dataset BFN. Meantime, the parameters, FLOPs, model
+size, and average test accuracy are analyzed.
+The results are shown in Table IX. Except for LeNet-5, the
+average accuracies of the other models are all above 95%.
+On the one hand, it is verified that the LeNet-5 model with
+a relatively simple structure cannot perform sufficient feature
+extraction, resulting in a lower accuracy. On the other hand,
+it proves that the original data have obtained better features
+after signal processing and feature extraction at the edge end.
+The proposed method has the best average accuracy, as well
+as the lowest parameter and model size. Its performance is
+also the most stable, with a standard deviation of 0.00093.
+Although the ResNet-18 model has comparable accuracy to
+the proposed method, its parameters, FLOPs, and model size
+are higher than those of the proposed method.
+E. Model Generalization Verification at a Lower Speed
+The proposed method is further verified under a low speed
+of 700 r/min and two loads of 0 and 25 N·m. The dataset
+partitions, sample lengths, and EMD decomposition layers are
+the same as those at 1400 r/min. In training, the learning rate
+is set to 0.001, the optimizer is Adam, the batch size is 256,
+the number of training epochs is 100, and the model is trained
+five times. The average test accuracy reaches 94.8%, which is
+a decrease of 5.1% compared to that at 1400 r/min, and the
+standard deviation is 0.00380.
+The training error band and confusion matrix are shown
+in Fig. 15(a) and (b), respectively. When the speed drops to
+700 r/min, it can be seen from Fig. 15(a) that the convergence
+speed of the model slows down, and more training epochs are
+required to make the accuracy and loss converge. The early
+training curve appears to fluctuate, but the model eventually
+converges stably, with the accuracy approaching 100% and
+the loss approaching 0. As can be seen from Fig. 15(b), the
+main categories that cause the model accuracy to decrease are
+RI and RR, with most misclassified cases occurring between
+these two, and a few misclassified cases occurring for N. The
+t-SNE-based visualization results of the feature distributions
+at the three key points are shown in Fig. 16(a)–(c). It can
+be seen from Fig. 16(a) and (b) that the edge end has a
+weaker feature extraction ability in distinguishing the features
+of categories N and BB than that at 1400 r/min. It can be
+seen from Fig. 16(b) and (c) that the feature distributions of
+Fig. 15.
+Model performance at 700 r/min. (a) Training error band.
+(b) Confusion matrix.
+Fig. 16. Feature distributions at 700 r/min using t-SNE. (a) Original data
+input layer. (b) Model input layer. (c) Model linear input layer.
+categories RI and RR overlap, while the other categories are
+separated.
+The results above at a lower speed show that the accuracy
+of the proposed method varies. At 700 r/min, the mechanical
+fault-induced vibration is weakened, and the feature extraction
+effect is not as obvious as that at 1400 r/min, resulting in a
+decrease in the model accuracy. Meanwhile, the model can still
+converge to a high accuracy at 700 r/min, which proves that
+the proposed method has a certain generalization capability at
+different speeds.
+V. VALIDATION OF CLOUD–EDGE COLLABORATIVE
+SYSTEM
+A. Edge-End Unit Verification
+First, the edge-end algorithms are compiled with C code
+on STM32Cube. Second, the edge-end hardware is developed,
+and the code is burned into the hardware and debugged to the
+ideal effect. In order to view the progress of edge computation,
+a liquid crystal display (LCD) is used. As shown in Fig. 17,
+LCD displays the numerical results, original signal waveform,
+and feature sample.
+B. Cloud-End Platform Verification
+For the cloud-end test, first, the fault diagnosis rule shown in
+Fig. 18(a) is established, where the labeled data module is the
+feature sample uploaded from the edge end, the classification
+model module is the source file mapping of the proposed
+model, and the alarm module is the display of the fault
+diagnosis results. The rule for cloud-end fault diagnosis is as
+follows. The labeled data uploaded from the edge end are
+sent to the classification model trained offline, and the fault
+diagnosis alarm results are given by running the classification
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 13 =====
+
+5056
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+Fig. 17. Test results from LCD at edge end.
+Fig. 18.
+Fault diagnosis rule and results at cloud platform. (a) Fault
+diagnosis rule at cloud platform. (b) Fault diagnosis results at cloud
+platform.
+model on the test data. The alarm page is shown in Fig. 18(b),
+which can display feature data and fault diagnosis results, and
+give corresponding alarms based on the fault diagnosis results.
+C. Time-Consuming Test
+Since the time-consuming process of cloud–edge collabora-
+tive computing is mainly at the edge end, the time-consuming
+process of the No.1–No.5 tests is tested. The time-consuming
+procedures of the five models at different stages and the total
+time-consuming procedures are shown in Fig. 19. The edge
+computing process of No.3 and No.5 is the same, so only
+one test is performed. T1 is the time taken by the MCU to
+control the AD7606 to complete data acquisition, T2 is the
+time taken to perform EMD processing, T3 is the time taken
+for time–frequency feature extraction and normalization, and
+T4 is the time taken to package the feature data into MQTT
+Fig. 19. Time-consuming results of different models.
+packets and perform the sending operation. The total time
+taken for each model is the sum of T1–T4. Overall, the time
+taken for the five models at different stages is stable. T1 shows
+that the time taken for 2048 sampling points is twice that
+taken for 1024 sampling points. T2 shows that the increase
+in the number of EMD decomposition layers increases the
+time taken by the program. T3 shows that the increase in IMF
+components increases the time taken for feature extraction.
+T4 shows that the increase in the amount of packaged data
+increases the time taken by the program. It can be seen that
+No.1 has the least total time consumption, and No.4 has the
+most. In general, the total time consumption of the five models
+is not much different, and the fault diagnosis results can be
+obtained in about 1 s. Therefore, combined with the fault
+diagnosis accuracy, No.5 is selected as the final model.
+D. Anti-Noise Test
+In practice, the engineering signal is affected by background
+noise, so the anti-noise performance of the fault diagnosis
+method needs to be tested. For the original signal, Gaussian
+white noise with an SNR of 5 to −30 dB, a mean of 0,
+and a variance of 1 is added sequentially. Five trainings are
+performed using dataset A, and the average accuracy of the test
+using dataset B is used as the evaluation metric. The results
+are shown in Fig. 20. Overall, the average accuracy gradually
+decreases as the noise intensity increases, and there is a small
+fluctuation after adding noise. The average accuracy at an
+SNR of 5 dB is 1.0% lower than that of the noise not added
+(NA). When the noise intensity increases from 0 to −10 dB,
+the accuracy rate decreases slightly. When the noise intensity
+increases from −15 to −30 dB, the accuracy rate decreases
+significantly. The test accuracy at −30 dB is 90.3%, meaning
+that 58 of the 600 samples in dataset B are misclassified.
+At −10-dB noise intensity, the average accuracy remained
+above 95.0%. If the actual noise is greater, the signal should
+be filtered before using the algorithms proposed.
+E. Edge-End Energy Consumption Test
+The energy consumption of the edge-end device is tested.
+The power supply uses 24 V DC, and the measured result
+is 23.97 V. By measuring the input current with an ammeter
+in series at the power supply input, the input power of the
+edge-end device during operation is calculated to be 2.924 W.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 14 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5057
+Fig. 20. Test average accuracy of samples with noise.
+TABLE X
+POWER CONSUMPTION OF EDGE-END DEVICE (UNIT: W)
+Second, by controlling whether each module is working, the
+power consumption of each module and the power consump-
+tion of the edge-end device when performing edge computing
+once are measured, as shown in Table X. The power con-
+sumption of the edge-end device is mainly concentrated on the
+MCU, ADC, DC–DC, and LCD. If the power consumption of
+the edge-end device is controlled, the power consumption of
+these modules can be controlled. For example, a low-power
+mode can be used for the MCU, a step-down module with a
+higher power conversion efficiency can be used, and the LCD
+can be manually woken up when needed.
+VI. CONCLUSION
+1) A cloud–edge cooperative system and a series of data
+processing algorithms are developed, and the combina-
+tion of the two realizes the efficient and accurate fault
+diagnosis of the rotor-bearing system.
+2) A set of edge-end devices includes embedded hard-
+ware and an onboard signal processing program, and
+a cloud-end platform can carry out deep learning-based
+fault diagnosis and alarm.
+3) EMD,
+feature
+extraction,
+and
+normalization
+algo-
+rithms are used in the embedded device, and an
+improved 1D-ResNet algorithm is used in the cloud
+platforms.
+4) The experiment realizes six-state category recognition
+at different conditions, with an accuracy of 99.9% at
+1400 r/min and 94.8% at 700 r/min. The time required
+for fault diagnosis is about 1.4 s.
+Although the proposed cloud–edge collaborative fault diag-
+nosis method and system have achieved excellent effects, there
+is still a need to strengthen research on multisource hetero-
+geneous data fusion, fine diagnosis under complex working
+conditions, data transmission security, and system populariza-
+tion and optimization.
+ACKNOWLEDGMENT
+The authors thank for the technical support of the cloud
+platform provided by Wu Qiangsheng and Li Yue from the
+Research and Development Department, Anhui Linkedti Tech-
+nology Company Ltd.
+REFERENCES
+[1] Y. Chi, Y. Dong, Z. J. Wang, F. R. Yu, and V. C. M. Leung, “Knowledge-
+based fault diagnosis in industrial Internet of Things: A survey,” IEEE
+Internet Things J., vol. 9, no. 15, pp. 12886–12900, Aug. 2022, doi:
+10.1109/JIOT.2022.3163606.
+[2] Y. Wang, Q. Zhang, S. Zhang, S. Li, and Y. Fan, “A rotor bearing system
+fault diagnosis method based on FSASCA-VMD and GraphSAGE-SA,”
+Meas. Sci. Technol., vol. 35, no. 9, Sep. 2024, Art. no. 096133, doi:
+10.1088/1361-6501/ad5616.
+[3] D. Łuczak, S. Brock, and K. Siembab, “Cloud based fault diagnosis by
+convolutional neural network as time–frequency RGB image recognition
+of industrial machine vibration with Internet of Things connectivity,”
+Sensors, vol. 23, no. 7, p. 3755, Apr. 2023, doi: 10.3390/s23073755.
+[4] M. Maurya, I. Panigrahi, D. Dash, and C. Malla, “Intelligent fault diag-
+nostic system for rotating machinery based on IoT with cloud computing
+and artificial intelligence techniques: A review,” Soft Comput., vol. 28,
+no. 1, pp. 477–494, Jan. 2024, doi: 10.1007/s00500-023-08255-0.
+[5] C. Yang, Y. Wang, S. Lan, L. Wang, W. Shen, and G. Q. Huang, “Cloud-
+edge-device collaboration mechanisms of deep learning models for smart
+robots in mass personalization,” Robot. Comput.-Integr. Manuf., vol. 77,
+Oct. 2022, Art. no. 102351, doi: 10.1016/j.rcim.2022.102351.
+[6] S. Lu, J. Lu, K. An, X. Wang, and Q. He, “Edge computing on IoT
+for machine signal processing and fault diagnosis: A review,” IEEE
+Internet Things J., vol. 10, no. 13, pp. 11093–11116, Jul. 2023, doi:
+10.1109/JIOT.2023.3239944.
+[7] G. Jiang, K. Zhao, X. Liu, X. Cheng, and P. Xie, “A federated
+learning framework for cloud–edge collaborative fault diagnosis of wind
+turbines,” IEEE Internet Things J., vol. 11, no. 13, pp. 23170–23185,
+Jul. 2024, doi: 10.1109/JIOT.2024.3387417.
+[8] R. Wang et al., “Cloud-edge collaborative transfer fault diagnosis
+of rotating machinery via federated fine-tuning and target self-
+adaptation,” Expert Syst. Appl., vol. 250, Sep. 2024, Art. no. 123859,
+doi: 10.1016/j.eswa.2024.123859.
+[9] B. Xiang, H. Zhang, T. Song, X. Tan, B. Wang, and Y. Xu,
+“A state diagnosis method for distribution transformer device based
+on
+cloud
+edge
+collaboration,”
+in
+Proc.
+5th
+Int.
+Conf.
+Electr.
+Eng.
+Control
+Technol.
+(CEECT),
+Dec.
+2023,
+pp. 416–420,
+doi:
+10.1109/ceect59667.2023.10420618.
+[10] Y.-Y. Chen, S.-Y. Jhong, S.-K. Tu, Y.-H. Lin, and Y.-C. Wu,
+“Autonomous smart-edge fault diagnostics (don’t short) via edge-cloud-
+orchestrated collaborative computing for infrared electrical equipment
+images,” IEEE Sensors J., vol. 24, no. 15, pp. 24630–24648, Aug. 2024,
+doi: 10.1109/JSEN.2024.3415639.
+[11] L. Ren, Z. Jia, T. Wang, Y. Ma, and L. Wang, “LM-CNN: A cloud-
+edge collaborative method for adaptive fault diagnosis with label
+sampling space enlarging,” IEEE Trans. Ind. Informat., vol. 18, no. 12,
+pp. 9057–9067, Dec. 2022, doi: 10.1109/TII.2022.3180389.
+[12] W.
+Sima,
+H.
+Zhang,
+and
+M.
+Yang,
+“Edge–cloud
+collaboration
+detection approach for small-sample imbalanced faults in power
+lines,” IEEE Trans. Instrum. Meas., vol. 71, pp. 1–11, 2022, doi:
+10.1109/TIM.2022.3175262.
+[13] J. Cen, Z. Yang, X. Liu, J. Xiong, and H. Chen, “A review of data-driven
+machinery fault diagnosis using machine learning algorithms,” J. Vib.
+Eng. Technol., vol. 10, pp. 2481–2507, Oct. 2022, doi: 10.1007/s42417-
+022-00498-9.
+[14] R. K. Mishra, A. Choudhary, S. Fatima, A. R. Mohanty, and
+B. K. Panigrahi, “A fault diagnosis approach based on 2D-vibration
+imaging for bearing faults,” J. Vib. Eng. Technol., vol. 11, no. 7,
+pp. 3121–3134, Oct. 2023, doi: 10.1007/s42417-022-00735-1.
+[15] T. Mian, A. Choudhary, and S. Fatima, “Multi-sensor fault diagnosis for
+misalignment and unbalance detection using machine learning,” in Proc.
+IEEE Int. Conf. Power Electron., Smart Grid, Renew. Energy (PESGRE),
+Jan. 2022, pp. 1–6, doi: 10.1109/PESGRE52268.2022.9715938.
+[16] L. Tang, H. Tian, H. Huang, S. Shi, and Q. Ji, “A survey of mechanical
+fault diagnosis based on audio signal analysis,” Measurement, vol. 220,
+Oct. 2023, Art. no. 113294, doi: 10.1016/j.measurement.2023.113294.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 15 =====
+
+5058
+IEEE SENSORS JOURNAL, VOL. 25, NO. 3, 1 FEBRUARY 2025
+[17] Z. Zhu et al., “A review of the application of deep learning in intelligent
+fault diagnosis of rotating machinery,” Measurement, vol. 206, Jan. 2023,
+Art. no. 112346, doi: 10.1016/j.measurement.2022.112346.
+[18] Y. Sun, S. Li, and X. Wang, “Bearing fault diagnosis based on EMD and
+improved Chebyshev distance in SDP image,” Measurement, vol. 176,
+May 2021, Art. no. 109100, doi: 10.1016/j.measurement.2021.109100.
+[19] H. Shao, M. Xia, G. Han, Y. Zhang, and J. Wan, “Intelligent fault
+diagnosis of rotor-bearing system under varying working conditions with
+modified transfer convolutional neural network and thermal images,”
+IEEE Trans. Ind. Informat., vol. 17, no. 5, pp. 3488–3496, May 2021,
+doi: 10.1109/TII.2020.3005965.
+[20] W.
+Wang
+et
+al.,
+“Intelligent
+fault
+diagnosis
+method
+based
+on
+VMD-Hilbert spectrum and ShuffleNet-v2: Application to the gears in
+a mine scraper conveyor gearbox,” Sensors, vol. 23, no. 10, p. 4951,
+May 2023, doi: 10.3390/s23104951.
+[21] F. Zeng, X. Zhang, S. Feng, and Y. Liu, “Belt conveyor roller bearing
+fault diagnosis based on CGM-MobileNet,” in Proc. 5th Int. Conf.
+Electron. Commun. Artif. Intell. (ICECAI), May 2024, pp. 236–240, doi:
+10.1109/icecai62591.2024.10675148.
+[22] L. Xin, S. Haidong, J. Hongkai, and X. Jiawei, “Modified Gaussian
+convolutional deep belief network and infrared thermal imaging for
+intelligent fault diagnosis of rotor-bearing system under time-varying
+speeds,” Struct. Health Monitor., vol. 21, no. 2, pp. 339–353, Mar. 2021,
+doi: 10.1177/1475921721998957.
+[23] F. Hongwei, X. Ceyi, M. Jiateng, C. Xiangang, and Z. Xuhui, “A novel
+intelligent diagnosis method of rolling bearing and rotor composite faults
+based on vibration signal-to-image mapping and CNN-SVM,” Meas. Sci.
+Technol., vol. 34, no. 4, Jan. 2023, Art. no. 044008, doi: 10.1088/1361-
+6501/acad90.
+[24] J. Yuan, R. Zhao, K. Wei, P. Chen, and T. He, “Fault diagnosis
+of multichannel bearing-rotor system via multistructure collaborative
+discriminative embedding,” IEEE/ASME Trans. Mechatronics, vol. 29,
+no. 5, pp. 3497–3508, Oct. 2024, doi: 10.1109/TMECH.2023.3347631.
+[25] H.
+Fan,
+Z.
+Ren,
+X.
+Zhang,
+X.
+Cao,
+H.
+Ma,
+and
+J.
+Huang,
+“A gray texture image data-driven intelligent fault diagnosis method
+of induction motor rotor-bearing system under variable load con-
+ditions,” Measurement, vol. 233, Jun. 2024, Art. no. 114742, doi:
+10.1016/j.measurement.2024.114742.
+[26] H. Fan, Z. Ren, X. Cao, X. Zhang, and J. Huang, “A GTI&Ada-act
+LMCNN method for intelligent fault diagnosis of motor rotor-bearing
+unit under variable conditions,” IEEE Trans. Instrum. Meas., vol. 73,
+pp. 1–14, 2024, doi: 10.1109/TIM.2024.3351265.
+[27] N. E. Huang et al., “The empirical mode decomposition and the
+Hilbert spectrum for nonlinear and non-stationary time series analysis,”
+Proc. Roy. Soc. Lond. Ser. Math. Phys. Eng. Sci., vol. 454, no. 1971,
+pp. 903–995, Mar. 1998, doi: 10.1098/rspa.1998.0193.
+[28] N. Li, J. Dong, L. Liu, H. Li, and J. Yan, “A novel EMD and causal
+convolutional network integrated with transformer for ultra short-term
+wind power forecasting,” Int. J. Electr. Power Energy Syst., vol. 154,
+Dec. 2023, Art. no. 109470, doi: 10.1016/j.ijepes.2023.109470.
+[29] Y. Lei, Z. He, Y. Zi, and Q. Hu, “Fault diagnosis of rotating machin-
+ery based on multiple ANFIS combination with gas,” Mech. Syst.
+Signal Process., vol. 21, no. 5, pp. 2280–2294, Jul. 2007, doi:
+10.1016/j.ymssp.2006.11.003.
+[30] H. Zhao, H. Liu, Y. Jin, X. Dang, and W. Deng, “Feature extraction
+for data-driven remaining useful life prediction of rolling bear-
+ings,” IEEE Trans. Instrum. Meas., vol. 70, pp. 1–10, 2021, doi:
+10.1109/TIM.2021.3059500.
+[31] X. Cao, X. Xu, Y. Duan, and X. Yang, “Health status recogni-
+tion of rotating machinery based on deep residual shrinkage network
+under time-varying conditions,” IEEE Sensors J., vol. 22, no. 19,
+pp. 18332–18348, Oct. 2022, doi: 10.1109/JSEN.2022.3197754.
+[32] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for
+image recognition,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit.
+(CVPR), Jun. 2016, pp. 770–778, doi: 10.1109/CVPR.2016.90.
+[33] P. Liang, W. Wang, X. Yuan, S. Liu, L. Zhang, and Y. Cheng,
+“Intelligent fault diagnosis of rolling bearing based on wavelet trans-
+form and improved ResNet under noisy labels and environment,”
+Eng. Appl. Artif. Intell., vol. 115, Oct. 2022, Art. no. 105269, doi:
+10.1016/j.engappai.2022.105269.
+[34] X. Wang, D. Mao, and X. Li, “Bearing fault diagnosis based on vibro-
+acoustic data fusion and 1D-CNN network,” Measurement, vol. 173,
+Mar. 2021, Art. no. 108518, doi: 10.1016/j.measurement.2020.108518.
+[35] K. Bhosle and V. Musande, “Evaluation of deep learning CNN model
+for recognition of devanagari digit,” Artif. Intell. Appl., vol. 1, no. 2,
+pp. 98–102, Apr. 2023, doi: 10.47852/bonviewaia3202441.
+[36] P. Preethi and H. R. Mamatha, “Region-based convolutional neural
+network for segmenting text in epigraphical images,” Artif. Intell.
+Appl., vol. 1, no. 2, pp. 103–111, Apr. 2023, doi: 10.47852/bon-
+viewaia2202293.
+[37] Y. Qin, T. Zhang, Q. Qian, and Y. Mao, “Large model for rotating
+machine fault diagnosis based on a dense connection network with
+depthwise separable convolution,” IEEE Trans. Instrum. Meas., vol. 73,
+pp. 1–12, 2024, doi: 10.1109/TIM.2024.3396841.
+Hongwei Fan (Member, IEEE) received the
+Ph.D. degree from Xi’an Jiaotong University,
+Xi’an, China, in 2015.
+He is currently an Associate Professor and
+a Project Doctoral Supervisor with the School
+of Mechanical Engineering, Xi’an University of
+Science and Technology, Xi’an. His research
+interests include mechanical equipment monitor-
+ing and fault diagnosis.
+Haowen Xu received the bachelor’s degree from
+Chongqing Technology and Business Univer-
+sity, Chongqing, China, in 2021. He is currently
+pursuing the master’s degree with the School
+of Mechanical Engineering, Xi’an University of
+Science and Technology, Xi’an, China.
+His research interests include mechanical fault
+diagnosis.
+Wei Fan received the M.B.A. degree from the
+University of Science and Technology, Beijing,
+China, in 2022.
+He is currently the General Manager with
+Anhui Linkedti Technology Company Ltd., Hefei,
+China. He is committed to exploring the potential
+of industrial data and developing data models
+to improve industrial equipment O&M efficiency,
+optimize
+spending,
+and
+reduce
+equipment
+operational risk.
+Buran Chen received the bachelor’s degree
+from Xi’an University of Science and Technology,
+Xi’an, China, in 2022, where she is currently
+pursuing the master’s degree with the School of
+Mechanical Engineering.
+Her research interests include mechanical
+fault diagnosis.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 16 =====
+
+FAN et al.: CLOUD–EDGE COLLABORATIVE INTELLIGENT FAULT DIAGNOSIS OF ROTOR-BEARING SYSTEM
+5059
+Qingshan Li received the bachelor’s degree
+from Xi’an University of Science and Technology,
+Xi’an, China, in 2022, where he is currently
+pursuing the master’s degree with the School of
+Mechanical Engineering.
+His research interests include mechanical fault
+diagnosis.
+Teng Zhang received the bachelor’s degree
+from Changshu Institute of Technology, Suzhou,
+China, in 2022. He is currently pursuing the
+master’s degree with the School of Mechanical
+Engineering, Xi’an University of Science and
+Technology, Xi’an, China.
+His research interests include mechanical fault
+diagnosis.
+Xiangang Cao received the Ph.D. degree from
+Xi’an Jiaotong University, Xi’an, China, in 2008.
+He is currently a Professor and a Doc-
+toral Supervisor with the School of Mechan-
+ical Engineering, Xi’an University of Science
+and Technology, Xi’an. His research interests
+include mechanical equipment maintenance and
+management.
+Xuhui Zhang (Member, IEEE) received the
+Ph.D. degree from Xi’an Jiaotong University,
+Xi’an, China, in 2009.
+He is currently a Professor and a Doc-
+toral Supervisor with the School of Mechan-
+ical Engineering, Xi’an University of Science
+and Technology, Xi’an. His research interests
+include the detection and control of mechanical
+equipment.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:57:08 UTC from IEEE Xplore.  Restrictions apply.

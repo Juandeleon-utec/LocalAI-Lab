@@ -1,0 +1,625 @@
+
+
+===== PAGE 1 =====
+
+Employment of ANN for Predictive Motor 
+Maintenance and Bearing Fault Detection Using 
+Park's Vector Analysis 
+ 
+Abishek Mahesh 
+Computer Science 
+Vellore Institute of Technology 
+Vellore, Tamil Nadu, India 
+abishekmahesh2001@gmail.com 
+Madiah Binti Omar 
+Institute of Autonomous System 
+Universiti Teknologi PETRONAS 
+31750 Seri Iskandar, Perak, Malaysia  
+madiah.omar@utp.edu.my 
+Sujatha R 
+School of Electronics Engineering 
+Vellore Institute of Technology 
+Vellore, Tamil Nadu, India 
+sujatha.r@vit.ac.in 
+B. Aadhi Aadhavan 
+School of Electronics Engineering 
+Vellore Institute of Technology 
+Vellore, Tamil Nadu, India 
+aadhi0610@gmail.com 
+Rosdiazli Bin Ibrahim 
+Institute of Autonomous System 
+Universiti Teknologi PETRONAS 
+31750 Seri Iskandar, Perak, Malaysia  
+rosdiazli@utp.edu.my 
+V. Valli Meenaa 
+School of Electronics Engineering 
+Vellore Institute of Technology 
+Vellore, Tamil Nadu, India 
+valli.meenaa9@gmail.com 
+Nurliana Farhana Salehuddin 
+Institute of Autonomous System 
+Universiti Teknologi PETRONAS 
+31750 Seri Iskandar, Perak, Malaysia  
+nurliana_17005523@utp.edu.my 
+Abstract— Predictive maintenance is an emerging concept 
+that is gaining mainstream popularity in industrial automation. 
+It involves continuous monitoring of the machinery's health, 
+status and performance in real-time. Hence, it allows the 
+industry to schedule maintenance only when specific conditions 
+are met and before the machinery breaks down. Critical 
+machinery such as three-phase induction motors is being used 
+widely in industrial processes. However, they are subjected to 
+many electrical and mechanical stresses due to their long 
+operating times. Bearing faults account for the highest faults in 
+the induction motor. If the faults go unnoticed, they can result 
+in motor failure, which generates economic losses. Thus, the 
+tracking of motor health becomes ineluctable. One of the most 
+effective ways to understand health and efficiency is through 
+motor current signature analysis (MCSA). The proposed model 
+employed MCSA by plotting Park's vector analysis graph to 
+predict motor health. This graph would then be fed as the input 
+to an artificial neural network (ANN) for automated 
+classification of the healthy or unhealthy motor. The trained 
+model has managed to acquire an accuracy >99% in the test set, 
+thus triumphing over other predictive maintenance methods. It 
+is designed so that the proposed model's computational 
+complexity is low enough to run on edge computing devices to 
+implement an efficient industrial automation system. 
+Keywords— motor current signature analysis, park's vector 
+analysis, artificial neural networks, predictive maintenance, 
+industrial automation 
+I. INTRODUCTION  
+Induction motors (IMs) are typically used as prime 
+movers in many industries due to their features such as low 
+cost, ease of maintenance, high reliability, and versatility [1, 
+2]. However, they are highly susceptible to wear and tear and 
+confront 
+a 
+plethora 
+of 
+unexpected 
+failures 
+under 
+environmental stresses [3]. Studies show that approximately 
+40% to 90% of IMs failures are associated with bearing faults 
+depending on the size of machines [3, 4]. Since bearings play 
+a significant role in the operation of IMs, if the faults go 
+unnoticed, they may cause catastrophic damage to the 
+machine. Therefore, industries often undergo scheduled 
+maintenance where the health of all these motors or bearings 
+is checked and replaced if necessary. Instantaneous 
+monitoring and prediction of IMs health have recently gained 
+extensive attention among researchers. This is because early 
+prediction will enable timely maintenance and avoid serious 
+accidents, which may lead to economic losses and risk to the 
+operator [2]. 
+ 
+Numerous diagnostic methods based on diverse physical 
+magnitudes such as vibration, temperature, current, and 
+magnetic flux have been employed to identify the fault in the 
+IMs [2]. Among others, motor current signature analysis 
+(MCSA) is preferable for analyzing motor health, especially 
+when it is in highly inaccessible or remote areas, as is 
+common with industrial IMs. Since MCSA uses the 
+embedded current signal of the motor's control unit, it does 
+not require additional sensors, which results in a lower cost 
+and complex system. The current signal can be used to 
+remotely monitor a large number of motors from a single 
+location. Many studies have verified the reliability of using 
+MCSA in IMs to detect breakage in rotor bar, end ring and 
+bearing faults [1, 5]. Park's vector approach is one of the main 
+techniques that can be utilized for fault detection with MCSA 
+[6-8]. This method transforms the IMs three-phase stator 
+current into two individual orthogonal phases, and it finds the 
+bearing fault based on the spatial variation of the Park's vector 
+current locus. A perfect circle of Park describes healthy IMs 
+while faults are represented with distortion on the circle. 
+ 
+Recognizing motor current fault signatures necessitates a 
+high level of expertise and experience from the user. Hence, 
+artificial intelligence (AI) has been introduced to MCSA for 
+making detection more user-friendly besides providing 
+automatic diagnosis and analysis of the faults in IMs. The 
+application of artificial neural networks (ANN) is particularly 
+suitable for performing pattern classification due to their high 
+learning and generalization abilities [7]. Somehow, the 
+studies related to ANN for faults detection are still limited 
+IEEE 5th International Symposium in Robotics and Manufacturing Automation, 6-8 August 2022, Malacca
+978-1-6654-5932-7/22/$31.00 ©2022 IEEE
+2022 IEEE 5th International Symposium in Robotics and Manufacturing Automation (ROMA) | 978-1-6654-5932-7/22/$31.00 ©2022 IEEE | DOI: 10.1109/ROMA55875.2022.9915683
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:59:51 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+and usually known to be heavily computation-intensive [9-
+12]. The present study proposed an automated system 
+through ANN using Park's vector analysis for bearing faults 
+detection. This method fed Park's vector graph as the input of 
+the ANN image classifier, which would categorize the motor 
+as healthy or unhealthy. The model is designed with low 
+computational complexity so that the processing can be 
+performed on the edge node.  
+II. LITERATURE SURVEY  
+The bearing faults can be categorized according to their 
+affected components: outer raceway defect, inner raceway 
+defect, and ball defect [13]. Any localized faults in the 
+component will create vibrations at the characteristic fault 
+frequencies which can be related to the motor speed and the 
+bearing dimensions [14]. A review in [15] indicates MCSA 
+as the most reliable and efficient method to determine the 
+single point faults in a bearing while being economical and 
+non-invasive. However, this technique is unable to determine 
+the occurrence of distributed bearing faults. Thus, many 
+different techniques have been introduced for faults detection 
+in IMs to overcome this drawback. 
+ 
+Among techniques available, Park's Vector analysis is 
+proven able to detect localized and distributed bearing faults. 
+An investigation of Park's vector analysis for localized faults 
+in bearing was successfully tested a decade ago [16]. 
+Meanwhile, its performance in detecting distributed bearing 
+faults was first introduced in [14]. The extensive theoretical 
+and empirical analysis provided by hardware implementation 
+in this literature concludes that the proposed method not only 
+diagnoses the different types of bearing faults based on the 
+size, shape and thickness of the current patterns but also 
+classifies them based on statistical parameters. Through 
+Park's vector analysis, the analytical expressions to calculate 
+any specific defect frequency are no longer required since the 
+fault can be represented through a graphical method of the 
+circular pattern [15].  
+ 
+Zarei and Yousefizadeh [17] proposed Park's vector 
+modulus for stator current signal using wavelet packet 
+transform. The results demonstrated that the Park vector 
+increased the amplitude of the fault components and 
+eliminated the main frequency of the original current 
+measurement signal. It also showed that one could achieve 
+fault diagnosis by comparing the energy of fault-relevant 
+nodes for healthy and faulty signals. The uniqueness of Park's 
+vector analysis was also observed by Sharma, Chatterji and 
+Mathew [18], who proposed this approach for Inter-Turn 
+Short (ITS) fault by monitoring three-phase stator current. It 
+is claimed that the technique not only detects the presence of 
+the fault but also estimates the level of fault severity.  
+ 
+Despite the fact that Park's vector approach is simple and 
+easy to understand, it is difficult to classify multiple faults. In 
+contrast, its extended version can easily categorize fault types 
+but is difficult to analyze. Thus, to classify multiple faults, a 
+new concept, Multi-layer Park's vector approach (MPVA), 
+which combines both approaches, was proposed [19]. MPVA 
+was also studied in [20], whereby the advantage of the 
+proposed method is that it allows the detection and diagnosis 
+of faults in steady and transient operating regimes in the IMs. 
+Further, the proposed method has a comparatively lower 
+computational cost and could thus be conducted on edge, 
+leading to robust industrial automation. The only required 
+features for the detection would be the electric supply 
+frequency and the control method, without motor 
+specification and setting parameters. 
+ 
+To improve the diagnosis and classification of faults in 
+IMs, various AI techniques have been introduced. The use of 
+an ANN and a support vector machine (SVM) in bearing fault 
+detection was explored in [21]. The study was conducted with 
+a test rig of high-speed rotors with rolling bearings at various 
+speeds and with or without loader. Then, vibration signals 
+were collected as the response to the diagnosis. The results 
+show that both algorithms can be used to develop a 
+knowledge base system that is useful for the early diagnosis 
+of faults detection. A review by Jawad and Jaber [22] stated 
+that a combination of statistical control charts and AI-based 
+methods would produce a robust method for industrial fault 
+detection. Other than that, Dhomad and Jaber [23] utilized an 
+SCT013 current sensor and Arduino MEGA for the 
+acquisition of time-domain signals, which later fed into ANN. 
+The researchers managed to classify the motor health 
+condition based on 360 validation data sets and findings 
+showed that the application of MCSA with ANN is an 
+effective method to diagnosis different bearings faults. Still, 
+the model was only able to detect one fault at a time. 
+ 
+The use of CNN in Fault diagnosis has been observed in 
+[24]. The application of CNN in this domain is extremely 
+tricky due to the lack of availability of data. This lack of data 
+has a direct effect on the number of layers that the CNN can 
+be designed for without causing overfitting of data which 
+could lead to an extreme drop in accuracy in the test set. The 
+proposed model introduces a novel algorithm which converts 
+the electric signals from the faulty machines into RGB 
+channels which is then fed into the CNNs. The choice of the 
+CNN was a ResNet50. This method has been tried and tested 
+in multiple industrial datasets and has been able to produce a 
+consistent accuracy as high as 98.95% ± 0.0074. 
+ 
+From the literature survey, it can be summarized that, the 
+employment of Park vector analysis for bearing fault 
+detection provides us with very strong and reliable metrics to 
+perform analysis on the motor health and classify motors as 
+healthy and unhealthy. The integration of ANN to the park 
+vector analysis automates the classification process. Even 
+though ANNs have historically produced lesser accuracies as 
+compared to their CNN counter parts, the integration of park 
+vector analysis combined with a robust ANN model, we are 
+able to classify the health of motors with an extremely high 
+precision and accuracy. The light computational requirement 
+of the ANN as compared to its CNN counterparts, allows us 
+to train and deploy the model in edge devices such as 
+Raspberry PI allowing flexibility in the deployment of such 
+predictive models in an industrial setting 
+ 
+III. PROPOSED METHADOLOGY  
+Fig. 1 depicts the block diagram of the overall 
+methodology involving its subprocesses. Primarily, the raw 
+data is collected from real plants and converted into Park 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:59:51 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+Vector images. Afterward, a simple ANN structure with three 
+Dense Layers is utilized in classification processes. 
+ 
+ 
+ 
+Fig. 1: Development flowchart 
+ 
+A. Dataset Collection from Real Plants 
+Raw data consisting of 3 phase stator current of the motor 
+is being collected from three different real industrial plants. 
+The raw dataset includes motor current, motor power rating 
+and vibration data. 
+B. Conversion of Plant Data into Park Vector’s  
+Conversion of Plant Data into Park Vector involves a 
+series of following processes  
+i) 
+Plotting Actual Data of every motor. 
+ii) 
+Rescaling the plotted Currents against time. 
+iii) Calculating the stator currents according to the 
+formula in (1) and (2), respectively and plot. 
+iv) Envelope and plot stator IsD and IsQ component 
+trajectory 
+ 
+IsD = √(2/3) Ia - (1/√6) Ib - –(1/√6) Ic
+(1)
+ 
+IsQ = (1/√2) Ib - –(1/√2) Ic
+(2)
+The Park vector Analysis gets its input from the 3 phases 
+of the motor, and it plots it as a graph. The shape of the graph 
+represents the health of the motor. A well-rounded circular 
+graph represents a healthy motor, whereas an elliptical graph 
+represents a motor that requires maintenance. The dataset 
+comprises 36 images, whereas 28 park vectors are used for 
+training, and eight are used for healthy and unhealthy testing. 
+The Heathy and unhealthy path vectors are depicted in Fig. 2 
+and Fig. 3, respectively. 
+ 
+Fig. 2.  Example Training Dataset of Healthy Park Vectors 
+ 
+Fig. 3.  Example Training Dataset of UnHealthy Park Vectors 
+ 
+C. Construction of ANN Model 
+After collecting the dataset, the ANN architecture is 
+constructed with layers of different inputs and activations 
+functions which is explained in Fig. 4. Then the trained data is 
+fed into the ANN model. We achieve the training accuracy; 
+we can end the training process and move the model to test it 
+with testing data if the results are satisfying. Else it is required 
+to fine-tune the model more to achieve the desired results. The 
+whole flow of the network is being explained in Fig. 5. 
+D. ANN Layers 
+The classification is controlled by a simple Artificial 
+Neural Network structure with three Dense Layers with 8, 4, 
+and 1 unit. The first and second layer has an activation 
+function of ReLU, and the final classification layer has an 
+activation function of Sigmoid. 
+ 
+ 
+Fig. 4: ANN Model 
+ 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:59:51 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+ 
+ 
+Fig. 5: Network of ANN Model 
+ 
+ 
+E. Activation Function 
+Rectified linear unit (ReLU), sigmoid, tanh, exponential, 
+softmax are some of the activation functions built into Keras. 
+ReLU is generally preferred in the mid-layers of a neural 
+network. The ReLU activation function returns 0 if the input 
+is less than 0 and returns x if the input is greater than 0, 
+visualized in Fig. 4. The first and second Dense layers are 
+controlled by the ReLu function. 
+ 
+ReLU: f(x) = max(0,x)
+(3)
+                                                                                    
+ 
+Fig. 2: ReLU Function 
+ 
+Whereas the Sigmoid function activates the final layer. The 
+sigmoid function is defined below in (4) 
+ 
+⃗ 
+1
+1 
+ e 
+(4)
+ 
+ 
+ 
+Fig. 3: Sigmoid Function 
+ 
+F. Loss Functions 
+Categorical Cross Entropy is used as the loss function 
+when the classification is one-hot encoded. The function is 
+defined as- 
+ 
+,    , log , 
+
+
+ 
+ 
+ 
+(5) 
+ 
+ where t is the target value and p is the predicted value. 
+ 
+IV. PERFORMANCE MEASURES 
+Deciding on the cross-validation and performance 
+measures to be used in analyzing a machine learning model 
+is significant. Based on the performance of unseen data, we 
+can say whether the model is overfitted, under fitted, or well 
+generalized.  
+ 
+A confusion matrix is a tabular summary of the classifier's 
+number of correct and incorrect predictions. It is used to 
+judge the performance of the classification model. The 
+terminologies used for classifications are True positive, True 
+Negative, False Positivity, and False Negative. True Positives 
+can be defined as the number of positive examples which are 
+correctly classified as positive. True Negatives can be defined 
+as the number of negative examples correctly classified as 
+negative; False positives are the number of negative examples 
+wrongly classified as positive. False Negatives are the 
+number of positive examples wrongly classified as negative. 
+The most importantly used performance matrices derived 
+from the confusion matrix are accuracy, precision, recall, and 
+F1 score. 
+ 
+Accuracy is the ratio of all the correctly classified samples 
+to the total number of test samples shown in (6)  
+ 
+ !"# 
+$% 
+ $&
+$% 
+ $& 
+ '% 
+ '& 
+ 
+(6) 
+where TN is true negative, TP is true positive, FN is false 
+negative and FP is false positive. 
+ 
+Precision (also called positive predictive value) is the 
+ratio of true positive to the total positive instances detected 
+by the model as shown in (7). Recall is the ratio of true 
+positive to the summation of true positive and false negative 
+as shown in (8). F1 score and can be described as the 
+harmonic mean of the precision and recall as shown in (9). 
+ 
+V. RESULTS AND DISCUSSIONS 
+From the confusion matrix in Table II, it is detected that 
+the FN, FP and TN rates are null for all the classes stating the 
+Accuracy, Precision, Recall and F1 Score to be greater than 
+99% as given in Table I. 
+ 
+ 
+ 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:59:51 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+TABLE I.  
+TESTING RESULT ANALYSIS OF PROPOSED METHOD IN 
+TERMS OF DISTINCT MEASURES TABLE TYPE STYLES 
+F1 Score 
+ 
+Accuracy 
+ 
+Precision 
+ 
+Recall 
+ 
+100 
+100 
+100 
+100 
+TABLE II.  
+RESULTS IN CONFUSION MATRIX FOR TEST DATASET 
+ 
+Healthy 
+UnHealthy 
+Healthy 
+16 
+0 
+UnHealthy 
+0 
+20 
+ 
+ 
+Fig. 4: ROC Curve 
+ 
+Testing Predictions derived from the confusion matrix are 
+shown visually are shown in Table III with specific True 
+Values and Prediction Columns. 
+ 
+ 
+&!()*)+, 
+$&
+$& 
+ '& 
+ 
+(7) 
+-(".. 
+$&
+$& 
+ '% 
+ 
+(8) 
+'1 *+!(  2 0 &!()*)+, 0 -("..
+&!()*)+, 
+ -(".. 
+ 
+(9) 
+ 
+TABLE III.  
+RESULTS IN TESTING PREDICTIONS 
+Park Vector
+True Values
+Prediction
+Healthy 
+Healthy 
+Healthy 
+Healthy 
+Healthy 
+Healthy 
+UnHealthy 
+UnHealthy 
+UnHealthy 
+UnHealthy 
+ 
+VI. CONCLUSION 
+In the proposed work, ANN model for the various bearing 
+fault segregation classification has been developed based on 
+Park’s vector analysis of three-phase stator currents. The 
+experimental results indicate that the developed ANN model 
+renders >99% classification results for the dataset.  It can be 
+foreseen that the proposed method will enhance the reliability 
+and accuracy of the methods used for the online detection and 
+diagnosis of various bearing faults. Furthermore, the 
+proposed and designed model is compatible with Linux OS 
+and can thus be deployed in a RaspberryPi (RPI), the 
+preferred edge device in most industries for industrial 
+automation. The deployed model has proved to be robust and 
+stable and has outperformed the accuracy of the existing 
+predictive maintenance models. The usage of RPI enables the 
+industry to conduct predictive maintenance at a low-cost 
+factor and a minuscule energy footprint, thus enabling 
+enterprises to reduce full-scale maintenance and run the 
+plants smoothly and effectively. 
+ACKNOWLEDGMENT 
+Authors are thankful to Yayasan Universiti Teknologi 
+PETRONAS for partially financing this research under grant 
+YUTP (015LC0-362). 
+REFERENCES 
+[1] 
+R. N. Toma, A. E. Prosvirin, and J.-M. Kim, “Bearing fault diagnosis 
+of induction motors using a genetic algorithm and machine learning 
+classifiers,” Sensors, vol. 20, no. 7, pp. 1884, 2020. 
+[2] 
+M. Valtierra-Rodriguez, J. R. Rivera-Guillen, J. A. Basurto-Hurtado, 
+J. J. De-Santiago-Perez, D. Granados-Lieberman, and J. P. 
+Amezquita-Sanchez, “Convolutional neural network and motor 
+current signature analysis during the transient state for detection of 
+broken rotor bars in induction motors,” Sensors, vol. 20, no. 13, pp. 
+3721, 2020. 
+[3] 
+X. Song, J. Hu, H. Zhu, and J. Zhang, “A bearing outer raceway fault 
+detection method in induction motors based on instantaneous 
+frequency of the stator current,” IEEJ Transactions on Electrical and 
+Electronic Engineering, vol. 13, no. 3, pp. 510-516, 2018. 
+[4] 
+K. D. Kompella, M. V. G. Rao, and R. S. Rao, “Bearing fault detection 
+in a 3 phase induction motor using stator current frequency spectral 
+subtraction with various wavelet decomposition techniques,” Ain 
+Shams Engineering Journal, vol. 9, no. 4, pp. 2427-2439, 2018. 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:59:51 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+[5] 
+L. Collamati, F. Filippetti, G. Franceschini, S. Pirani, and C. Tassoni, 
+"Induction machine stator fault on-line diagnosis based on LabVIEW 
+environment." pp. 495-498. 
+[6] 
+S. Singh, A. Kumar, and N. Kumar, “Motor current signature analysis 
+for bearing fault detection in mechanical systems,” Procedia 
+Materials Science, vol. 6, pp. 171-177, 2014. 
+[7] 
+D. Miljković, “Brief review of motor current signature analysis,” 
+HDKBR Info magazin, vol. 5, no. 1, pp. 14-26, 2015. 
+[8] 
+S. Vigneshkumar, V. K. Shankar, P. N. Krishna, and P. Supriya, "Fault 
+detection in gearbox using motor electrical signature analysis." pp. 1-
+6. 
+[9] 
+Q. S. Al-Sabbagh, and H. E. Alwan, “Detection of static air-gap 
+eccentricity in three phase induction motor by using artificial neural 
+network (ANN),” Journal of Engineering, vol. 15, no. 4, 2009. 
+[10] V. Ghate, and S. Dudul, “Artificial neural network based fault 
+classifier for three phase induction motor,” International Journal of 
+Computational Intelligence Research, vol. 5, no. 1, pp. 25-37, 2009. 
+[11] M. Khazaee, H. Ahmadi, M. Omid, A. Banakar, and A. Moosavian, 
+“Feature-level fusion based on wavelet transform and artificial neural 
+network for fault diagnosis of planetary gearbox using acoustic and 
+vibration signals,” Insight-Non-Destructive Testing and Condition 
+Monitoring, vol. 55, no. 6, pp. 323-330, 2013. 
+[12] W. Dai, H. Nishi, V. Vyatkin, V. Huang, Y. Shi, and X. Guan, 
+“Industrial edge computing: Enabling embedded intelligence,” IEEE 
+Industrial Electronics Magazine, vol. 13, no. 4, pp. 48-56, 2019. 
+[13] S. Shashidhara, and P. S. Raju, “BEARING FAULT DETECTION 
+OF INDUCTION MOTOR BY ANN METHOD,” 2014. 
+[14] M. Irfan, N. Saad, R. Ibrahim, V. S. Asirvadam, and A. Alwadie, 
+“Analysis of distributed faults in inner and outer race of bearing via 
+Park vector analysis method,” Neural Computing and Applications, 
+vol. 31, no. 1, pp. 683-691, 2019. 
+[15] M. Irfan, N. Saad, R. Ibrahim, V. S. Asirvadam, A. S. Alwadie, and 
+M. A. Sheikh, “An assessment on the non-invasive methods for 
+condition monitoring of induction motors,” Fault Diagnosis and 
+Detection, pp. 87, 2017. 
+[16] N. Mehala, and R. Dahiya, “Detection of bearing faults of induction 
+motor using Park’s vector approach,” International Journal of 
+Engineering and Technology, vol. 2, no. 4, pp. 263-266, 2010. 
+[17] J. Zarei, and S. Yousefizadeh, Fault Detection in Induction Motors 
+using Park's Vector Approach and Wavelet Analysis, 2014. 
+[18] A. Sharma, S. Chatterji, and L. Mathew, "A novel Park’s vector 
+approach for investigation of incipient stator fault using MCSA in 
+three-phase induction motors." pp. 1-5. 
+[19] T. G. Vilhekar, M. S. Ballal, and H. M. Suryawanshi, “Application of 
+Multiple Parks Vector Approach for Detection of Multiple Faults in 
+Induction Motors,” Journal of Power Electronics, vol. 17, no. 4, pp. 
+972-982, 2017. 
+[20] J. Burriel-Valencia, A. Sapena-Baño, M. Pineda-Sanchez, and J. 
+Martinez-Roman, "Multilayer Park's vector approach, a method for 
+fault detection on induction motors." pp. 775-780. 
+[21] P. K. Kankar, S. C. Sharma, and S. P. Harsha, “Fault diagnosis of ball 
+bearings using machine learning methods,” Expert Systems with 
+applications, vol. 38, no. 3, pp. 1876-1886, 2011. 
+[22] S. M. Jawad, and A. A. Jaber, "A Data-Driven Approach Based 
+Bearing Faults Detection and Diagnosis: A Review." p. 012111. 
+[23] T. A. Dhomad, and A. A. Jaber, “Bearing fault diagnosis using motor 
+current signature analysis and the artificial neural network,” 
+International Journal on advanced scince Engineering Information 
+Technology, vol. 10, 2020. 
+[24]        Wen, Long; Li, Xinyu; Gao, Liang (2019). A transfer convolutional 
+neural network for fault diagnosis based on ResNet-50. Neural 
+Computing and Applications, (), –. doi:10.1007/s00521-019-04097-w 
+ 
+ 
+ 
+ 
+ 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:59:51 UTC from IEEE Xplore.  Restrictions apply.

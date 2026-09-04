@@ -1,0 +1,1929 @@
+
+
+===== PAGE 1 =====
+
+Frequency-band graph-based sensor fusion with sensitivity-aware energy 
+assist network for machinery system fault diagnosis
+Sang Kyung Lee a, Hyeongmin Kim a, Minseok Chae a, Hansoo Kim a, Joonho Yang a,  
+Heonjun Yoon b,*, Byeng D. Youn a,c,d,**
+a Department of Mechanical Engineering, Seoul National University, Seoul, 08826, Republic of Korea
+b School of Mechanical Engineering, Soongsil University, Seoul, 06978, Republic of Korea
+c Institute of Advanced Machines and Design, Seoul National University, Seoul, 08826, Republic of Korea
+d Onepredict Inc., Seoul, 06105, Republic of Korea
+A R T I C L E I N F O
+Keywords:
+System fault diagnosis
+Graph representation
+Graph neural networks
+Sensor fusion
+A B S T R A C T
+Graph-based fault diagnosis methods have shown capabilities in multi-sensor data fusion by representing the 
+hidden relationships between sensors. However, their effective application in complex machinery systems re­
+mains challenging. First, constructing a graph that fully captures system-level fault characteristics is difficult, as 
+fault-related features in signals are often subtle and widely distributed across multiple frequency bands. Second, 
+learning accurate and efficient graph representations during model training is hindered by the fact that sensor 
+signals exhibit varying sensitivities to different fault modes, and each fault mode presents distinct frequency- 
+domain behaviors, such as energy shifts or unique fault frequencies. To overcome these challenges, this article 
+proposes frequency-band graph-based sensor fusion with sensitivity-aware energy assist network (FBG-SEANet), 
+a newly developed graph-based sensor fusion framework. The frequency-band graph (FBG) is a novel graph 
+construction strategy that decomposes sensor signals into multiple frequency bands, builds a subgraph for each 
+band, and connects them to form the final graph, thereby preserving subtle fault features distinctive to each 
+band. Using the FBG as input, the sensitivity-aware energy assist network (SEANet) is designed with a sensitivity- 
+aware readout (SR) layer to capture signal sensitivity to each fault. In addition, an energy assist (EA) module is 
+employed to learn fault features associated with energy shifts in the signals. Validation is carried out using one 
+open rotating machinery dataset, one motor experimental dataset, and one urban air mobility (UAM) system 
+experimental dataset. The results show that FBG-SEANet improves multi-sensor data fusion and outperforms 
+conventional sensor fusion models with enhanced explainability.
+1. Introduction
+Machinery systems are complex assemblies comprising multiple 
+components that operate in unison, playing a crucial role in modern 
+industries (Yang et al., 2023a; Li et al., 2022b; Miao et al., 2024). With 
+ongoing technological advancements, such systems are increasingly 
+being adopted in emerging fields such as urban air mobility (UAM) and 
+electric cars (Straubinger et al., 2020; Sun et al., 2019; Dai et al., 2024). 
+Failures of these machinery systems can result not only in significant 
+economic losses but also in serious safety risks to users (Li et al., 2024; 
+Tian et al., 2018; Wang et al., 2025a). Thus, developing reliable fault 
+diagnosis methods is of great importance to ensure the stable operation 
+of machinery systems (He et al., 2020; Feng et al., 2023b; Straubinger 
+et al., 2020; Zhiyi et al., 2020).
+Advances in signal acquisition technologies for fault diagnosis have 
+enabled the collection of large volumes of monitoring data through 
+various sensor modalities (Zhao et al., 2023). To effectively leverage 
+such data, deep learning (DL)-based methods have emerged as a repre­
+sentative data-driven approach owing to their ability to autonomously 
+extract and select relevant features. Representative examples include 
+long short-term memory (LSTM) networks for motor fault diagnosis 
+(Xiao et al., 2019), convolutional neural network (CNN)-based encoders 
+for rolling bearing fault (Qin and Shi, 2022), variational autoencoders 
+(VAEs) for signal dimensionality reduction in motor fault diagnosis 
+* Corresponding author. School of Mechanical Engineering, Soongsil University, Seoul, 06978, Republic of Korea.
+** Corresponding author. Department of Mechanical Engineering, Seoul National University, Seoul, 08826, Republic of Korea.
+E-mail addresses: heonjun@ssu.ac.kr (H. Yoon), bdyoun@snu.ac.kr (B.D. Youn). 
+Contents lists available at ScienceDirect
+Engineering Applications of Artificial Intelligence
+journal homepage: www.elsevier.com/locate/engappai
+https://doi.org/10.1016/j.engappai.2026.115273
+Received 18 December 2025; Received in revised form 14 May 2026; Accepted 27 May 2026  
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+Available online 2 June 2026 
+0952-1976/© 2026 Elsevier Ltd. All rights are reserved, including those for text and data mining, AI training, and similar technologies.
+
+
+===== PAGE 2 =====
+
+(Huang et al., 2019), and transformer models for capturing global de­
+pendencies in rolling bearing fault diagnosis (Wang et al., 2024b).
+Despite these advancements, applying DL-based methods to complex 
+machinery systems remains challenging due to the intricate nature of 
+such systems. These systems are composed of mechanical and electrical 
+components that closely interact with each other (Choudhary et al., 
+2022), leading to strong interdependencies among signals from 
+different subsystems. As a result, there is a growing need for system-level 
+fault diagnosis that can account for these cross-component interactions. 
+Conventional DL-based methods, however, typically process sensor data 
+by simply concatenating signals and applying fixed convolutional ker­
+nels (Kim et al., 2023b). This limits their ability to model the non-linear 
+and cross-sensor interactions that are intrinsic to complex machinery 
+systems, thereby preventing them from fully leveraging the rich struc­
+tural relationships embedded in the sensor data.
+To address these challenges, many researchers have recently 
+employed graph neural network (GNN)-based methods (Zhong et al., 
+2025a; Xiao et al., 2024) including a graph convolutional network 
+(GCN) (Zhang et al., 2022a, 2024a; Gao et al., 2021) and a graph 
+attention network (GAT) (Veliˇckovi´c et al., 2017; Chen et al., 2025) 
+offering advantages in multi-sensor fusion for system-level fault diag­
+nosis (Wang et al., 2024a; Feng et al., 2023a; Li et al., 2022a; Xu et al., 
+2024). The graph-based method can reveal hidden relationships be­
+tween sensors by representing their interactions and features as edges 
+and nodes (Zhao et al., 2024; Wei et al., 2024, 2025). This makes 
+graph-based methods particularly effective for multi-sensor fusion, as 
+each node aggregates information from neighboring sensors through 
+message passing, enabling the model to jointly leverage the entire sensor 
+network. Additionally, in the graph domain, the geometric structure of 
+the graph can also represent the relationships between sensors, enabling 
+better modeling of inter-sensor dependencies (Sun et al., 2021; Zheng 
+et al., 2024).
+Graph-based, system-level fault diagnosis frameworks can be 
+broadly categorized into node-level and graph-level. The node-level 
+approach represents an individual sample as each node in a graph (Li 
+et al., 2022a; Zhang et al., 2024b). However, because such approaches 
+mainly focus on local neighborhood information and their computa­
+tional cost increases with the number of nodes, they are less suitable for 
+large-scale graph data from multi-sensor machinery systems (Wang 
+et al., 2024a). In contrast, graph-level approaches represent an entire 
+system state as a single graph and learn a unified graph representation 
+that captures structural relationships among acquisition signals (Wang 
+et al., 2023; Zhong et al., 2025b). By integrating both local and global 
+graph information, graph-level approaches are more effective for 
+modeling complex inter-sensor correlations and are therefore more 
+widely adopted in system-level fault diagnosis.
+Leveraging these advantages, various graph-level methods have been 
+proposed with different strategies for graph construction and represen­
+tation. For graph construction, prior studies have built graphs from raw 
+signals using similarity-based relations, from temporally processed 
+features extracted by feature encoders, and from alternative signal 
+representations such as Markov field graphs or frequency-domain fea­
+tures (Wang et al., 2023; Yang et al., 2023b; Han et al., 2024; Zhang 
+et al., 2022b, 2023). For graph representation, attention mechanisms 
+have been incorporated during graph convolution to capture the relative 
+importance of different sensors, followed by a readout layer to obtain 
+the final graph-level representation (Zhang et al., 2023; Wang et al., 
+2023; Yang et al., 2023b).
+Despite the progress of these studies, several issues still remain in the 
+context of system-level fault diagnosis, particularly in both graph con­
+struction and graph representation. First, in terms of graph construction, 
+directly using raw sensor signals for node embedding presents some 
+challenges. Dominant operational components in raw signal can mask 
+subtle fault features, and since raw time-series signals contain over­
+lapped frequency information, it is difficult to capture fault character­
+istics distributed across multiple frequency bands. Furthermore, 
+methods utilizing energy spectrum from the raw signal typically 
+aggregate the entire spectrum at once into a single vector, which can still 
+dilute fault features present in narrow frequency bands.
+Second, in terms of graph representation, representing distinct fault 
+features presents some challenges. Applying attention mechanisms only 
+in the convolution stage, rather than the readout stage, may not fully 
+incorporate inter-sensor importance, as the readout layer is the final 
+stage for graph representation. This may lead the model to suffer from 
+information redundancy, thereby failing to effectively represent fault 
+features. Moreover, in practical systems, each fault mode exhibits 
+distinct fault behaviors, such as energy variations in pre-existing fre­
+quencies or the appearance of unique fault frequencies. However, 
+existing methods did not fully consider these unique fault behaviors, 
+limiting their robustness in diagnosing various fault modes.
+To address these issues, this article proposes a frequency band graph- 
+based sensor fusion with sensitivity-aware energy assist network (FBG- 
+SEANet), a novel graph-based, system-level fault diagnosis framework 
+that integrates a new graph construction strategy with an enhanced 
+graph representation network. The proposed method begins with two- 
+stage frequency-band graph (FBG) construction based on signal pro­
+cessing. In the first stage, a notch filter is applied in operation compo­
+nent filtering (OCF) to remove operational components from the signals. 
+In the second stage, band-pass filters are utilized to generate subgraphs 
+for each frequency band, thereby ensuring that the graph reflects more 
+detailed and band-specific fault characteristics in the frequency domain. 
+To effectively represent the constructed graph, FBG-SEANet further in­
+corporates two specialized modules. First, a sensitivity-aware readout 
+layer (SR layer) is introduced to fully incorporate inter-sensor impor­
+tance, reducing information redundancy and enhancing interpretability. 
+Second, an energy assist (EA) module embeds energy-related features 
+into each node, allowing the model to adequately reflect energy varia­
+tions in pre-existing frequency components caused by faults, thereby 
+achieving reliable system-level fault diagnosis across various fault 
+modes.
+The main contributions are summarized as follows: 
+• Propose FBG-SEANet, a unified framework that jointly addresses 
+graph construction and graph representation for system-level fault 
+diagnosis.
+• Develop the FBG, a novel graph construction strategy that eliminate 
+operational components and captures band-specific fault features.
+• Design the SR layer and EA module to enhance representation 
+learning by modeling sensor importance and incorporating energy 
+shift information.
+The remainder of the paper is organized as follows. Section 2 pro­
+vides the theoretical background of graph-based fault diagnosis. Section 
+3 illustrates the proposed method, FBG-SEANet, in detail. Section 4
+presents experimental validation and discussions based on three data­
+sets. Finally, Section 5 summarizes the conclusions of the paper.
+2. Theoretical background
+2.1. Graph convolutional networks
+GCNs have emerged as an effective tool for learning representations 
+from graph-structured data, characterized by nodes as entities and edges 
+as the connections between them (Zhang et al., 2019; Shen et al., 2026). 
+The key concept behind GCNs is the aggregation of features from 
+neighbor nodes to update each node representation (Zhao et al., 2022; 
+Shen et al., 2026). The graph convolution operation is a key component 
+of this process, and it can be formulated in various ways depending on 
+the specific model and approximation techniques. The graph convolu­
+tion operation is generally expressed as the application of a filter g to a 
+graph signal x ∈Rn. Here n represents the number of nodes, and 
+mathematically defined as: 
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+2
+
+
+===== PAGE 3 =====
+
+hgraph convolution = G(x, g) = U
+(
+UTx ⨀UTg
+)
+(1) 
+where G represents the graph convolution, and U is the eigenvector 
+matrix of the symmetric normalized graph Laplacian defined as L =
+In- D-1/2AD-1/2, where D and A refer to the degree matrix and adjacency 
+matrix of the graph, respectively. The operator ⨀ denotes the element 
+wise Hadamard product. The matrix U contains the eigenvectors of the 
+graph, while the filter g is applied to the graph signal x in the spectral 
+domain. However, applying the graph convolution as defined above can 
+be computationally expensive, especially for large graphs. To reduce the 
+computational complexity, Defferrard et al. (2016) proposed the use of 
+Chebyshev polynomials to approximate the graph filter, leading to the 
+development of the ChebyNet model. The graph convolution in Che­
+byNet is expressed as: 
+gθ =
+∑
+K-1
+k=0
+θkTk(L )
+(2) 
+where L = 2L
+λmax −In is the rescaled graph Laplacian, and Tk(L ) are the 
+Chebyshev polynomials of order k. The Chebyshev polynomials are 
+recursively defined as: 
+T0(L ) = In, T1(L ) = L , Tk(L ) = 2L Tk-1(L ) −Tk-2(L )
+(3) 
+This approximation simplifies the graph convolution operation, as it 
+reduces the need for explicit eigenvector computations while still 
+capturing the essential properties of the graph. The graph convolution in 
+ChebyNet can then be written as: 
+hChebyNet = UgθUTx =
+∑
+K-1
+k=0
+θkTk(L )x
+(4) 
+This formulation makes the graph convolution process more 
+computationally efficient, as it relies on a finite sum of Chebyshev 
+polynomials rather than the full eigenvalue decomposition. Further 
+simplifying the graph convolution, Kipf and Welling (2016) introduced 
+the GCN, which approximates the graph convolution even more. GCN 
+simplifies this further by using a normalized adjacency matrix, which 
+significantly reduces the complexity and makes training scalable to large 
+graphs. By assuming that the largest eigenvalue of the normalized graph 
+Laplacian λmax ≈2, the filter in GCN simplifies to: 
+hsimplified graph convolution = θ0x + θ1(L - In)x = θ0x + θ1D-1/2AD-1/2x
+(5) 
+For multi-layer GCNs, the feature representations are updated layer 
+by layer. The hidden layer activations are computed as: 
+H = σ
+(̃
+D-1/2̃ÃD-1/2XΘ
+)
+(6) 
+where ̃A = A + In is the adjacency matrix with added self-loops, and ̃D is 
+the corresponding degree matrix with ̃ Dii = ∑
+j̃Aij. X represents the 
+matrix of input feature, H is the matrix of output node features, Θ is the 
+matrix of learnable parameters, and σ represents a non-linear activation 
+function.
+2.2. Graph-level fault diagnosis
+In graph-level fault diagnosis the entire system is modeled as a graph, 
+enabling a fault diagnosis not only at the component level but also at the 
+system level. Unlike node-level approaches that represent faults as 
+simple nodes (Sun et al., 2024; Gao et al., 2021), this method considers 
+the complex interactions between all nodes and edges, making it 
+particularly suitable for system-level fault diagnosis. To construct sys­
+tem graphs, K-nearest neighbor graph (KNNGraph), and RadiusGraph 
+are widely used (Li et al., 2022a; Zhang et al., 2025). With graphs 
+constructed through these methods, the entire graph is treated as a 
+single sample, and the training dataset consists of a collection of graphs. 
+During the training process, the model learns to represent each entire 
+graph as a single representation, capturing the changes in graph struc­
+ture and information caused by system faults. 
+hGraph-level representation = READOUT({hv|v ∈V})
+(7) 
+where hv is the feature vector in H, V is the number of nodes and 
+READOUT denotes function that aggregates the node representation.
+This process involves the model learning both node and edge infor­
+mation across the entire graph. During training, the graph is reduced 
+through pooling layers, and a readout layer compresses the pooled graph 
+into a single representation. Therefore, changes in the graph structure 
+due to fault are reflected in the reduced representation. Fig. 1 demon­
+strates how a graph that effectively captures fault characteristics 
+changes when a system fault occurs, while Fig. 2 provides a simplified 
+illustration of the training process for graph-level fault diagnosis.
+To ensure the effectiveness of graph-level fault diagnosis, two critical 
+factors should be considered. First, the graph should be constructed to 
+accurately reflect the system's fault characteristics so that changes in 
+nodes and edges due to the system fault can be effectively captured by 
+the model. Second, since the entire graph is reduced to a single repre­
+sentation, it is essential to minimize information loss and redundancy. 
+These considerations are key to achieving accurate and reliable fault 
+diagnosis at the graph level.
+2.3. System-level fault diagnosis
+In system-level fault diagnosis, four characteristics should be mainly 
+considered to make reliable and effective fault diagnosis models. First, 
+as the fault components are subtle compared to operational components, 
+significant changes in the acquired signal may not be evident (Kim et al., 
+2023a; Park et al., 2019, 2021). For example, in current signals, the 
+supply frequency is a dominant operational component, and removing 
+such operational components can improve fault sensitivity. Second, 
+representative signals acquired from machinery systems, such as cur­
+rent, vibration, and acoustic signals, exhibit fault characteristics across 
+different frequency bands (Smith and Randall, 2015; Jung et al., 2023). 
+For example, for motor bearing fault with fault frequency at fv in vi­
+bration signals appears at different frequency components in current 
+signals. In current signal fault frequencies are modulated by the supply 
+frequency fs, having fault frequencies at fs ±k fv in current signals 
+(Orlowska-Kowalska et al., 2022). Therefore, frequency-domain fault 
+information should be considered to accurately capture system charac­
+teristics. Third, the contribution of each sensor varies depending on the 
+fault type. In general, electrical faults tend to be more sensitive in cur­
+rent signals, whereas mechanical faults are more sensitive in vibration 
+signals. For example, in motor systems, bearing and misalignment faults 
+are more clearly reflected in vibration signals, while stator faults are 
+more clearly reflected in current signals (Gangsar and Tiwari, 2020). 
+This makes it important to distinguish and quantify sensor importance 
+according to fault mode. Finally, different fault modes exhibit different 
+fault behaviors. While some faults, such as bearing faults, generate clear 
+fault-specific frequencies, others are primarily reflected as changes in 
+the energy of pre-existing frequency components, such as the rotational 
+frequency and its harmonics, that are already present under normal 
+operating conditions. In such cases, the fault is manifested as a variation 
+in the magnitude of these existing components rather than as the 
+emergence of new fault-specific frequencies. For example, shaft 
+misalignment and unbalance faults induce energy shifts in the rotational 
+frequency and its harmonics (Patel and Darpe, 2009; Tahir et al., 2016). 
+Such variation makes accurate diagnosis of diverse fault modes more 
+challenging and highlights the need to account for fault-specific 
+characteristics.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+3
+
+
+===== PAGE 4 =====
+
+Fig. 1. An illustration of system graph changes due to fault.
+Fig. 2. An illustration of the graph-level graph representation process utilizing pooling and readout layer.
+Fig. 3. Architecture of the proposed FBG-SEANet for graph-based, system-level fault diagnosis.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+4
+
+
+===== PAGE 5 =====
+
+3. FBG-SEANet: frequency-band graph-based sensor fusion with 
+sensitivity-aware energy assist network
+3.1. Overall process
+This study develops FBG-SEANet to tackle the following four key 
+challenges in graph-based, system-level fault diagnosis: 
+• Operational components mask fault features: The FBG applies the OCF 
+with a notch filter to remove dominant operational components from 
+raw signals, enhancing the visibility of subtle fault-related features.
+• Fault information is spread across different frequency bands: The FBG 
+uses band-pass filtering to construct subgraphs for each frequency 
+band and connects them into the final graph, preserving band- 
+specific fault characteristics.
+• Sensor importance varies by fault mode: The SR layer adaptively 
+measures and weights sensor contributions, emphasizing the most 
+relevant sensors for each fault type and reducing redundancy.
+• Energy shifts in pre-existing frequency components: The EA module 
+embeds energy-related features into each node, enabling the model 
+to capture and utilize energy variations in pre-existing frequency 
+components for accurate diagnosis.
+The architecture of FBG-SEANet is shown in Fig. 3. It contains two 
+main steps: (1) the graph construction step and (2) the graph repre­
+sentation step. In the graph construction step, multi-sensor signals are 
+collected from the system and OCF is conducted to remove the effect of 
+operational components. These preprocessed signals are then divided 
+into frequency bands, and a subgraph is constructed for each frequency 
+band, and the FBG is formed by connecting these subgraphs into the final 
+graph. In the graph representation step, the EA module is employed to 
+add energy features to nodes in input graphs, enriching the feature in­
+formation. The input graphs are then trained using graph convolution 
+layers, and the graph representation is pooled down using the SR layer, 
+enabling a representation that considers the importance between the 
+signals. Finally, fault classification is performed using the graph repre­
+sentation and a dense layer. The following subsections provide detailed 
+descriptions of each component in the proposed FBG-SEANet.
+3.2. Frequency-band graph construction
+In graph-level fault diagnosis, constructing graphs that accurately 
+represent the system's fault characteristics is of great importance. To 
+achieve this, graph construction progresses through two primary stages: 
+a signal preprocessing stage that removes operational components from 
+the signals, and a graph construction stage that employs band-pass filters 
+to create frequency band-specific graphs, which are then connected to 
+form the final graph.
+3.2.1. Operation component filtering
+In the signal preprocessing stage, OCF is conducted to remove the 
+effect of operational components, with a notch filter specifically tuned to 
+the required frequencies. Fig. 4 provides a graphical illustration of the 
+notch filter used in the OCF process. In this figure, fnull denotes the 
+average cutoff frequency, which is aligned with the system's operational 
+frequency. This allows OCF to reduce large operating components 
+within the signal, thereby emphasizing the relatively small fault char­
+acteristics. This process helps to reflect the system's fault characteristics 
+during the graph construction.
+3.2.2. Frequency-band graph
+Signals acquired from machinery systems exhibit fault characteris­
+tics distributed across different frequency bands. However, these char­
+acteristics are often not clearly expressed in raw signals due to the 
+overlapping of information from multiple frequency bands. To address 
+this issue, the proposed FBG is constructed by decomposing the acquired 
+signal into multiple frequency bands and creating a subgraph for each 
+band. The overall process of FBG construction is shown in Fig. 5.
+The construction of the FBG relies on determining two critical pa­
+rameters: the bandwidth (Bwidth) and the number of frequency bands (N). 
+These parameters are determined based on a generic kinematic guide­
+line designed to balance signal processing stability and computational 
+efficiency. The governing rule for selecting the bandwidth involves a 
+discrete step selection with safety margin. To ensure practical applica­
+bility and standardized resolution, the bandwidth is selected in 10 Hz 
+increments (e.g., 10, 20, 30 Hz). The specific value is chosen as the 
+largest multiple of 10 that satisfies a safety margin constraint relative to 
+the fundamental rotational frequency (fr) of the target system: 
+Bwidth ≤α⋅fr
+(8) 
+Here, α is a safety coefficient established as 0.7. This constraint (Bwidth ≈
+0.7⋅fr) ensures that the fundamental frequency (1×) is positioned 
+securely within a band, avoiding the edge distortions and spectral 
+leakage that can occur if Bwidth is too close to fr (e.g., if Bwidth ≈0.9⋅fr). 
+Moreover, this constraint guarantees that the fundamental component 
+(1×) and its subsequent harmonics (2×, 3×, etc.) are allocated to 
+distinct frequency bands. This separation prevents multiple harmonic 
+components from merging into a single node, thereby enabling the 
+model to explicitly learn the inter-harmonic dependencies which are 
+vital for diagnosing faults. Simultaneously, selecting the largest valid 
+multiple of 10 maximizes the bandwidth size, thereby minimizing the 
+total number of graph nodes and optimizing the computational cost for 
+model training. For instance, for a system operating at 3000 rpm (fr ≈50 
+Hz), 30 Hz was selected as the bandwidth. This setting effectively sep­
+arates the harmonics while maintaining a compact graph structure. This 
+bandwidth design provides a systematic frequency-band selection rule 
+based on the rotational characteristics of the target system rather than 
+an empirical hyperparameter choice. For a given stationary operating 
+condition, the bandwidth and number of frequency bands are system­
+atically determined from the corresponding rotational frequency. Thus, 
+the FBG construction is not tied to a single operating speed, but can be 
+adapted to different stationary operating conditions by recalculating the 
+bandwidth parameters according to the target rotational frequency.
+Once the bandwidth is determined, the number of frequency bands 
+(N) is derived based on a frequency threshold (Fthreshold). This threshold is 
+set to 1000 Hz to distinguish between the low-frequency range up to 
+1000 Hz, which requires fine-grained nodes to capture deterministic 
+fault features (e.g., harmonics and sidebands), and the high-frequency 
+range above 1000 Hz, which is dominated by broadband stochastic 
+features suitable for aggregation. Accordingly, the signal is divided into 
+N-1 bands of width Bwidth up to Fthreshold, and the final N-th band captures 
+all remaining high-frequency components.
+Utilizing the determined bandwidth (Bwidth) and the number of fre­
+quency bands (N), the detailed graph construction process is as follows:
+First, for each of the M channels of multi-modal signals preprocessed 
+by the OCF 
+{
+X1, X2,…XM
+}
+, band-pass filters are applied to divide each 
+Fig. 4. Notch filter illustration.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+5
+
+
+===== PAGE 6 =====
+
+signal into N frequency bands, resulting in a total of M × N signals {X11,
+X12, …X1N}, {X21, X22, …X2N}… {XM1, XM2, …XMN}, where M is the 
+number of sensors. Specifically, band-pass filters are applied to generate 
+the first N-1 bands, whereas a high-pass filter is employed for the N-th 
+band to retain all remaining high-frequency components. For example, if 
+the bandwidth is set to 30 Hz and the number of bands N is 34, the first 
+band ranges from 0 to 30 Hz, the second band from 30 to 60 Hz, and the 
+final 34th band includes all signals above 990 Hz. Next, a sliding win­
+dow is applied to segment each of these filtered signals into fixed-length 
+signal samples xk
+mn (m = 1, 2, 3, …, M; n = 1, 2, 3, …, N; k = 1, 2, 3, …, 
+K). K is the number of segmented samples. For each segment, a graph is 
+constructed, resulting in a total of K final graphs Gk
+total (k = 1, 2, 3, …, K). 
+For example, to construct G1
+total, the first segments x1
+mn (m = 1, 2, 3, …, M; 
+n = 1, 2, 3, …, N) are used. Specifically, using the first frequency band of 
+the M channels 
+{
+x1
+11, x1
+21, … x1
+M1
+}
+, the first subgraph g1
+1 is constructed 
+using the KNNGraph method (Li et al., 2022a). Similarly, using the 
+second frequency band 
+{
+x1
+12, x1
+22, … x1
+M2
+}
+, the second subgraph g1
+2 is 
+constructed, and this process is repeated until the N-th subgraph g1
+N is 
+constructed using 
+{
+x1
+1N, x1
+2N, … x1
+MN
+}
+. Finally, the N band-specific sub­
+graphs {g1
+1, g1
+2, …, g1
+N} are connected to form the final graph G1
+total for the 
+first segmentation. When connecting these subgraphs, nodes within the 
+same acquisition signal's frequency bands, such as 
+{
+x1
+11,x1
+12,… x1
+1N
+}
+, are 
+connected, and similarly for other channels. This is because, although 
+the signals are divided by frequency bands, they originate from a single 
+acquisition signal X1, and therefore, nodes representing different 
+frequency bands of the same acquisition signal can be connected by 
+edges. The resulting K final graphs Gk
+total (k = 1, 2, …, K) are then utilized 
+for model training and testing.
+The pseudocode of the proposed FBG construction is summarized 
+below: 
+Algorithm 1.
+FBG construction process
+Input: Multi-modal sensor signals preprocessed by the OCF (M sensors) Х =
+{
+X1,
+X2,…XM
+}
+, Number of frequency bands N, Bandwidth size Bwidth, Sliding window 
+length Wlen
+Output: The set of frequency-band graphs Gset =
+{
+G1
+total,G2
+total,… GK
+total
+}
+//Stage 1: Signal Decomposition
+for each sensor m ← 1 to M do
+for each frequency band n ← 1 to N do
+if n < N then
+Xmn ← BandPassFilter (Xm, cutoff frequency: (n-1)Bwidth, (n)Bwidth)
+else
+Xmn ← HighPassFilter (Xm, cutoff frequency: (N-1)Bwidth)
+end if
+end for
+end for
+//Stage 2: Segmentation and Graph Construction
+Segment all {Xmn} into K samples 
+{
+xk
+mn
+}
+using window Wlen
+for each sample segment k ← 1 to K do
+Initialize node set Vk, edge set Ek, and subgraph set Sk
+sub←∅
+//Step 2-1: Construct Band-specific Subgraphs
+for each frequency band n ← 1 to N do
+Define node features Uk
+n =
+{
+xk
+1n,xk
+2n,… xk
+Mn
+}
+(continued on next page)
+Fig. 5. The overall process of FBG construction.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+6
+
+
+===== PAGE 7 =====
+
+(continued)
+Generate intra-band edges Ek
+n using KNNGraph on Uk
+n
+Construct subgraph gk
+n =
+(
+Uk
+n,Ek
+n
+)
+Sk
+sub←Sk
+sub ∪
+{
+gk
+n
+}
+Update global sets: Vk←Vk ∪Uk
+n, Ek←Ek ∪Ek
+n
+end for
+//Step 2-2: Connect Subgraphs (Inter-band)
+for each sensor m ← 1 to M do
+for each frequency band n ← 1 to N-1 do
+Select node u ∈gk
+n (feature xk
+mn) and node v ∈gk
+n+1 (feature xk
+m(n+1))
+Add inter-band edge (u, v) to Ek
+end for
+end for
+Form final graph Gk
+total = (Vk,Ek) and add to Gset
+end for
+return Gset
+3.3. Sensitivity-aware readout layer
+The SR layer is constructed in the proposed SEANet using the self- 
+attention method to better reflect the importance among signals dur­
+ing the graph representation extraction process in graph-level fault 
+diagnosis. Fig. 6 shows the architecture of the SR layer. The attention 
+mechanism is implemented to reflect the differences in contributions 
+among the sensors which contribute differently depending on the type of 
+fault. For implementation, in the SR layer, attention scores are assigned 
+to nodes and spatial attention is imposed. Following a standard multi- 
+head attention formulation, the SR layer first computes unnormalized 
+attention scores from the query and key representations (Wang et al., 
+2025b). The scoring function for the attention mechanism is as follows: 
+scoring function = QKT̅̅̅̅̅
+dk
+√
+(9) 
+where Q and K refer to the Query and Key vector in the attention 
+mechanism, respectively, and Q ∈Rn×dk, K ∈Rn×dk where dk refers to the 
+dimension of the K vector. Then, the attention weights can be obtained 
+by feeding the score (zi) into the Softmax function. 
+Softmax(zi) =
+exp(zi)
+∑n
+j=1 exp(zi)
+(10) 
+In the multi-head attention mechanism, the attention computation is 
+independently performed for each head using its own query, key, and 
+value representations, and the resulting head-wise attention outputs are 
+then fused to obtain the final attention weight (Wang et al., 2025b). In 
+the proposed SR layer, the final attention weights are derived by aver­
+aging the weights calculated by each head, where h denotes the number 
+of attention heads in the multi-head attention mechanism. 
+Multi-head attention weight = 1
+h
+∑
+h
+i=1
+attention weight of headi
+(11) 
+Based on the final attention weights, weighted node representations 
+are aggregated in the readout layer to form the final graph representa­
+tion, thereby enabling graph representation considering signal 
+importance.
+3.4. Energy assist module
+In order to diagnose some faults that have energy shift as a fault 
+characteristic, the EA module is implemented in the proposed SEANet. 
+These faults are not characterized by unique fault frequencies but rather 
+by energy variations in pre-existing frequency bands, making them more 
+difficult to diagnose. To effectively capture such energy variation, the 
+root mean square (RMS) is utilized, as it is more effective than other 
+statistical measures in representing the overall energy level of a signal.
+Given an input graph, the EA module computes the RMS value from 
+the time-domain signal of each node and embeds the energy information 
+into the graph node features. Specifically, for node i with band-pass 
+filtered signal xi of length L, the RMS value is computed as: 
+RMSi =̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅
+1
+L
+∑
+L
+j=1
+x2
+i,j
+√
+√
+√
+√
+(12) 
+The scalar RMS value is then projected into a d-dimensional (d = 16) 
+energy feature vector through a dense layer: 
+ei = ReLU(wRMSi + b)
+(13) 
+where w and b are learnable parameters. Finally, the energy feature is 
+added to the original node feature to produce the EA-enriched node 
+representation: 
+hʹ
+i = hi + ei
+(14) 
+where hi is the original node feature obtained from the FBG construction 
+and hʹ
+i is the updated representation used as input to the subsequent GCN 
+layers. In this way, the EA module bridges the time-series and graph 
+domains by embedding signal energy information into the graph node 
+features prior to graph convolution. Fig. 7 shows the illustrations of the 
+EA module. Fig. 7 (a) shows the architecture of the EA module. Given an 
+input graph, the EA module computes the RMS value of each node's 
+signal, and these values are then passed through a dense layer to extract 
+energy features for each node. Fig. 7 (b) compares fault-frequency-band 
+signals under normal and unbalance fault conditions. Each signal is 
+obtained by band-pass filtering to 90–120 Hz. Since an unbalance fault 
+induces an energy shift in the pre-existing rotational-frequency sideband 
+near 110 Hz, the fault signal exhibits higher amplitude within this band. 
+These energy variations are extracted as features by the EA module and 
+embedded into each node enabling the graph to effectively represent 
+fault characteristics reflected in energy shift of pre-existing frequency 
+components.
+Fig. 6. Architecture of the SR layer.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+7
+
+
+===== PAGE 8 =====
+
+3.5. Model architecture and optimization
+The detailed architecture and hyperparameter specifications of the 
+proposed FBG-SEANet are summarized in Table 1. As illustrated in 
+Fig. 3, the framework begins by enhancing the constructed FBG using 
+the EA module, which embeds energy-shift features (RMS) into the 
+nodes. The enriched graph is then processed through a hierarchical 
+backbone consisting of two sequential blocks, each comprising a GCN 
+layer and a pooling layer. To capture both local and global fault char­
+acteristics, the outputs from each block are individually processed by SR 
+layers and then fused via element-wise summation. Finally, the fused 
+representation is classified through a dense layer. In this study, three 
+parameters are optimized for the proposed method: 1) hidden channels 
+of the GCN layer, 2) pooling ratio for training the graphs, 3) number of 
+attention heads in SR layer. For the first two parameters related to 
+training, the hidden channels of the GCN layer and the pooling ratio in 
+the pooling layer, were set to 1024 and 0.5, respectively. The hidden 
+channels and pooling ratio were optimized using a grid search, with the 
+hidden channel values set to 256, 512, 1024, and 2048, and the pooling 
+ratio values set to 0.7, 0.6, 0.5, 0.4, and 0.3, respectively. For the 
+number of heads in the SR layer, the performance was evaluated by 
+varying the value from 2 to 6 in increments of 1. The value was set to 4, 
+as no significant performance improvement was observed beyond this 
+point. During the training process, the maximum number of epochs was 
+set to 100, with early stopping applied after 10 epochs and a batch size 
+of 64. The GCN layers parameters were updated using a stochastic 
+gradient descent (SGD) optimizer. The initial learning rate was set as 
+0.01 with a momentum of 0.9.
+4. Validation
+The proposed FBG-SEANet was validated using three datasets: the 
+KAIST rotating machinery dataset, the servo motor experimental data­
+set, and the UAM system experimental dataset. Each dataset was used to 
+compare the performance of the proposed method against graph-based 
+and state-of-the-art (SOTA) models. Additionally, analyses were con­
+ducted focusing on the unique characteristics of the dataset, such as fault 
+modes and signal types. This enables a comprehensive evaluation of the 
+algorithm's performance and interpretability. Table 2 shows the char­
+acteristics and corresponding analysis of each dataset. The experiments 
+were conducted on a desktop system running Windows 11, equipped 
+with a 12th Gen Intel Core i7-12700KF CPU and an NVIDIA GeForce 
+RTX 3090 GPU. All implementations were developed using Python 3.8 
+and the PyTorch library. The detailed experimental settings and 
+computational details for each case study are summarized in Table 3. 
+The diagnosis accuracies of the proposed FBG-SEANet model and 
+comparative models were calculated by averaging the results over five 
+independent runs. All reported results for the test data are presented as 
+the mean and standard error.
+4.1. Case study 1: rotating machinery dataset
+In this study, the diagnosis performance between the proposed 
+model and conventional models was compared. Discussions on the re­
+sults of graph similarity analysis, an ablation study, and feature visu­
+alization were followed to verify the effectiveness of the proposed 
+Fig. 7. Illustrations of the EA module: 
+(a) module architecture (b) fault-frequency-band signals comparison.
+Table 1 
+Model architecture specifications and hyperparameter settings.
+Hyperparameter
+Search space
+Optimized value
+1. Network Architecture
+GCN layer – hidden channels
+{256, 512, 1024, 2048}
+1024
+Pooling layer – pooling ratio
+{0.3, 0.4, 0.5, 0.6, 0.7}
+0.5
+SR layer – number of heads
+{2,3,4,5,6}
+4
+2. Training Settings
+Optimizer
+-
+SGD
+Initial learning rate
+-
+0.01
+Momentum
+-
+0.9
+Batch size
+-
+64
+Max epochs
+-
+100 (Early stopping: 10)
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+8
+
+
+===== PAGE 9 =====
+
+method. In particular, the discussion of this case study includes valida­
+tion on the FBG and the EA module. This is because the dataset includes 
+fault modes with relatively fewer distinctive fault characteristics, such 
+as unbalance faults and misalignment faults, as well as fault modes with 
+clear unique fault frequencies, such as bearing faults.
+4.1.1. Experimental setup and FBG parameter settings
+The KAIST rotating machinery testbed is open-source dataset pro­
+vided by the Korea Advanced Institute of Science and Technology 
+(KAIST) (Jung et al., 2023). Fig. 8 shows the overview of the KAIST 
+rotating machinery testbed. The testbed operates at a speed of 3010 rpm, 
+mainly consists of one brake, two bearing housings, rotors with a mass 
+wheel, gearbox, torque meter, and a motor. The dataset contains four 
+different fault modes: inner race fault (BPFI), outer race fault (BPFO) in 
+bearing housing A, rotor unbalance faults and shaft misalignment faults. 
+Vibration and current signals are collected under three different load 
+conditions. Specifically, vibration data were measured in the x and 
+y-direction at two bearing housings. Vibration and current signals are 
+collected for all load conditions with a sampling rate of 25.6 kHz. The 
+preprocessed sensor signals were segmented using a sliding window 
+with a window size of 512 for graph construction. For each fault mode 
+and the normal condition, 7000 samples were collected, resulting in a 
+total of 35,000 samples. The dataset was divided into training, valida­
+tion, and test sets in a 50:25:25 ratio. Table 4 summarizes the parameter 
+settings used for the FBG construction. The parameters were determined 
+based on the operating speed (fr ≈50.1 Hz). The bandwidth (Bwidth) was 
+set to 30 Hz, which is the largest multiple of 10 satisfying the safety 
+Table 2 
+Dataset characteristics and corresponding analyses for each case study.
+Case study
+Dataset characteristics
+Validation objective
+Analysis
+1
+Includes fault modes with 
+relatively fewer distinctive fault 
+characteristics as well as fault 
+modes with clear unique fault 
+frequencies
+FBG-SEANet
+(4.1.2) Accuracy comparison
+(4.1.4) Ablation study
+FBG
+(4.1.3) Graph similarity analysis
+(4.1.4) Graph construction methods comparison
+EA module
+(4.1.5) Feature visualization
+2
+Includes both electrical and 
+mechanical fault modes
+FBG-SEANet
+(4.2.2) Accuracy comparison
+SR layer
+(4.2.3) Attention score analysis
+FBG-SEANet
+(4.2.4) Filter parameter analysis
+3
+Includes more diverse modal 
+signals acquired from a more 
+complex system
+FBG-SEANet
+(4.3.2) Accuracy comparison
+(4.3.3) Computational comparison
+Table 3 
+Experimental settings and computational details for each case study.
+Case study 1
+Case study 2
+Case study 3
+Experiment hardware setting
+12th Gen Intel Core i7-12700KF CPU 
+NVIDIA GeForce RTX 3090 GPU 
+Python 3.8 and the PyTorch library
+Number of sensors
+5
+4
+7
+Number of nodes per graph
+170
+136
+182
+Training samples
+17500
+5080
+5000
+Training time (min)
+180
+40
+60
+Inference time per sample (ms)
+3
+2
+3
+Fig. 8. System overview of the KAIST rotating machinery testbed.
+Table 4 
+Parameter settings for the FBG construction.
+Parameter
+Equation
+Value
+Rotational speed
+-
+3010 rpm
+Rotating frequency (fr)
+-
+50.1 Hz
+Safety coefficient (α)
+-
+0.7
+Frequency threshold (Fthreshold)
+-
+1000
+Bandwidth (Bwidth)
+Bwidth ≤α⋅fr
+30
+Number of frequency bands (N)
+N = Fthreshold/Bwidth + 1
+34
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+9
+
+
+===== PAGE 10 =====
+
+margin condition relative to the fundamental frequency (3010/60 × 0.7 
+≈35.1 Hz). Consequently, the number of frequency bands (N) was set to 
+34, calculated by taking the integer part of 1000/30 and adding 1, to 
+sufficiently cover the frequency range up to 1000 Hz.
+4.1.2. Comparison study
+Table 5 shows the diagnostic accuracy comparison between the FBG- 
+SEANet and other graph-level approaches. The comparison includes 
+conventional methods commonly used in graph-based model training 
+GCN, GAT, Graph Isomorphic Networks (GIN), and GraphSAGE com­
+bined with the KNNGraph graph construction method. In addition, 
+SOTA graph-level models such as MMHGAT (Zhang et al., 2023), 
+A-TSGNN (Wang et al., 2023), TFSG (Wang et al., 2024a), and HTSFG 
+(Sun et al., 2026) were employed. Upon examining the results, the 
+FBG-SEANet shows the highest accuracy, surpassing both existing con­
+ventional methods and SOTA models. Notably, conventional methods 
+exhibited lower performance with accuracies ranging from 78% to 80%. 
+In contrast, SOTA models, including GraphSAGE, demonstrated perfor­
+mance exceeding 94%. However, the proposed method outperformed all 
+with an accuracy of 96.64%, showing higher performance. These results 
+indicate that the graph construction method of the proposed approach 
+accurately reflects the system's fault characteristics and that the model 
+effectively learns these characteristics, thereby demonstrating the 
+effectiveness of the proposed method.
+4.1.3. FBG analysis through graph similarity score
+This section evaluates the effectiveness of the proposed FBG in rep­
+resenting the system's fault characteristics for graph-level fault diag­
+nosis. To analyze the FBG effectiveness in capturing the system's fault 
+characteristics, a similarity score is used. This score measures the simi­
+larity between any two graphs by counting their number of common 
+edges. A 'common edge’ is defined as an edge that connects an identical 
+pair of nodes present in both graphs being compared. The total count of 
+these edges is then used as the score value. 
+Similarity score = COUNT(G1, G2)
+(15) 
+Here, COUNT denotes the operation that count the number of common 
+edges between two graphs G1 and G2. When a fault occurs in the system, 
+the graph changes compared to normal situation. These changes can be 
+reflected in the similarity score. The extent of the change depends on 
+how prominently the characteristics of a specific fault are represented. 
+Fault modes with significant characteristics result in lower similarity 
+scores compared to those with less characteristics. Fig. 9 shows the 
+similarity score result between the graphs for four fault modes (inner 
+race fault, outer race fault, misalignment, unbalance) and the normal 
+graph in the dataset. To measure the similarity score, 300 graphs were 
+randomly extracted for the normal state and each fault mode from the 
+training dataset. The similarity scores between the 300 graphs of each 
+fault mode and the 300 normal graphs were calculated and averaged. 
+The results showed that the bearing inner race fault had the lowest 
+similarity score at 50.81, followed by the outer race fault with a simi­
+larity score of 52.77, which is higher than the inner race fault. 
+Misalignment faults and unbalance faults, which are not bearing faults, 
+exhibited significantly higher similarity scores of 57.41 and 58.83, 
+respectively.
+The following analysis results explain why different fault modes have 
+different levels of similarity scores. Bearing faults have distinct fault 
+frequencies, leading to a significant decrease in similarity scores. In 
+contrast, misalignment and unbalance faults lack unique fault fre­
+quencies, resulting in minor graph changes and a slight decrease in 
+similarity scores compared to the normal state. Furthermore, even 
+Table 5 
+Accuracy comparison results.
+Type
+Model
+Accuracy (%)
+Conventional
+GCN
+79.18 ± 1.04
+GAT
+82.96 ± 0.36
+GIN
+89.22 ± 0.18
+GraphSAGE
+92.70 ± 0.35
+SOTA
+MMHGAT (Zhang et al., 2023)
+95.68 ± 0.47
+A-TSGNN (Wang et al., 2023)
+79.87 ± 0.73
+TSFG (Wang et al., 2024a)
+92.20 ± 0.64
+HTSFG (Sun et al., 2026)
+95.58 ± 0.41
+Proposed
+FBG-SEANet
+96.64 ± 0.49
+Fig. 9. Similarity score comparison for each fault mode: 
+(a) Inner race fault, (b) Outer race fault, (c) Misalignment fault, (d) Unbalance fault.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+10
+
+
+===== PAGE 11 =====
+
+within the same category of bearing faults, the inner race fault has a 
+lower similarity score than the outer race fault. This is because, unlike 
+the outer race fault, the inner race fault not only has unique fault fre­
+quencies but also includes modulation signals, resulting in more 
+distinctive graphs than those of the outer race fault (Smith and Randall, 
+2015). As the graph similarity analysis results align well with the actual 
+fault characteristics, it can be concluded that the proposed FBG effec­
+tively reflects the system's fault.
+4.1.4. Graph construction methods comparison
+In this section, the proposed FBG is compared with other commonly 
+used graph construction methods for system-level fault diagnosis, 
+including KNNGraph, RadiusGraph, and PathGraph (Li et al., 2022a). 
+These conventional methods typically use raw sensor signals directly for 
+node embedding. Table 6 shows the diagnostic performance of these 
+conventional methods and the proposed FBG, all trained using the same 
+GCN model to ensure a fair comparison. The results show that the model 
+trained with the proposed FBG achieves diagnosis accuracy exceeding 
+90%, whereas the conventional graph construction methods reach only 
+around 80%. This performance gap arises because directly using raw 
+sensor signals for node construction fails to effectively encode 
+fault-specific characteristics into the graph. In particular, operational 
+components tend to dominate the raw sensor signals, making it difficult 
+for subtle fault features to stand out. Moreover, some fault characteris­
+tics are distributed across multiple frequency bands, but in raw signals 
+these components are often overlapped. As a result, such 
+frequency-domain information cannot be effectively captured in the 
+graph when using raw signals alone. In contrast, the proposed FBG 
+effectively captures these subtle and frequency-distributed fault features 
+in the graph, which leads to its improved diagnostic performance.
+4.1.5. Ablation study and feature visualization
+An ablation study was conducted to demonstrate the contribution of 
+each component of the proposed method; the results are shown in 
+Table 7. The results confirm that the proposed FBG, EA module and SR 
+layer contribute to improved diagnosis accuracy. These results should be 
+interpreted not only as numerical performance comparisons, but also as 
+functional validation of the framework design. Replacing the KNN graph 
+with the proposed FBG increases the diagnosis accuracy from 90.0% in 
+Model 1 to 92.1% in Model 2, demonstrating the benefit of preserving 
+fault-related frequency structure in the graph representation. The SR 
+layer further improves the accuracy from 92.1% in Model 2 to 93.7% in 
+Model 3 without the EA module, and from 95.3% in Model 4 to 96.6% in 
+Model 5 with the EA module. These consistent gains indicate that the SR 
+layer contributes to diagnosis performance by emphasizing fault- 
+relevant node information during graph-level readout. This role is 
+important because uniform aggregation can dilute diagnostically infor­
+mative sensor-band components with less relevant nodes. Finally, the 
+comparison between Model 3 and Model 5 shows that the EA module 
+improves the accuracy from 93.7% to 96.6%, confirming its effective­
+ness for faults characterized by energy shifts.
+To further analyze the effectiveness of the EA module, t-distributed 
+stochastic neighbor embedding (t-SNE) map visualization was also 
+performed. The feature visualization for Model 3 and Model 5 are shown 
+in Fig. 10(a) and (b), respectively. The Model 3 t-SNE visualization in 
+Fig. 10(a), shows that the fault modes are generally well classified. 
+However, differences between misalignment, unbalance, and normal are 
+not evident. This is because misalignment and unbalance do not have 
+unique fault frequencies and are characterized by changes in the energy 
+of rotational frequencies, making their fault characteristics relatively 
+weak. As a result, in the case of bearing faults with clear unique fault 
+frequencies, the features are distinctly separated, whereas the features of 
+misalignment and unbalance faults are closely distributed with normal 
+features. In contrast, the t-SNE map for Model 5, depicted in Fig. 10(b), 
+shows clear differences between misalignment, unbalance, and normal. 
+This indicates that the EA module, which adds energy features of signals, 
+helps clearly distinguish misalignment and unbalance faults from 
+normal faults. In other words, it demonstrates that the EA module is 
+necessary to clearly differentiate even those faults that do not have 
+unique fault frequencies but are characterized by changes in the energy 
+of pre-existing rotational frequencies. Furthermore, the training times of 
+Model 3 and Model 5 showed no notable difference, indicating that the 
+EA module introduces negligible computational overhead while effec­
+tively improving the diagnosis of energy-shift-type faults. This is 
+because the EA module adds only lightweight node-wise operations, 
+namely the computation of a scalar root-mean-square value from the 
+time-domain signal and its projection through a single dense layer. In 
+contrast, the dominant computational cost of the overall framework 
+arises from the graph convolution layers and the multi-head attention 
+mechanism in the SR layer. Therefore, the EA module provides a 
+favorable practical trade-off by improving fault separability without 
+meaningfully increasing the computational cost.
+4.2. Case study 2: motor dataset
+In this study, diagnosis accuracies of the proposed model and com­
+parison models were evaluated. Next, the results of attention score 
+analysis were discussed to verify the effectiveness of the SR layer. The 
+reason is that this dataset includes both electrical and mechanical fault 
+modes. It is known that vibration signals are more sensitive for detecting 
+mechanical faults, while current signals are more sensitive for detecting 
+electrical faults (Gangsar and Tiwari, 2020). Therefore, in this section, 
+using the motor dataset, the role of the SR layer was investigated 
+through self-attention scores, and the signals with high attention scores 
+for each fault mode were identified. The multi-head fusion strategy 
+adopted in the SR layer was also examined by comparing three different 
+fusion approaches. Additionally, to assess the robustness of the proposed 
+method to its signal processing settings, a sensitivity analysis was con­
+ducted on the notch filter and bandwidth selection used in the FBG 
+construction.
+4.2.1. Experimental setup and FBG parameter settings
+The motor system depicted in Fig. 11 is a surface-mounted perma­
+nent magnet synchronous motor (PMSM) with a rated power of 200 W, a 
+torque capacity of 5.5 Nm, and 20 poles. Position control was imple­
+mented using an incremental encoder offering a resolution of 4000 
+pulses per revolution. Stator current signals from the three phases were 
+acquired via Tektronix A622 current probes at a sampling rate of 
+128,000/s. To evaluate fault diagnosis performance, three fault types 
+were artificially introduced: a stator inter-turn short (SIS) as an elec­
+trical fault, and misalignment and bearing faults as representative 
+Table 6 
+Comparison results of graph construction methods.
+Graph type
+Train model
+Accuracy (%)
+KNNGraph
+GCN
+79.18 ± 1.04
+RadiusGraph
+80.9 ± 7.34
+PathGraph
+80.6 ± 6.59
+FBG (Proposed)
+92.2 ± 2.22
+Table 7 
+Ablation study results.
+Model type
+Graph type
+w/o SR 
+layer
+w/o EA 
+module
+Accuracy 
+(%)
+Model 1
+KNNGraph (Li et al., 
+2022a)
+X
+X
+90
+Model 2
+Frequency-band
+X
+X
+92.1
+Model 3
+Frequency-band
+O
+X
+93.7
+Model 4
+Frequency-band
+X
+O
+95.3
+Model 5 
+(Proposed)
+Frequency-band
+O
+O
+96.6
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+11
+
+
+===== PAGE 12 =====
+
+mechanical faults. The SIS fault was generated by winding exposed 
+stator coils together, whereas the misalignment condition was emulated 
+by vertically offsetting the shaft by 2 mm. For the operating conditions, 
+the motor was rotated at 3000 rpm with a torque setting of 5.5 Nm. The 
+preprocessed sensor signals were segmented using a sliding window 
+with a length of 512. As a result, 2540 samples were generated for each 
+fault mode and normal condition, yielding a total of 10,160 samples. 
+These data were split into training, validation, and test sets in a ratio of 
+50:25:25.
+Table 8 summarizes the parameter settings used for the FBG con­
+struction. The parameters were determined based on the operating 
+speed (fr ≈50 Hz). The bandwidth (Bwidth) was set to 30 Hz, which is the 
+largest multiple of 10 satisfying the safety margin condition relative to 
+the fundamental frequency (3000/60 × 0.7 ≈35 Hz). Consequently, the 
+number of frequency bands (N) was set to 34, calculated by taking the 
+integer part of 1000/30 and adding 1, to sufficiently cover the frequency 
+range up to 1000 Hz.
+4.2.2. Comparison study
+Table 9 shows the comparison results. For a fair comparison, the 
+same conventional and SOTA models used in case study 1 were 
+employed. Upon examining the results, the FBG-SEANet achieved the 
+highest accuracy, surpassing both existing conventional methods and 
+SOTA models. Notably, conventional models showed lower performance 
+with accuracies around 80%, while SOTA models, including GraphS­
+AGE, demonstrated performance exceeding 94%. The proposed method 
+outperformed all comparison models, achieving an accuracy of 96.43%. 
+These results indicate that the proposed graph construction method 
+reflects the system's fault characteristics and that the model effectively 
+learns these characteristics, thereby demonstrating the effectiveness of 
+the proposed method.
+To further analyze the diagnosis results, the confusion matrix and t- 
+SNE visualization of the proposed FBG-SEANet are presented in Fig. 12. 
+Fig. 10. t-SNE visualization for two different models: (a) Model 3, (b) Model 5.
+Fig. 11. System overview of the SNU motor testbed.
+Table 8 
+Parameter settings for the FBG construction.
+Parameter
+Equation
+Value
+Rotational speed
+-
+3000 rpm
+Rotating frequency (fr)
+-
+50 Hz
+Safety coefficient (α)
+-
+0.7
+Frequency threshold (Fthreshold)
+-
+1000
+Bandwidth (Bwidth)
+Bwidth ≤α⋅fr
+30
+Number of frequency bands (N)
+N = Fthreshold/Bwidth + 1
+34
+Table 9 
+Accuracy comparison results.
+Type
+Model
+Accuracy (%)
+Conventional
+GCN
+82.70 ± 4.08
+GAT
+83.16 ± 6.04
+GIN
+77.84 ± 12.49
+GraphSAGE
+95.71 ± 0.36
+SOTA
+MMHGAT (Zhang et al., 2023)
+95.24 ± 1.37
+A-TSGNN (Wang et al., 2023)
+94.07 ± 1.68
+TSFG (Wang et al., 2024a)
+94.94 ± 1.86
+HTSFG (Sun et al., 2026)
+94.31 ± 5.31
+Proposed
+FBG-SEANet
+96.43 ± 0.31
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+12
+
+
+===== PAGE 13 =====
+
+As shown in Fig. 12(a), the proposed method achieved high classifica­
+tion performance across all fault modes, with the bearing fault being 
+classified without misclassification. The few misclassifications were 
+mainly observed among the normal, misalignment, and SIS classes, 
+indicating that these classes contain partially overlapping signal char­
+acteristics. Fig. 12(b) shows that the learned graph-level features form 
+distinguishable clusters for each fault mode. In particular, the bearing 
+fault cluster is clearly separated from the other classes, which is 
+consistent with the confusion matrix result. These visualization results 
+provide a more detailed interpretation of the diagnosis results by 
+showing both class-wise diagnostic performance and feature-level 
+separability.
+4.2.3. SR layer analysis
+The proposed method includes an SR layer to effectively assign 
+importance to different signals according to the fault mode. To analyze 
+its effectiveness, the self-attention scores of all nodes were examined for 
+each fault mode, where a higher score indicates a greater contribution to 
+the diagnosis. Table 10 ranks the signal types by their diagnosis 
+importance, determined by the frequency of their corresponding nodes 
+appearing among the top 20 nodes with the highest attention scores. The 
+signal ranked first is the one most frequently identified as critical for 
+diagnosing a specific fault. The results show that the SIS fault, an elec­
+trical fault, exhibits high attention scores for current signals while me­
+chanical faults such as misalignment and bearing faults show the highest 
+attention scores for a vibration signal. These results indicate that the SR 
+layer effectively reflects the importance of signals according to fault 
+modes in graph representation. This role is particularly important in 
+graph-level fault diagnosis, because the readout stage compresses node- 
+level information into a single graph embedding. If all nodes are 
+aggregated uniformly, diagnostically important information from highly 
+sensitive sensor-band components can be diluted by less informative 
+nodes. By assigning fault-dependent importance scores before aggrega­
+tion, the SR layer enables the final graph representation to preserve the 
+most relevant fault characteristics while suppressing redundant contri­
+butions. Therefore, the contribution of the SR layer extends beyond a 
+simple weighting operation; it functions as a fault-sensitive graph-level 
+readout mechanism and an interpretable node-importance estimator. 
+This leads to a more discriminative and physically interpretable graph 
+representation for fault diagnosis.
+The interpretability of the attention scores is closely related to the 
+multi-head fusion strategy used in the SR layer. To examine this, three 
+fusion strategies were compared: (1) averaging (proposed), (2) concat­
+enation followed by linear projection, and (3) learnable weighted fusion. 
+A comparison of the multi-head fusion strategies used in the SR layer is 
+presented in Fig. 13. The corresponding accuracies are 96.43%, 94.37%, 
+and 96.61%, respectively. Importantly, the role of the SR layer differs 
+from that of standard multi-head attention in transformers. In standard 
+multi-head attention, concatenation and projection are used to fuse 
+head-wise feature representations. In contrast, the SR layer aggregates 
+head-wise attention weights into a single scalar importance score for 
+each node. Under this setting, averaging provides a direct and 
+parameter-free way to aggregate head-wise evidence into a unified 
+node-importance score.
+The comparison results show that averaging substantially out­
+performs concatenation-projection, suggesting that introducing an 
+additional feature-space transformation is less suitable for this scalar 
+weight aggregation step. Such a design may also increase the risk of 
+overfitting, particularly in relatively small-graph settings, by adding 
+unnecessary capacity to a module whose role is only to produce a scalar 
+importance score. Learnable weighted fusion achieves a slightly higher 
+accuracy (+0.18%), but this gain is marginal relative to the additional 
+learnable parameters and computational cost introduced during 
+training. Therefore, averaging was adopted as the default fusion strategy 
+because it offers a favorable trade-off among accuracy, simplicity, effi­
+ciency, and interpretability.
+4.2.4. Sensitivity analysis of filter parameters
+The proposed FBG construction relies on two signal-processing 
+stages: the OCF with a notch filter and band-pass filtering with a spec­
+ified bandwidth. To examine the sensitivity of the proposed method to 
+these filter parameters, two analyses were conducted. Table 11
+Fig. 12. Visualization of fault diagnosis results for the motor system dataset: 
+(a) confusion matrix, (b) t-SNE visualization.
+Table 10 
+Results of the self-attention score analysis.
+1
+2
+3
+4
+SIS (Electric fault)
+Current_V
+Current_U
+Current_W
+Vibration_X
+Misalignment (Mechanical fault)
+Vibration_X
+Current_U
+Current_W
+Current_V
+Bearing (Mechanical fault)
+Vibration_X
+Current_V
+Current_W
+Current_U
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+13
+
+
+===== PAGE 14 =====
+
+summarizes the sensitivity analysis results for the filter parameters, and 
+Fig. 14 illustrates the comparison of diagnosis accuracy across different 
+bandwidth settings.
+First, the effect of the notch filter was evaluated by comparing the 
+proposed method with and without the OCF. As shown in Table 11, 
+removing the OCF reduces the accuracy from 96.43% to 82.85%. This 
+can be attributed to the dominant operational components in the raw 
+signals, which mask subtle fault-related features across the frequency 
+bands and make it more difficult for the resulting FBG to preserve 
+diagnostically useful fault characteristics. The center frequency of the 
+notch filter is determined by the known operating frequency of the 
+target system, rather than being arbitrarily selected. Therefore, the OCF 
+improves fault sensitivity while limiting the risk of suppressing fault- 
+relevant frequency components.
+Second, the sensitivity to bandwidth selection was examined based 
+on the bandwidth selection rule introduced in Section 3.2.2. For the 
+system considered in this case study, 30 Hz was selected as the band­
+width, and additional experiments were conducted by varying the 
+bandwidth from 10 Hz to 50 Hz in increments of 10 Hz to evaluate the 
+robustness. As shown in Table 11 and Fig. 14, the selected bandwidth of 
+30 Hz achieves the highest accuracy.
+When the bandwidth is smaller than the selected setting, such as 10 
+Hz and 20 Hz, two issues arise. First, narrower band-pass filters can lead 
+to longer impulse responses relative to the analysis window, which may 
+introduce spectral leakage and transition-band distortion. This can 
+reduce the fidelity of the filtered signal and lead to information loss in 
+the node features. Second, smaller bandwidths produce a significantly 
+larger number of graph nodes, with 404 nodes at 10 Hz compared with 
+136 nodes at 30 Hz. This increases model complexity and potentially 
+increases the risk of overfitting.
+Conversely, when the bandwidth exceeds the selected range, such as 
+40 Hz and 50 Hz, each frequency band spans a wider spectral range, 
+causing multiple harmonic components to be merged into a single node. 
+As a result, fault-characteristic energy becomes diluted across a broader 
+band, reducing the discriminative power of each node feature. This 
+weakens the model's ability to capture inter-harmonic dependencies that 
+are important for distinguishing different fault modes. Overall, the re­
+sults indicate that the bandwidth selection rule is appropriate for pre­
+serving diagnostically relevant spectral structure while maintaining a 
+compact graph representation.
+4.3. Case study 3: UAM system dataset
+In this study, a comparison of accuracy between the proposed model 
+and comparison models was conducted. The purpose of this case study 
+was to verify the effectiveness of the proposed method by utilizing more 
+diverse multi-modal signals acquired from a more complex system 
+compared to the previous case studies.
+4.3.1. Experimental setup and FBG parameter settings
+The UAM testbed shown in Fig. 15 includes three BLDC motors with 
+blades, a tilting linkage with an actuator, and a wing. Specifically, the 
+tilting mechanism used in the lift and cruise mode is implemented 
+through a linkage with an actuator, allowing the front tilt motor to tilt 
+from 0◦to 90◦. The side motor at the wingtip and the back motor are not 
+tiltable that are used for assistance during the ascent. The pylon 
+composed of tilt motor, back motor, and tilting mechanism is connected 
+to the lower part of the wing via bolt-type load cells, enabling the 
+measurement of the load acting between the pylon and the wing. The T- 
+motor AT 7224 KV190 with a maximum thrust of 17.7 kg is used as the 
+BLDC motor and the wings are made of woven CFRP(carbon fiber/ 
+epoxy) composite material and have two ribs attached internally.
+The testbed is equipped with current and vibration sensors, strain 
+gauges, and load sensors, allowing for the acquisition of various multi- 
+modal signals. DEWESOFT-R8 IOLITE DAQ was used to collect these 
+multi-modal signals, with a sampling rate set to 10,000 Hz. The acquired 
+data included one channel of current signals of the tilt motor, one 
+channel of single axis vibration signal generated by the tilt motor, and 
+strain changes in the wing during operation obtained through two strain 
+gauges. Additionally, two bolt-type load sensors connecting the pylon 
+and the wing were used to capture load changes between the pylon and 
+the wing during operation.
+Experiments simulating the operation of the UAM were conducted, 
+Fig. 13. Comparison of multi-head fusion strategies in the SR layer.
+Table 11 
+Sensitivity analysis results for filter parameters.
+Analysis
+Type/Bandwidth (Bwidth)
+Accuracy (%)
+OCF ablation
+With OCF (proposed)
+96.43 ± 0.31
+Without OCF
+82.85 ± 4.27
+Bandwidth sensitivity analysis
+10 Hz
+87.07 ± 0.90
+20 Hz
+90.67 ± 0.67
+30 Hz (proposed)
+96.43 ± 0.31
+40 Hz
+94.27 ± 0.30
+50 Hz
+95.07 ± 0.42
+Fig. 14. Comparison of diagnosis accuracy across different bandwidth settings.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+14
+
+
+===== PAGE 15 =====
+
+where the three motors rotated at a constant speed of 4000 rpm, and the 
+tilt motor followed a triangular drive profile by tilting from 0◦to 90◦and 
+then returning to 0◦. Additionally, the experiments were performed with 
+two different system fault modes, including inter-turn short fault in the 
+tilt motor and demagnetization fault. The preprocessed sensor signals 
+were segmented using a sliding window of length 512, resulting in 2500 
+samples for the normal condition and for each fault mode, yielding a 
+total of 10,000 samples. These data were split into training, validation, 
+and test sets in a ratio of 50:25:25.
+Table 12 summarizes the parameter settings used for the FBG con­
+struction. The parameters were determined based on the operating 
+speed (fr ≈66.7 Hz). The bandwidth (Bwidth) was set to 40 Hz, which is 
+the largest multiple of 10 satisfying the safety margin condition relative 
+to the fundamental frequency (4000/60 × 0.7 ≈46.7 Hz). Conse­
+quently, the number of frequency bands (N) was set to 26, calculated by 
+taking the integer part of 1000/40 and adding 1, to sufficiently cover the 
+frequency range up to 1000 Hz.
+4.3.2. Comparison study
+Table 13 presents the comparison results. For a fair comparison, the 
+same classical models and state-of-the-art models used in Case Studies 1 
+and 2 were employed. Upon examining the results, the FBG-SEANet 
+achieved the highest accuracy, surpassing both existing conventional 
+methods and SOTA models. Specifically, the conventional classical 
+models showed relatively high performance with accuracies above 95%, 
+and except for the A-TSGNN model, SOTA models demonstrated per­
+formances exceeding 96%. However, the proposed method out­
+performed all with an accuracy of 98.68%. Notably, the proposed 
+method had the lowest variation at 0.23 among the comparison models, 
+Fig. 15. System overview of the SNU UAM testbed: 
+(a) testbed components (b) tilt motor (c) sensor signal acquisition system.
+Table 12 
+Parameter settings for the FBG construction.
+Parameter
+Equation
+Value
+Rotational speed
+-
+4000 rpm
+Rotating frequency (fr)
+-
+66.7 Hz
+Safety coefficient (α)
+-
+0.7
+Frequency threshold (Fthreshold)
+-
+1000
+Bandwidth (Bwidth)
+Bwidth ≤α⋅fr
+40
+Number of frequency bands (N)
+N = Fthreshold/Bwidth + 1
+26
+Table 13 
+Accuracy comparison results.
+Type
+Model
+Accuracy (%)
+Conventional
+GCN
+96.79 ± 0.87
+GAT
+97.76 ± 0.62
+GIN
+94.85 ± 2.66
+GraphSAGE
+92.89 ± 3.54
+SOTA
+MMHGAT (Zhang et al., 2023)
+96.15 ± 0.73
+A-TSGNN (Wang et al., 2023)
+81.26 ± 2.97
+TSFG (Wang et al., 2024a)
+96.90 ± 0.62
+HTSFG (Sun et al., 2026)
+95.15 ± 0.74
+Proposed
+FBG-SEANet
+98.68 ± 0.23
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+15
+
+
+===== PAGE 16 =====
+
+indicating that the proposed method was trained stably and effectively 
+learned the system's fault characteristics. Therefore, it was confirmed 
+that the FBG-SEANet effectively learned the fault characteristics of the 
+system by utilizing diverse modal signals acquired from a complex 
+system, thereby demonstrating the proposed method's effectiveness in 
+multi-sensor, multi-modal fusion.
+4.3.3. Computational cost and scalability analysis
+To further evaluate the practical feasibility of the proposed method, 
+the computational cost was compared with conventional baseline graph 
+models using the UAM system dataset. Case Study 3 was selected for this 
+analysis because it contains the largest graph among the three case 
+studies, with seven sensor channels. All models were evaluated under 
+the same hardware and implementation settings, and the results are 
+summarized in Table 14. The results show that FBG-SEANet requires a 
+slightly longer training time than the baseline graph models. This in­
+crease is mainly attributed to the frequency-band graph representation 
+and the sensitivity-aware readout layer, which introduce additional 
+graph-level feature learning compared with conventional graph models. 
+However, the inference time of FBG-SEANet remains 3 ms per sample, 
+which is comparable to those of the baseline models. In addition, FBG- 
+SEANet achieves the highest diagnosis accuracy of 98.68 ± 0.23%, 
+indicating that the additional training cost provides improved diagnosis 
+performance while maintaining practical inference efficiency.
+Regarding scalability, the number of nodes in the proposed FBG is 
+determined by M × N, where M is the number of sensor channels and N 
+is the number of frequency bands. Therefore, under a fixed frequency- 
+band setting, the graph size increases linearly with the number of sen­
+sors. It should be noted that this increase in computational cost is not 
+unique to the proposed method; baseline graph models also require 
+additional computation as the number of sensor nodes increases. How­
+ever, the proposed method is designed to exploit the increased sensor 
+information more effectively by constructing sensor-band-specific nodes 
+and applying the SR layer to learn fault-dependent sensor-band impor­
+tance. Therefore, although the training cost may increase as more sen­
+sors are added, the proposed framework has the potential to provide 
+stronger sensor fusion capability than conventional graph models in 
+large-scale multi-sensor systems. Overall, these results demonstrate that 
+FBG-SEANet achieves the highest diagnosis accuracy while maintaining 
+reasonable training time and millisecond-level inference, indicating a 
+favorable trade-off between computational cost and diagnostic 
+performance.
+5. Conclusion
+This study introduces the frequency band graph-based sensor fusion 
+with sensitivity-aware energy assist network (FBG-SEANet), a novel 
+graph-level sensor fusion method designed to enhance fault diagnosis in 
+machinery systems. First, the proposed frequency-band graph (FBG) is 
+constructed to effectively reflect the fault characteristics across multi- 
+sensor signals in the input graph. Then, the proposed sensitivity-aware 
+energy assist network (SEANet) is employed to effectively represent 
+the constructed graph. Specifically, the energy assist (EA) module in 
+SEANet enriches node embedding features with energy-based features 
+helping diagnose fault modes characterized by energy changes in pre- 
+existing frequency components. In addition, the sensitivity-aware 
+readout (SR) layer is utilized to capture the relative importance 
+among sensors, thereby preventing information dilution and reducing 
+redundancy.
+To verify the FBG-SEANet performance, three datasets involving an 
+open rotating machinery dataset, a motor experimental dataset, and an 
+UAM system experimental dataset were used for validation. In each 
+study, the proposed method outperformed conventional graph-based 
+models (i.e., GCN, GAT, GIN and GraphSAGE) and state-of-the-art 
+(SOTA) methods (i.e., MMHGAT, A-TSGNN, TSFG, and HTSFG), 
+achieving higher accuracy with lower variances. For further analysis of 
+the FBG-SEANet, a similarity score was used to demonstrate the FBG 
+superiority in representing system fault characteristics. An ablation 
+study was conducted to verify the significant contributions of each 
+component of the proposed method. Furthermore, feature visualization 
+is demonstrated to highlight the improved differentiation enabled by the 
+EA module. Overall, the proposed method effectively fuses multi-modal 
+signal information for fault diagnosis, addressing the limitations of 
+conventional methods.
+Although the proposed method demonstrates strong capabilities in 
+graph construction and representation, achieving high fault diagnosis 
+performance, it remains limited to stationary operating conditions due 
+to the reliance on fixed-frequency band-pass filtering for FBG con­
+struction, whose parameters are derived from a constant rotational 
+speed. Under non-stationary operating conditions, the frequency- 
+domain fault characteristics shift with the varying rotational fre­
+quency, making it difficult to construct an FBG that consistently repre­
+sents the intended fault information using fixed band-pass filters. 
+Therefore, future work will focus on extending FBG-SEANet to non- 
+stationary operating conditions by redesigning the graph construction 
+process through techniques such as order tracking or short-time Fourier 
+transform (STFT)-based adaptive band construction, incorporating 
+additional sensor modalities, and evaluating its applicability and 
+robustness in diverse industrial environments.
+CRediT authorship contribution statement
+Sang Kyung Lee: Writing – review & editing, Writing – original 
+draft, Validation, Methodology, Investigation, Conceptualization. 
+Hyeongmin Kim: Validation, Methodology, Conceptualization. Min­
+seok Chae: Writing – review & editing, Validation, Data curation. 
+Hansoo Kim: Writing – review & editing, Methodology, Conceptuali­
+zation. Joonho Yang: Visualization, Conceptualization. Heonjun 
+Yoon: Writing – review & editing, Visualization, Methodology, 
+Conceptualization. Byeng D. Youn: Writing – review & editing, Su­
+pervision, Funding acquisition, Conceptualization.
+Declaration of competing interest
+The authors declare that they have no known competing financial 
+interests or personal relationships that could have appeared to influence 
+the work reported in this paper.
+Acknowledgements
+This research was supported by the International Research & 
+Development Program of the National Research Foundation of Korea 
+(NRF) 
+funded 
+by 
+the 
+Ministry 
+of 
+Science 
+and 
+ICT 
+(2022K1A4A7A04096329) and by the Korea government (MSIT) (IITP- 
+2025-RS-2022-00156360, Innovative HRD for Local Intellectualization) 
+supervised by the IITP (Institute for Information & communications 
+Technology Planning & Evaluation).
+Table 14 
+Computational comparison with baseline models.
+Model
+Training time 
+(min)
+Inference time per sample 
+(ms)
+Accuracy (%)
+GCN
+40
+3
+96.79 ± 0.87
+GAT
+50
+2
+97.76 ± 0.62
+GIN
+45
+2
+94.85 ± 2.66
+GraphSAGE
+35
+2
+92.89 ± 3.54
+FBG- 
+SEANet
+60
+3
+98.68 ± 0.23
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+16
+
+
+===== PAGE 17 =====
+
+Data availability
+The data that has been used is confidential.
+References
+Chen, C., Wang, T., Mao, D., Liu, Y., Cheng, L., 2025. A multi-scale graph pyramid 
+attention network with knowledge distillation towards edge computing robotic fault 
+diagnosis. Expert Syst. Appl. 260, 125469.
+Choudhary, A., Fatima, S., Panigrahi, B., 2022. State-of-the-art technologies in fault 
+diagnosis of electric vehicles: a component-based review. IEEE Trans. Transp. 
+Electrif. 9, 2324–2347.
+Dai, W., Quek, Z.H., Low, K.H., 2024. Probabilistic modeling and reasoning of conflict 
+detection effectiveness by tracking systems towards safe urban air mobility 
+operations. Reliab. Eng. Syst. Saf. 244, 109908.
+Defferrard, M., Bresson, X., Vandergheynst, P., 2016. Convolutional neural networks on 
+graphs with fast localized spectral filtering. Adv. Neural Inf. Process. Syst. 29.
+Feng, Z., Hu, H., Yang, S., 2023a. Cross-sensor correlative feature learning and fusion for 
+intelligent fault diagnosis. IEEE Trans. Ind. Inf. 20 (3), 3664–3674.
+Feng, Z., Wu, Q., Yang, S., 2023b. Temporal local correntropy representation for fault 
+diagnosis of machines. IEEE Trans. Ind. Inf. 19, 11868–11877.
+Gangsar, P., Tiwari, R., 2020. Signal based condition monitoring techniques for fault 
+detection and diagnosis of induction motors: a state-of-the-art review. Mech. Syst. 
+Signal Process. 144, 106908.
+Gao, Y., Chen, M., Yu, D., 2021. Semi-supervised graph convolutional network and its 
+application in intelligent fault diagnosis of rotating machinery. Measurement 186, 
+110084.
+Han, Y., Tuo, S., Li, Y., Zhao, Q., 2024. Multi-relational fusion graph convolution 
+network with multi-scale residual network for fault diagnosis of complex industrial 
+processes. IEEE Trans. Instrum. Meas.
+He, Q., Pang, Y., Jiang, G., Xie, P., 2020. A spatio-temporal multiscale neural network 
+approach for wind turbine fault diagnosis with imbalanced SCADA data. IEEE Trans. 
+Ind. Inf. 17, 6875–6884.
+Huang, Y., Chen, C.-H., Huang, C.-J., 2019. Motor fault detection and feature extraction 
+using RNN-based variational autoencoder. IEEE Access 7, 139086–139096.
+Jung, W., Kim, S.-H., Yun, S.-H., Bae, J., Park, Y.-H., 2023. Vibration, acoustic, 
+temperature, and motor current dataset of rotating machine under varying operating 
+conditions for fault diagnosis. Data Brief 48, 109049.
+Kim, H., Park, C.H., Suh, C., Chae, M., Oh, H.J., Yoon, H., Youn, B.D., 2023a. Stator 
+current operation compensation (SCOC): a novel preprocessing method for deep 
+learning-based fault diagnosis of permanent magnet synchronous motors under 
+variable operating conditions. Measurement 221, 113446.
+Kim, H., Park, C.H., Suh, C., Chae, M., Yoon, H., Youn, B.D., 2023b. MPARN: multi-scale 
+path attention residual network for fault diagnosis of rotating machines. J. Comput. 
+Des. Eng. 10, 860–872.
+Kipf, T.N., Welling, M., 2016. Semi-supervised classification with graph convolutional 
+networks. arXiv preprint arXiv:1609.02907.
+Li, T., Zhou, Z., Li, S., Sun, C., Yan, R., Chen, X., 2022a. The emerging graph neural 
+networks for intelligent fault diagnostics and prognostics: a guideline and a 
+benchmark study. Mech. Syst. Signal Process. 168, 108653.
+Li, W., Huang, R., Li, J., Liao, Y., Chen, Z., He, G., Yan, R., Gryllias, K., 2022b. 
+A perspective survey on deep transfer learning for fault diagnosis in industrial 
+scenarios: theories, applications and challenges. Mech. Syst. Signal Process. 167, 
+108487.
+Li, Y., Zhang, L., Liang, P., Wang, X., Wang, B., Xu, L., 2024. Semi-supervised meta-path 
+space extended graph convolution network for intelligent fault diagnosis of rotating 
+machinery under time-varying speeds. Reliab. Eng. Syst. Saf. 251, 110363.
+Miao, M., Wang, Y., Yu, J., 2024. Temporal self-supervised domain adaptation network 
+for machinery fault diagnosis under multiple non-ideal conditions. Reliab. Eng. Syst. 
+Saf. 251, 110347.
+Orlowska-Kowalska, T., Wolkiewicz, M., Pietrzak, P., Skowron, M., Ewert, P., 
+Tarchala, G., Krzysztofiak, M., Kowalski, C.T., 2022. Fault diagnosis and fault- 
+tolerant control of PMSM drives–state of the art and future challenges. IEEE Access 
+10, 59979–60024.
+Park, C.H., Lee, J., Kim, H., Suh, C., Youn, M., Shin, Y., Ahn, S.-H., Youn, B.D., 2021. 
+Drive-tolerant current residual variance (DTCRV) for fault detection of a permanent 
+magnet synchronous motor under operational speed and load torque conditions. 
+IEEE Access 9, 49055–49068.
+Park, J., Hamadache, M., Ha, J.M., Kim, Y., Na, K., Youn, B.D., 2019. A positive energy 
+residual (PER) based planetary gear fault detection method under variable speed 
+conditions. Mech. Syst. Signal Process. 117, 347–360.
+Patel, T.H., Darpe, A.K., 2009. Experimental investigations on vibration response of 
+misaligned rotors. Mech. Syst. Signal Process. 23, 2236–2252.
+Qin, Y., Shi, X., 2022. Fault diagnosis method for rolling bearings based on two-channel 
+CNN under unbalanced datasets. Appl. Sci. 12, 8474.
+Shen, D., Du, S., Wang, S., Yan, L., Li, S., Chen, X., 2026. An improved variational 
+autoencoder and graph attention network method for wear prediction of aerospace 
+self-lubricating bearing using acoustic emission signal. IEEE Sens. J.
+Smith, W.A., Randall, R.B., 2015. Rolling element bearing diagnostics using the case 
+Western Reserve University data: a benchmark study. Mech. Syst. Signal Process. 64, 
+100–131.
+Straubinger, A., Rothfeld, R., Shamiyeh, M., Buchter, K.-D., Kaiser, J., Plotner, K.O., 
+2020. An overview of current research and developments in urban air 
+mobility–setting the scene for UAM introduction. J. Air Transport. Manag. 87, 
+101852.
+Sun, K., Huang, Z., Mao, H., Qin, A., Li, X., Tang, W., Xiong, J., 2021. Multi-scale cluster- 
+graph convolution network with multi-channel residual network for intelligent fault 
+diagnosis. IEEE Trans. Instrum. Meas. 71, 1–12.
+Sun, K., Yin, A., Hu, Y., Li, L., Qi, Z., 2026. Hierarchical temporal-spatial graph fusion 
+federated generalization for machine fault diagnosis. Adv. Eng. Inform. 69, 104091.
+Sun, K., Yin, A., Lu, S., Chen, S., Sun, Z., 2024. Time graph sub-domain adaption 
+adversarial for fault diagnosis. Meas. Sci. Technol. 35, 055004.
+Sun, X., Li, Z., Wang, X., Li, C., 2019. Technology development of electric vehicles: a 
+review. Energies 13, 90.
+Tahir, M.M., Hussain, A., Badshah, S., Khan, A.Q., Iqbal, N., 2016. Classification of 
+unbalance and misalignment faults in rotor using multi-axis time domain features. 
+In: 2016 International Conference on Emerging Technologies (ICET). IEEE, pp. 1–4.
+Tian, Y., Wang, Z., Zhang, L., Lu, C., Ma, J., 2018. A subspace learning-based feature 
+fusion and open-set fault diagnosis approach for machinery components. Adv. Eng. 
+Inform. 36, 194–206.
+Veliˇckovi´c, P., Cucurull, G., Casanova, A., Romero, A., Lio, P., Bengio, Y., 2017. Graph 
+attention networks. arXiv preprint arXiv:1710.10903.
+Wang, L., Xie, F., Zhang, X., Jiang, L., Huang, B., 2024a. Spatial-temporal graph feature 
+learning driven by time–frequency similarity assessment for robust fault diagnosis of 
+rotating machinery. Adv. Eng. Inform. 62, 102711.
+Wang, S., Jia, Z., Liu, Z., Tang, Y., Qin, X., Wang, X., 2025a. Self-supervised contrast 
+learning based UAV fault detection and interpretation with spatial–temporal 
+information of multivariate flight data. Expert Syst. Appl. 267, 126156.
+Wang, Y., Wang, S., Du, S., Shen, X., Li, S., Chen, X., 2025b. MTCAT: a modern temporal 
+convolution and enhanced attention transformer model for remaining useful life 
+prediction of aerospace self-lubricating bearings. IEEE Sens. J.
+Wang, Z., Wu, Z., Li, X., Shao, H., Han, T., Xie, M., 2023. Attention-aware 
+temporal–spatial graph neural network with multi-sensor information fusion for 
+fault diagnosis. Knowl. Base Syst. 278, 110891.
+Wang, Z., Xu, Z., Cai, C., Wang, X., Xu, J., Shi, K., Zhong, X., Liao, Z., 2024b. Rolling 
+bearing fault diagnosis method using time-frequency information integration and 
+multi-scale TransFusion network. Knowl. Base Syst. 284, 111344.
+Wei, Y., Wu, D., Terpenny, J., 2024. Remaining useful life prediction using graph 
+convolutional attention networks with temporal convolution-aware nested residual 
+connections. Reliab. Eng. Syst. Saf. 242, 109776.
+Wei, Z., He, D., Jin, Z., Sun, H., Wu, J., Shan, S., Miao, J., Yi, C., 2025. Bogie key 
+components fault diagnosis utilizing multi-sensor tensor graphs and dual-attribute 
+feature selection. Eng. Appl. Artif. Intell. 160, 111727.
+Xiao, D., Huang, Y., Qin, C., Shi, H., Li, Y., 2019. Fault diagnosis of induction motors 
+using recurrence quantification analysis and LSTM with weighted BN. Shock Vib. 
+2019, 8325218.
+Xiao, X., Li, C., Huang, J., Yu, T., 2024. Rotating machinery fault diagnosis based on one- 
+dimensional convolutional neural network and modified multi-scale graph 
+convolutional network under limited labeled data. Eng. Appl. Artif. Intell. 137, 
+109129.
+Xu, J., Ke, H., Jiang, Z., Mo, S., Chen, Z., Gui, W., 2024. OHCA-GCN: a novel graph 
+convolutional network-based fault diagnosis method for complex systems via 
+supervised graph construction and optimization. Adv. Eng. Inform. 61, 102548.
+Yang, J., Cheng, F., Liu, Z., Duodu, M.M., Zhang, M., 2023a. A novel semi-supervised 
+fault detection and isolation method for battery system of electric vehicles. Appl. 
+Energy 349, 121650.
+Yang, Y., Li, T., Sun, C., Zhang, L., Yan, R., 2023b. Graph attention U-Net to fuse multi- 
+sensor signals for long-tailed distribution fault diagnosis. Eng. Appl. Artif. Intell. 126, 
+106927.
+Zhang, L., Zhou, F., Duan, P., Yuan, X., 2024a. Fault diagnosis of mobile robot based on 
+dual-graph convolutional network with prior fault knowledge. Adv. Eng. Inform. 62, 
+102865.
+Zhang, S., Tong, H., Xu, J., Maciejewski, R., 2019. Graph convolutional networks: a 
+comprehensive review. Computat. Soc. Netw. 6, 1–23.
+Zhang, X., Hu, Y., Liu, J., Zhang, X., Wu, B., 2022a. Robust rotating machinery diagnosis 
+using a dynamic-weighted graph updating strategy. Measurement 202, 111895.
+Zhang, X., Jiang, L., Wang, L., Zhang, T., Zhang, F., 2024b. A pruned-optimized weighted 
+graph convolutional network for axial flow pump fault diagnosis with hydrophone 
+signals. Adv. Eng. Inform. 60, 102365.
+Zhang, X., Liu, J., Zhang, X., Lu, Y., 2025. Self-supervised graph feature enhancement 
+and scale attention for mechanical signal node-level representation and diagnosis. 
+Adv. Eng. Inform. 65, 103197.
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+17
+
+
+===== PAGE 18 =====
+
+Zhang, X., Long, Z., Peng, J., Wu, G., Hu, H., Lyu, M., Qin, G., Song, D., 2022b. Fault 
+prediction for electromechanical equipment based on spatial-temporal graph 
+information. IEEE Trans. Ind. Inf. 19, 1413–1424.
+Zhang, X., Zhang, X., Liu, J., Wu, B., Hu, Y., 2023. Graph features dynamic fusion 
+learning driven by multi-head attention for large rotating machinery fault diagnosis 
+with multi-sensor data. Eng. Appl. Artif. Intell. 125, 106601.
+Zhao, B., Zhang, X., Wu, Q., Yang, Z., Zhan, Z., 2023. A novel unsupervised directed 
+hierarchical graph network with clustering representation for intelligent fault 
+diagnosis of machines. Mech. Syst. Signal Process. 183, 109615.
+Zhao, J., Liu, Z., Sun, Q., Li, Q., Jia, X., Zhang, R., 2022. Attention-based dynamic spatial- 
+temporal graph convolutional networks for traffic speed forecasting. Expert Syst. 
+Appl. 204, 117511.
+Zhao, X., Zhu, X., Liu, J., Hu, Y., Gao, T., Zhao, L., Yao, J., Liu, Z., 2024. Model-assisted 
+multi-source fusion hypergraph convolutional neural networks for intelligent few- 
+shot fault diagnosis to electro-hydrostatic actuator. Inf. Fusion 104, 102186.
+Zheng, S., Wang, C., Zio, E., Liu, J., 2024. Fault detection in complex mechatronic 
+systems by a hierarchical graph convolution attention network based on causal 
+paths. Reliab. Eng. Syst. Saf. 243, 109872.
+Zhiyi, H., Haidong, S., Xiang, Z., Yu, Y., Junsheng, C., 2020. An intelligent fault diagnosis 
+method for rotor-bearing system using small labeled infrared thermal images and 
+enhanced CNN transferred from CAE. Adv. Eng. Inform. 46, 101150.
+Zhong, Q., Li, Q., Ren, J., Chen, X., Liu, D., Yang, Q., 2025a. A cross-domain multi-scale 
+feature fusion network based on graph convolution for intelligent fault diagnosis. 
+Eng. Appl. Artif. Intell. 160, 111900.
+Zhong, W., Mu, X., Zhang, J., Li, D., 2025b. AAGR: graph-level anomaly detection with 
+anomaly-aware graph readout. Expert Syst. Appl., 128672
+S.K. Lee et al.                                                                                                                                                                                                                                    
+Engineering Applications of Artiϧcial Intelligence 179 (2026) 115273 
+18

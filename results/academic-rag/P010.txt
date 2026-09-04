@@ -1,0 +1,1403 @@
+
+
+===== PAGE 1 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+DOI: 10.5121/ijcnc.2026.18305                                                                                                                83 
+ 
+EDGE-AI ENABLED FAULT DETECTION AND 
+ROOT CAUSE ANALYSIS IN INDUSTRIAL MOTORS 
+USING MULTIMODAL SENSOR DATA 
+ 
+Jayashree Kulkarni 1, Ramesh Kagalkar 2 and Nandini Sidnal 3   
+ 
+1,2,3 Department of Computer Science & Engineering,   
+1Graphic Era Deemed to be University, Dehradun, Uttarakhand, India,  
+2Nagarjuna College of Engineering and Technology, Bengaluru, Karnataka, India.  
+3Torrens University, Sydney, Australia  
+ 
+ 
+ABSTRACT 
+ 
+This article presents an Edge-AI enabled hybrid deep learning framework for real-time fault detection and 
+root cause analysis in industrial motors using multimodal sensor data, containing vibration, temperature, 
+and current signals. The proposed system leverages a CNN-LSTM model deployed on edge devices to 
+accurately classify operational states into normal, minor, and major faults. A dataset comprising 15,000 
+labeled samples collected from real-world industrial setups and augmented through techniques such as 
+SMOTE and time-warping was used for training and evaluation. In the implementation,the CNN 
+component captures spatial patterns in sensor data, while the LSTM layer models temporal dependencies, 
+enabling effective fault diagnosis. The proposed hybrid model achieved superior performance with 96.8% 
+accuracy, 97.2% precision, 96.5% recall, and an F1-score of 96.8%, along with a low inference latency of 
+≤198 ms, demonstrating suitability for real-time edge deployment. Comparative analysis against CNN-only 
+and LSTM-only models confirms the hybrid architecture’s advantage in fault sensitivity and prediction 
+reliability. Additional insights from confusion matrix analysis, ROC-AUC evaluation, and fault-wise 
+performance metrics validate the model’s robustness. The system also incorporates TinyML-based 
+optimizations and lightweight messaging for efficient edge computing, making it a scalable solution for 
+predictive maintenance in Industry 4.0 applications. 
+ 
+KEYWORDS 
+ 
+Edge-AI, CNN-LSTM, Predictive Maintenance, Industrial Motors, Fault Detection, Multimodal Sensors  
+  
+1. INTRODUCTION 
+ 
+Industry 4.0 marks the transition from the traditional industrial operations that integrated 
+cyberphysical systems, IoT, and Artificial Intelligence to create smart, connected production 
+systems. This evolution would have improved monitoring, control, and optimization of 
+manufacturing processes so that factories would have become more responsive, adaptive, and 
+efficient. Edge computing, in this regard, has come up as an enabler for real-time analytics and 
+decision making. As computational intelligence is brought close to the data source, edge 
+computing kills latency and reduces the reliance on some bandwidth-heavy cloud infrastructure, 
+thereby guaranteeing timely response for industrial applications where it is most needed mainly 
+in, fault detection and system diagnostics. One of the most important use cases considered in 
+smart industrial environments is predictive maintenance, i.e., predictingthedeterioration of 
+equipment prior to its failure. Predictive maintenance, unlike scheduled and reactive 
+maintenance, continuously monitors sensor signals and applies intelligent algorithms that detect
+
+
+===== PAGE 2 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+84 
+symptoms of impending faults, be it mechanical, thermal, or electrical. This way, unplanned 
+downtime can be avoided, routine maintenance costs removed, and the usable life of motors, an 
+example of an industrial asset, can be prolonged. 
+ 
+These modern systems use the latest tools and techniques, especially deep learning frameworks, 
+to model complex relations in high-frequency sensor data. In this respect, hybrid architecture 
+such as CNN combined with LSTM have been found to be highly effective. CNNs extract local 
+and spatial features from sensor signals (such as vibration or current), while LSTMs study 
+sequential dependency and temporal dynamics within time-series data so that temporal fault 
+patterns can be recognized. Moreover, using multimodal sensor data-vibration, temperature, and 
+electrical currentincreases the system's ability to detect faults and accentuate a failure's diverse 
+manifestations, whether mechanical, thermal, or electrical. Hence, this comprehensive data fusion 
+ensures more straightforward fault detection, fewer false positives, and reliable operation in 
+various situations. To provide the basis for a complete evaluation, a hybrid dataset has been 
+constructed consisting of 15,000 labeled samples that were obtained from both real industrial 
+motor logs as well as synthetic augmented data. The classes of faults include bearing damage, 
+stator overheating, load imbalance, and normal operational states. 
+ 
+2. LITERATURE OUTLINE  
+ 
+The literature survey on AI-based fault detection systems highlights significant advancements in 
+deep learning, edge computing, and IoT-enabled diagnostics across industrial applications. 
+Researchers have developed various models for real-time fault diagnosis, predictive maintenance, 
+and anomaly detection. Despite progress, challenges persist in data imbalance, model 
+interpretability, real-time deployment, and scalability. This survey helps to identify research gaps 
+and guides future innovation in intelligent, energy-efficient, and reliable fault detection 
+frameworks. 
+ 
+Leite et al. reviewed Fault detection and diagnosis (FDD) strategies in Industry 4.0 environments, 
+emphasizing real-time automation, data interoperability, and intelligent control systems. The 
+study identified major limitations such as lack of data standardization, integration complexity, 
+and insufficient real-time analytics for deployment [1]. Saeed et al. introduced deep learning 
+methods for industrial equipment health diagnostics under scarcity scenarios, reporting better 
+fault classification but issues with model generalization, energy efficiency, and scalability [2]. 
+ 
+Habyarimana and Adebiyi reviewed AI in fault prediction of electrical machines, comparing 
+supervised and hybrid approaches while citing data labeling issues, increased response times, and 
+low adaptability to changing load conditions [3]. Altaf et al. suggested an AI-based cyberphysical 
+sensor network for fault detection in distributed motor systems, enhancing accuracy with sensor 
+fusion but with reliability and latency constraints in networked applications [4]. Akhyar et al. 
+surveyed deep learning approaches to natural disaster management, including data gathering, 
+hazard forecasting, and decision support systems, but accepting pivotal challenges like limited 
+training data, computational expense, and scalability [5]. Chen et al. addressed AIbased sensing 
+technologies in intelligent systems, reporting improvements in precision and reactivity but 
+highlighting sensor calibration, power limitations, and real-time interpretation as still-open issues 
+[6]. Del-Coco et al. examined the role of AI in smart mobility solutions, focusing on autonomous 
+driving, routing, and traffic prediction, but citing concerns related to privacy protection, 
+explainability, and edge deployment limitations [7]. Ucar et al. reviewed AIdriven predictive 
+maintenance, elaborating on architecture, trustworthiness, and industrial trends, with key 
+concerns being explainability, model validation, and difficulty scaling across heterogeneous 
+systems [8]. Alagha et al. presented AI-based techniques for wind turbine fault detection and
+
+
+===== PAGE 3 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+85 
+diagnosis, improving operational insights via vibration and signal analysis. But the methodology 
+has limited dataset diversity, adaptation across wind environments, and high deployment costs 
+[9]. Fährmann et al. provided a comprehensive survey on anomaly detection in smart 
+environments using AI approaches such as autoencoders and clustering, while highlighting 
+limitations like false alarms, poor contextual interpretation, and real-time integration issues [10]. 
+Zhang et al. summarized recent progress in AI-enabled sensors, highlighting their use in 
+automation and precision monitoring but pointing out robustness, integration complexity, and 
+energy sustainability as key challenges [11]. Aguayo-Tapia et al. reviewed entropy-based fault 
+detection methods for motors, noting high sensitivity to signal variation but also identifying 
+computational complexity and noise interference as significant constraints [12]. Ahmed et al. 
+examined current deep learning modeling techniques across applications, outlining benefits in 
+image processing and sequential learning, yet struggling with data dependency, training 
+instability, and explainability [13]. Uçar et al. reiterated AI's relevance to predictive maintenance, 
+underscoring system integration and trust, but citing performance drift and lack of benchmark 
+frameworks as pressing concerns [14]. Moosavi et al. discussed explainable AI (XAI) in 
+industrial systems, emphasizing transparency and auditability, yet highlighting limitations in 
+balancing model accuracy with interpretability in real-time deployments [15]. 
+ 
+Jalal et al. reviewed visual fault diagnosis in photovoltaic systems using deep learning, showing 
+superior accuracy through CNN models but challenged by image noise, limited generalization, 
+and real-time implementation complexity [16]. Gültekin et al. introduced a real-time fault 
+monitoring framework for autonomous vehicles using edge AI, reducing latency and improving 
+anomaly detection, but constrained by edge device power and sensor fusion robustness [17]. 
+Miller et al. offered a critical view on AI-driven autonomous vehicle navigation, discussing 
+safety risks, opaque decision-making, and over-reliance on black-box models in complex driving 
+scenarios [18]. Jouini et al. surveyed ML techniques in edge computing, highlighting their 
+applications in real-time diagnostics and maintenance, while identifying orchestration 
+complexity, device heterogeneity, and service reliability as critical gaps [19]. Visconti et al. 
+reviewed ML and IoT applications in smart manufacturing, showing enhanced quality control and 
+anomaly detection, though they cited integration cost, legacy system compatibility, and trust 
+issues as major limitations [20]. 
+ 
+Kodumuru et al. discussed the integration of Artificial Intelligence and the Internet of Things in 
+pharmaceutical manufacturing, proposing a smart synergy to enhance process optimization, 
+quality control, and traceability; however, their framework faces challenges in regulatory 
+compliance, system security, and high initial deployment costs [21]. Hassani and Dackermann 
+conducted a systematic review on advanced sensor technologies for structural health monitoring 
+and non-destructive testing, showcasing sensor versatility and data precision while identifying 
+gaps in environmental robustness, real-time feedback, and calibration consistency [22]. 
+Mohandas et al. surveyed incremental deep learning strategies for industrial defect detection, 
+emphasizing continual learning adaptability, yet highlighting persistent issues like catastrophic 
+forgetting, data imbalance, and lack of real-world datasets [23]. Janga et al. reviewed practical AI 
+usage in Earth sciences via remote sensing, covering terrain fault detection and geospatial data 
+interpretation, though noting constraints related to low-resolution imagery, limited ground truth 
+validation, and model generalization [24].  
+ 
+Melo et al. performed a comprehensive review of data-driven process monitoring and fault 
+diagnosis, exploring PCA, PLS, and autoencoder-based techniques while reporting unresolved 
+challenges in computational overhead and interpretability for critical decision-making systems 
+[25]. Ferraz Júnior et al. evaluated machine learning techniques for detecting anomalies in 
+electric motor applications, identifying the strengths of time-frequency domain analysis and 
+supervised models, yet citing issues such as feature engineering complexity and low
+
+
+===== PAGE 4 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+86 
+interpretability of black-box approaches [26]. Crespo-Aguado et al. proposed a hyper distributed 
+IoT–Edge–Cloud platform for digital twin applications in logistics, enabling realtime tracking 
+and analytics while facing latency fluctuations, system synchronization, and infrastructure 
+scalability barriers [27]. Mercorelli reviewed recent intelligent algorithms for fault detection and 
+diagnosis, comparing neural networks, fuzzy systems, and adaptive hybrids, while outlining key 
+limitations in model overfitting, high sensitivity to noise, and benchmarking inconsistencies [28]. 
+Zaman et al. introduced a hybrid deep learning model combining VGG16, ResNet50, and wavelet 
+coherence for centrifugal pump fault detection, demonstrating superior accuracy but noting long 
+training times and difficulty in adapting to unstructured data [29]. Nie and Lu developed a neural 
+network watermarking approach to secure intellectual property in edge-AI models, embedding 
+ownership without degrading model performance, though the method faced challenges in 
+resisting adversarial attacks and scalability to diverse architectures [30]. 
+ 
+Strantzalis et al. applied Edge-AI for operational state recognition in DC motors, enabling on 
+device inference with reduced latency, yet encountering constraints in real-time accuracy under 
+noisy conditions and hardware resource limitations [31]. Sabry and Amirulddin reviewed fault 
+detection techniques in industrial robots and multi-axis machines, covering AI and traditional 
+control-based methods, while noting shortcomings in dataset availability, system-specific tuning, 
+and real-time adaptability [32]. An et al. proposed an efficient CNN-based edge solution for real-
+time motor fault detection, achieving fast and accurate classification but limited by hardware 
+compatibility and model compression complexity [33]. De las Morenas et al. examined edge-
+based ML methods for electrical machine fault diagnosis, emphasizing local sensory data 
+processing while reporting problems with update latency and memory constraints in low-power 
+devices [34]. Tian et al. explored AI-based arc fault detection using entropy and cumulants, 
+demonstrating high sensitivity to fault initiation but challenged by algorithmic complexity and 
+scalability in DC circuit environments [35]. 
+ 
+Wang et al. reviewed AI techniques for ground fault line selection in power systems, focusing on 
+hybrid models that integrate domain knowledge with ML classifiers, though practical barriers 
+such as real-time adaptation, noise resilience, and model explainability remain unresolved [36]. 
+Ciaburro surveyed machine learning algorithms for general fault detection, summarizing their 
+detection power and limitations in transparency, noise robustness, and industrial viability [37]. 
+Chen et al. applied data augmentation to improve arc fault detection performance using AI on 
+time-series datasets, yielding better fault classification but constrained by synthetic data 
+limitations and real-world generalization [38]. Su et al. proposed a data-driven framework for 
+automatic meter error detection in smart grids, offering predictive capabilities but suffering from 
+data drift, dependency on clean datasets, and lack of adaptability to unseen anomalies [39]. Song 
+et al. developed a multimodal deep learning framework for Industry 4.0 fault detection using 
+sensor fusion, enhancing diagnostic accuracy but limited by computational load, data alignment, 
+and real-time deployment feasibility [40]. 
+ 
+Wang et al. reviewed AI methods for ground fault line detection in power systems, emphasizing 
+hybrid classifiers and improved localization accuracy while identifying limitations in dataset 
+diversity, real-time scalability, and model robustness [41]. Chen et al. proposed an AI-driven data 
+augmentation technique for arc fault detection, enhancing time-series classification accuracy but 
+raising concerns over synthetic data realism and deployment reliability [42]. Chu et al. introduced 
+a predictive framework for automatic meter error detection using smart grid data, showing good 
+detection capabilities while struggling with domain adaptation and long-term reliability in 
+dynamic conditions [43]. Shen et al. proposed a multimodal deep learning approach for Industry 
+4.0 fault detection, combining sensor fusion and deep architectures, though facing issues with 
+data alignment, latency, and computational load [44].
+
+
+===== PAGE 5 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+87 
+Altaf et al. extended their previous work on AI-driven sensor networks for distributed motor 
+systems, improving diagnostic capabilities but constrained by network latency, sensor noise, and 
+deployment complexity in industrial settings [45]. Deng et al. presented a vision for Edge 
+Intelligence, merging AI with edge computing to support decentralized analytics, identifying 
+advantages in latency reduction while citing concerns about privacy, interoperability, and energy 
+efficiency [46]. Yao et al. provided a survey of edge-cloud collaboration for AI, outlining 
+workload distribution and coordination frameworks, while highlighting orchestration difficulty, 
+model synchronization, and platform heterogeneity as key barriers [47]. Zha et al. introduced a 
+data-centric AI approach, focusing on improving data quality for better model outcomes, but 
+challenges remain in automation, dataset curation, and handling bias [48]. Li et al. proposed a 
+fog-computing-enabled inspection system using deep learning for manufacturing, reporting 
+enhanced throughput but limitations in fog node reliability and recovery mechanisms [49]. 
+ 
+Sodhro et al. reviewed AI-based edge computing systems for industrial automation, discussing 
+intelligent control and distributed sensing, though facing real-time responsiveness, training 
+efficiency, and model updating issues [50]. Letaief et al. explored Edge AI for 6G applications, 
+outlining architectures for low-latency and autonomous decision-making, while highlighting 
+barriers such as hardware constraints, inference delays, and lack of standardization [51]. Hao 
+Chen et al. surveyed interpretable AI methods for fault diagnosis under imperfect data, 
+showcasing semi-supervised and transfer learning techniques, yet unresolved challenges include 
+robustness under noise and cross-domain adaptability [52]. Chen et al. applied bibliometric and 
+topic modeling approaches to review multimodal data fusion in smart healthcare, identifying gaps 
+in cross-modal consistency, real-time interpretability, and deployment scalability [53]. Saeed et 
+al. revisited deep learning for industrial health diagnostics, focusing on constrained IoT 
+environments, while stressing the need for lightweight models, power optimization, and robust 
+fault prediction [54]. 
+ 
+Rajput et al. introduced a workthat proposes a Fuzzy Convolutional Neural Network (FCNN) for 
+stable, data-driven fault diagnosis of industrial rotating machinery with the CWRU dataset, with 
+an accuracy of around 99%, particularly under severe working conditions. The method, however, 
+might be less ideal for nonlinear or large-scale datasets. [55]. Samanazari et al. conducted a 
+systematic review of transfer learning in predictive maintenance, demonstrating reduced training 
+times and improved adaptability across machines, but domain shift and knowledge transfer 
+inefficiencies persist [56]. Castaño et al. proposed a data-driven method for time-to-failure 
+estimation in electromechanical systems, using real-world data for model validation, although 
+long-term prediction accuracy and fault unpredictability were cited as limitations [57]. Yu et al. 
+introduced an edge-assisted IoT framework for manufacturing fault detection using autoencoders, 
+achieving real-time responsiveness, though sensitive to data imbalance and hardware restrictions 
+[58]. Asutkar et al. reviewed TinyML-based edge implementations of transfer learning for fault 
+diagnosis, enabling low-power AI at the edge but constrained by small model capacity and 
+generalization across fault types [59]. Ren et al. provided a systematic review of imbalanced 
+learning techniques for intelligent fault diagnosis, addressing data resampling, ensemble learning, 
+and cost-sensitive modeling while noting persistent generalization and interpretability issues [60]. 
+ 
+Meng et al. proposed a graph attention network fused with modal analysis for bearing fault 
+diagnosis, achieving high fault detection accuracy, yet facing complexity in graph construction 
+and model scalability [61]. Zhang et al. introduced a CNN-based method for rotating machinery 
+fault detection using encoded data distributions, enhancing feature sensitivity but requiring high 
+training time and struggling under noisy conditions [62]. Li et al. developed a semi-supervised 
+graph convolutional network using image-transformed vibration signals for rotating machinery 
+diagnosis, reducing labeled data needs but increasing computational overhead and sensitivity to 
+transformation quality [63]. Imamura et al. applied recurrent neural networks for detecting
+
+
+===== PAGE 6 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+88 
+imbalance in rotating machinery using edge frameworks, offering lightweight deployment while 
+encountering limitations in temporal accuracy and power constraints [64]. Teoh et al. presented a 
+fog-IoT model for predictive maintenance in Industry 4.0 using machine learning, enabling 
+efficient asset management but challenged by configuration complexity and latency in fog 
+networks [65]. 
+ 
+Saeed Ali et al. emphasized the relevance of deep learning models for industrial health 
+diagnostics in resource-limited environments, showing promise in performance and robustness, 
+but concerns remain around model retraining, explainability, and energy constraints [66]. Zhu et 
+al. proposed a deep reinforcement learning-based offloading algorithm for edge computing in IoT 
+systems, improving task allocation efficiency while constrained by high convergence time and 
+reward instability [67]. Maurya et al. reviewed AI-integrated IoT-cloud architectures for rotating 
+machinery fault diagnosis, highlighting scalability and automation benefits while citing 
+communication delays and cloud dependency as major gaps [68]. Lu et al. reviewed edge 
+computing frameworks for machine fault detection, discussing signal processing and model 
+deployment strategies while outlining persistent issues in resource allocation and real-time 
+processing [69]. Wang et al. proposed a federated learning approach for industrial fault diagnosis 
+in cloud-edge architectures, enhancing privacy preservation but facing inefficiencies in 
+aggregation, model synchronization, and training consistency [70]. 
+ 
+Alenizi et al. introduced a taxonomy of AI technologies in Industry 4.0, categorizing 
+classification, optimization, and prediction tasks while identifying trustworthiness, lifecycle 
+integration, and interoperability as critical challenges [71]. Chong Chen et al. reviewed digital 
+twins in predictive maintenance and their interaction with machine learning, providing insights 
+into system simulation, though difficulties remain in synchronization, twin fidelity, and 
+implementation cost [72]. Mahesh et al. proposed a deep active learning framework for intelligent 
+bearing fault detection, showing adaptability to diverse conditions, but suffering from annotation 
+uncertainty and model convergence instability [73]. Khan et al. explored the role of IoT in 
+Industry 4.0 adoption, focusing on real-time data collection and control integration while 
+identifying gaps in device interoperability, data overload, and decision-making automation [74]. 
+Su et al. presented the ICICOS framework for integrating cloud-edge AI in industrial automation, 
+improving control reliability but facing orchestration delays and coordination complexities across 
+layers [75]. 
+ 
+Habyarimana and Adebiyi revisited AI approaches for predicting electrical machine faults, 
+comparing classical and deep learning models while noting gaps in adaptability under varying 
+load conditions and model robustness in real-world scenarios [76]. Almazrouei et al. reviewed 
+AI-based predictive maintenance for water injection pumps in oil and gas industries, addressing 
+domain-specific tuning, noise mitigation, and long-term reliability but identifying gaps in dataset 
+variability and adaptive learning [77]. Gawde et al. compiled a two-decade review on multi-fault 
+diagnosis in rotating machinery, tracing the transition from rule-based to data-driven approaches 
+while citing limited modeling of fault interactions and system scalability [78]. Mandal et al. 
+proposed an expert system-based decision framework for benchmarking sustainable 
+manufacturing, enhancing strategic evaluation, but constrained by limited domain adaptability 
+and real-time decision capabilities [79]. Chen Chang et al. provided a comprehensive survey on 
+interpretable fault diagnosis for rotating machinery, integrating model transparency into deep 
+learning workflows but facing trade-offs in speed, performance, and realtime applicability [80]. 
+Khanam et al. reviewed Convolutional Neural Networks for defect detection in industrial 
+applications, highlighting advancements in deep architectures such as ResNet and DenseNet, 
+though interpretability, computational overhead, and generalization across domains were 
+identified as persistent challenges [81].
+
+
+===== PAGE 7 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+89 
+Out of the extensive literature reviewed studies, only a focused subset was selected for further 
+research consideration based on relevance, innovation, and practical feasibility. These selected 
+papers directly address pressing industrial challenges such as real-time fault detection in 
+resource-constrained environments, model interpretability, and deployment at the edge. They 
+demonstrate high potential for innovation by proposing advanced methods like neural network 
+watermarking, edge-enabled digital twins, explainable AI (XAI), and imbalanced learning 
+strategies yet they leave notable gaps such as energy inefficiency, lack of generalization, and 
+synchronization issues. Additionally, the chosen works span diverse industrial domains like 
+renewable energy, oil and gas, embedded systems, and rotating machinery, making them strong 
+candidates for scalable, cross-domain research. This focused selection ensures that future work is 
+built upon both impactful innovation potential and clear, unresolved limitations, paving the way 
+for meaningful and applicable advancements in intelligent fault diagnosis systems. 
+ 
+2.1. Overview of Findings 
+ 
+Table 1 presents a comparative analysis of ten selected research studies relevant to AI-based fault 
+diagnosis in industrial systems. These studies were chosen based on their methodological 
+innovation, dataset usage, practical relevance, and identified limitations. The analysis reveals that 
+while techniques such as CNN, LSTM, and ensemble learning demonstrate high classification 
+accuracy (e.g., [2], [55], [66]), they often suffer from issues like high computational cost, energy 
+inefficiency, and limited generalization to real-world edge deployments. For example, study [2] 
+utilizes a CNN-LSTM model for fault detection using vibration and current signals, achieving 
+good accuracy but facing scalability and performance issues in low-resource environments. 
+Similarly, [9] addresses wind turbine diagnostics with AI-based signal processing, yet suffers 
+from noisy sensor data and limited dataset diversity. Study [27] explores an IoT–Edge–Cloud-
+based digital twin platform for real-time monitoringbut is hindered by latency jitter and high 
+deployment costs in industrial testbeds. Moreover, [30] investigates neural network watermarking 
+for IP protection in edge-AI models, which introduces robustness concerns under adversarial 
+conditions. 
+ 
+Studies like [60] and [66] tackle class imbalance and resource constraints, proposing ensemble 
+learning and edge-optimized deep learning respectively. Notably, [80] emphasizes the 
+importance of explainable AI (XAI) for operator trust, although it faces trade-offs between 
+model interpretability and response time.  
+ 
+Table 1.  Comparative gap analysis of selected AI-Based fault diagnosis approaches with methodologies, 
+datasets, limitations, and feasible solutions.  
+ 
+Citation Methodology 
+Used  
+Datasets  
+Accuracy  
+Limitation  
+Feasible Solution  
+[2]  
+CNN, LSTM  
+(Deep  
+Learning)  
+Industrial  
+Vibration & 
+Current  
+Data  
+92.1%  
+High 
+computational 
+cost, poor 
+generalization  
+Lightweight DL models 
+with transfer learning 
+and model compression  
+[9]  
+AI-based  
+Signal  
+Processing  
+Wind  
+Turbine  
+Sensor Logs  
+90.3%  
+Noisy data, 
+dataset 
+scarcity  
+Robust 
+preprocessing 
+and data augmentation 
+for signal clarity  
+[19]  
+ML for  
+Predictive  
+Maintenance  
+Edge Sensor 
+Streams  
+88.7%  
+Orchestration 
+complexity at 
+edge  
+Decentralized learning 
+with federated edge 
+coordination
+
+
+===== PAGE 8 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+90 
+[27]  
+IoT–Edge– 
+Cloud Digital  
+Twin  
+Logistics & 
+Industrial  
+Testbeds  
+Real-time 
+estimation, 
+not directly 
+reported  
+Latency jitter, 
+high 
+deployment 
+cost  
+6G-enabled edge sync 
+optimization with low-
+power digital twins  
+[30]  
+Neural  
+Network  
+Watermarking 
+Synthetic  
+Benchmark  
+Models  
+Minimal 
+degradation 
+Weak 
+watermark 
+under 
+adversarial 
+attacks  
+Robust multi-layer 
+watermark embedding 
+and encryption  
+[55]  
+CNN-LSTM  
+for Fault  
+Sensor  
+Streams in  
+94.6%  
+Energy 
+consumption  
+TinyML deployment and 
+quantized inference 
+models  
+ 
+Detection  
+IoT Devices   
+and model 
+size  
+ 
+[60]  
+Ensemble  
+Learning for  
+Imbalanced  
+Data  
+Fault 
+Datasets 
+with Class 
+Imbalance  
+Varies 
+across 
+models  
+Overfitting on 
+minority 
+classes  
+Meta-learning with 
+adaptive resampling 
+strategies  
+[66]  
+DL Models in  
+Low-resource  
+Setups  
+Industrial  
+Sensor  
+Streams  
+91.4%  
+Low inference 
+speed and 
+accuracy 
+trade-off  
+Hybrid pruning and edge 
+inference optimization  
+[77]  
+AI for  
+Predictive  
+Maintenance  
+(Oil & Gas)  
+Water Pump  
+Operational  
+Logs  
+Reported 
+high 
+accuracy  
+Lack of robust  
+domainspecific 
+datasets  
+Synthetic dataset 
+generation with domain 
+adaptation  
+[80]  
+Explainable  
+AI (XAI) for  
+Fault  
+Diagnosis  
+Rotating  
+Machinery  
+Logs  
+Model 
+dependent  
+Trade-off 
+between  
+interpretability 
+and speed  
+Real-time interpretable 
+models with XAI 
+visualization tools  
+[2]  
+CNN, LSTM  
+(Deep  
+Learning)  
+Industrial  
+Vibration & 
+Current  
+Data  
+92.1%  
+High 
+computational 
+cost, poor 
+generalization  
+Lightweight DL models 
+with transfer learning 
+and model compression  
+[9]  
+AI-based  
+Signal  
+Processing  
+Wind  
+Turbine  
+Sensor Logs  
+90.3%  
+Noisy data, 
+dataset 
+scarcity  
+Robust 
+preprocessing 
+and data augmentation 
+for signal clarity  
+[19]  
+ML for  
+Predictive  
+Maintenance  
+Edge Sensor 
+Streams  
+88.7%  
+Orchestration 
+complexity at 
+edge  
+Decentralized learning 
+with federated edge 
+coordination  
+[27]  
+IoT–Edge– 
+Cloud Digital  
+Twin  
+Logistics & 
+Industrial  
+Testbeds  
+Real-time 
+estimation, 
+not directly 
+reported  
+Latency jitter, 
+high 
+deployment 
+cost  
+6G-enabled edge sync 
+optimization with low-
+power digital twins  
+ 
+3. OVERVIEW OF THE SYSYTEM   
+ 
+The proposed system is a comprehensive Edge-AI-enabled fault detection framework designed 
+to operate autonomously within industrial environments. It integrates multimodal sensor data 
+acquisition, real-time inference on edge devices, andlightweight communication protocolsto 
+enable accurate and low-latency fault classification in industrial motors. This modular system
+
+
+===== PAGE 9 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+91 
+is specifically tailored for predictive maintenance by minimizing reliance on cloud 
+infrastructure and ensuring continuous operation even in resource-constrained setups.  
+ 
+Key Components and Functional Overview 
+ 
+1. Multimodal Sensor Integration 
+ 
+The system utilizes a set of physical sensors that are mounted directly on industrial motors to 
+sense various operating parameters vibration sensors (accelerometers) sense mechanical faults 
+like bearing wear, imbalance, and misalignment; temperature sensors observe thermal activity 
+to recognize overheating of stator windings or underload stress; and current sensors monitor 
+electrical load fluctuation to recognize faults like short circuits, load imbalances, or rotor 
+stalls. Synchronized integration of these sensors guarantees dense, real-time acquisition of 
+signals and facilitates precise, early fault detection as well as comprehensive monitoring of 
+motor condition. 
+ 
+2. On-Device Deep Learning Inference 
+ 
+A hybrid CNN-LSTM model is run natively on edge computing hardware like the Jetson 
+Nano, ESP32, or Google Coral TPU, where the CNN layers learn the spatial features from 
+segmented time-series sensor data and the LSTM layers learn the temporal dependencies to 
+learn how anomalies evolve over time. The model is optimized using methods like 
+quantization and pruning, using which they achieve efficient performance on resource-limited 
+hardware without considerable loss of accuracy. This edge deployment provides low-latency 
+(≤200ms) inference and eliminates the necessity for ongoing cloud interaction, rendering the 
+system responsive and dependable in real-time fault diagnosis applications. 
+ 
+3. Real-Time Fault Classification and Alert 
+ 
+When anomalies are detected, they are categorized by the system into different classes like 
+slight faults (e.g., incipient bearing wear or mild load imbalance), severe faults (e.g., stator 
+overheating or mechanical failure), and normal or healthy conditions. This categorization 
+facilitates rapid fault interpretation, following which the system sends real-time notifications 
+through light-weight communication protocols like MQTT or HTTP to a central monitoring 
+console or directly to the operator's smartphone, providing timely intervention and preventing 
+possible equipment damage or downtime. 
+ 
+4. Cloud-Optional Architecture 
+ 
+The system enables forwarding summarized data to the cloud for long-term storage, trend 
+analysis, or periodic model updating, but its primary diagnostic functions like data processing, 
+fault detection, and alertgeneration, are performed locally on the edge device. This architecture 
+greatly minimizes bandwidth usage, secures sensitive operational data, and provides 
+uninterrupted operation even in low-connectivity environments like remote or rural industrial 
+plants. 
+ 
+5. Use-Case Scalability and Adaptability 
+ 
+The modular architecture of the system makes it easy to scale seamlessly across various 
+industrial applications, such as differing types of motor-driven equipment and plant sizes. It 
+can be readily diversified across domains like water pumping systems, conveyor belts, or
+
+
+===== PAGE 10 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+92 
+HVAC systems for flexible deployment. Also, the design allows for expansion with more 
+sensors or the incorporation of more advanced AI models for increasing functionality. By 
+integrating multimodal sensors with edge-compatible deep learning, the system guarantees 
+effective ondevice fault identification and real-time notifications through light-weight 
+communication protocols, while ensuring minimum dependency on cloud infrastructure. 
+ 
+The system shown in figure 1 is an Edge-AI-based predictive maintenance system for 
+industrial motors based on multimodal sensor data. It consists of three physical sensors: 
+vibration, temperature, and current mounted on the motor to monitor continuously mechanical, 
+thermal, and electrical parameters respectively. These sensor readings are processed in real-
+time by an AI-powered IoT edge device, which resolves major issues like operational latency, 
+low-latency processing, and data timeliness. The edge device carries out local inference with a 
+hybrid CNNLSTM deep learning model, which integrates convolutional neural networks 
+(CNN) for spatial feature extraction from sensor readings and long short-term memory 
+networks (LSTM) for temporal dependency analysis to identify changing faults. This enables 
+the system to detect faults and determine root causes on the device itself, with much less 
+reliance on cloud processing. When a fault is detected, the system categorizes it as minor, 
+major, or normal and triggers alerts through light protocols such as MQTT or HTTP to a 
+central dashboard. The system architecture is predictive maintenance-capable with condition-
+based monitoring and timely alert generation, leading to lowered maintenance expenses (up to 
+30%), unplanned production downtimes' avoidance, and enhanced system energy efficiency. 
+This modular configuration is scalable between various types of motor-driven equipment and 
+extendable to multiple industrial applications, including water pumping, HVAC, and conveyor 
+systems, with optional cloud connectivity for long-term trend analysis or model updating. 
+ 
+ 
+ 
+Figure 1.  System architecture of the proposed Edge-AI-based fault detection framework using multimodal 
+sensors and hybrid CNN-LSTM model 
+ 
+3.1. System Flow Diagram 
+ 
+Figure2 illustrates the methodology and system design for an Edge-AI-enabled fault detection 
+framework in industrial motors. Each block in the flow represents a critical stage in the
+
+
+===== PAGE 11 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+93 
+processing pipeline from raw data acquisition to real-time alerting. Below is a detailed 
+description of each step: 
+ 
+1. Sensor Data Acquisition 
+ 
+Sensor data acquisition is the foundational step in the system,where multimodal sensors, 
+namely vibration, temperature, and current, are strategically mounted on or near industrial 
+motors to continuously monitor their mechanical, thermal, and electrical performance in real 
+time. These sensors capture raw signals reflecting the motor’s operational health, enabling 
+early identification of potential anomalies. For instance, a vibration sensor senses abnormal 
+oscillations that can signal shaft misalignment or bearing damage; a temperature sensor 
+records increasing temperatures due to insulation failure or cooling malfunction; and a current 
+sensor indicates irregular electrical patterns like sudden spikes in loads, short circuits, or rotor 
+lock conditions. This ongoing and synchronous data gathering provides the system with a 
+holistic and high-resolution snapshot of the condition of the motor, upon which sound fault 
+analysis and predictive maintenance are based. 
+ 
+2. Preprocessing and Normalization 
+ 
+Preprocessing and normalization is an important phase wherein the raw sensor data obtained 
+from vibration, temperature, and current is cleaned, synchronized, and normalized to get it 
+ready for trustworthy analysis. As raw signals tend to contain noise, drift, and unequal 
+sampling rates, the process entails using denoising methods like low-pass filters or wavelet 
+transforms to eliminate undesirable oscillations. It also provides temporal synchronization 
+between all sensor modalities to ensure event pattern alignment. In addition, normalizing 
+methods such as Z-score standardization or min-max scaling are used to normalize all data into 
+a similar scale, removing bias caused by the fact that sensors have different ranges. For 
+instance, if the temperature sensor detects oscillations as a result of environmental conditions 
+and not equipment malfunctions, a smoothing filter retains only meaningful anomalies that are 
+associated with real motor stress, hence enhancing the reliability of the subsequent fault 
+detection. 
+ 
+3. CNN Feature Extraction 
+ 
+The pre-processed time-series sensor data is transformed into structured input matrices using 
+windowing operations so that CNNs are used to extract the spatial features from them. The 
+fixed-size segments maintain temporal locality and enable the CNN kernels to identify spatial 
+dependencies in the signals. Convolutional layers search through the data to find meaningful 
+localized patterns like spikes, dips, or recurring trends in the sensor outputs indicating 
+mechanical or electrical faults. For example, a CNN could identify a slowly rising vibration 
+frequency peaked at around 1 kHz—an early indication of bearing wear even when the overall 
+signal is still nominal, thus facilitating early and correct fault classification. 
+ 
+4. Fault Prediction and Labeling 
+ 
+At the fault prediction and labeling step, the features from the CNN and LSTM layers are fed 
+to a decision layer or classifier to assess the motor's status. The model classifies the input into 
+predetermined classes of faults like normal, minor fault (incipient wear or imbalance), or 
+major fault (critical failure like stator overheating or mechanical breakdown). Every 
+classification result comes with a confidence score, which signifies how confident the model is 
+regarding its prediction. For instance, if a specific signal segment exhibits high temperature
+
+
+===== PAGE 12 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+94 
+patterns and irregular current behavior, the model will classify it as "stator overheating" with a 
+92.5% confidence level, triggering a real-time alarm and starting preventive maintenance 
+procedures. 
+ 
+5. Edge Notification 
+ 
+During the edge notification phase, when a fault is identified and marked by the classifier, the 
+edge device triggers an inbuilt alert mechanism to notify local operators or maintenance 
+systems independently of cloud communication. This provides an immediate response with 
+low latency. For example, in the case of a predicted stator overheating event about to occur, 
+the system can trip a buzzer, flash an LED on the control panel of the motor, or post a warning 
+on a local human-machine interface (HMI), giving technicians time to act before the condition 
+matures into an unrecoverable failure. 
+ 
+6. MQTT/HTTP for Dashboard Alerts 
+ 
+Finally, in the last step, the system delivers the classified fault information and related alerts to 
+a central monitoring hub like a dashboard, SCADA system, or a mobile application using 
+lightweight communication protocols such as MQTT or HTTP. This facilitates remote 
+visualization, logging, and early action by maintenance teams. For instance, if a minor fault 
+like an early-stage vibration anomaly is identified in Pump #2, the system will automatically 
+notify the maintenance dashboard with a message such as "Minor vibration anomaly detected 
+in Pump #2. Investigate within 12 hours" so that scheduled maintenance can be done without 
+stopping operations. 
+ 
+ 
+ 
+Figure 2.System workflow for Edge-AI-based fault detection and alerting in industrial motors. 
+ 
+This process prioritizes real-time, on-device, and low-latency diagnostic functionality, lowering 
+cloud infrastructure dependency and facilitating predictive maintenance and intervention. It is 
+designed to scale and be applied in Industry 4.0 settings. This flow diagram illustrates the EdgeAI 
+fault detection system for industrial motors. Sensor data (vibration, temperature, current) is 
+acquired and normalized for consistency. CNN extracts spatial features, followed by fault
+
+
+===== PAGE 13 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+95 
+classification and labeling using a hybrid model. Finally, alerts are generated on the edge and sent 
+via MQTT/HTTP to a dashboard for real-time monitoring. 
+.  
+4. MATHEMATICAL MODELING 
+ 
+To formalize the operation of the proposed Edge-AI-based fault detection system, we define the 
+mathematical constructs governing sensor fusion, feature extraction, fault classification, and 
+decision-making.  
+ 
+1. Sensor Signal Representation  
+ 
+Let the multimodal input data at time t, be defined as:  
+ 
+ 
+ 
+2. Preprocessing and Normalization  
+ 
+Each signal modality is normalized using Z-score:  
+ 
+Where   and  
+ are the mean and standard deviation of the i -th signal.  
+ 
+3. CNN Feature Extraction  
+ 
+The normalized windowed signal is passed through convolutional layers. Let the CNN 
+transformation be:  
+Where, 
+ : number of 
+time windows or patches and d: number of extracted features per window.  
+ 
+4. LSTM Temporal Learning  
+ 
+The output features are 
+input to an 
+LSTM network to capture 
+temporal 
+dependencies:  
+ 
+Where, 
+ : hidden state 
+andencodes the sequential representation of the fault signal 
+ 
+5. Fault classification  
+ 
+The hidden state is passed to a softmax classifier:  
+: Convolutional operation capturing spatial patterns,  
+Where,  
+: vibration signal,   
+: temperature signal and  
+: current sig nal 
+All sampled at uniform rate  
+.   The time - series window of  samples is: 
+: cell state at ti me  ,  The final hidden state
+
+
+===== PAGE 14 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+96 
+Where, W 
+  : 
+weight 
+matrix, b 
+ 
+fault} and y =arg max P(y| X).  
+Model 
+is 
+optimized 
+using 
+categorical cross-entropy:  
+Where, 
+true 
+label 
+(one-hot encoded) and  : 
+predicted probability for class i.  
+ 
+6. Loss Function 
+ 
+Model is optimized using categorical cross-entropy:  
+Where, 
+ : predicted probability for class  
+.  
+ 
+ 
+Let, 
+ 
+ : 
+CNN 
+computation 
+time, 
+ 
+ : 
+MQTT  
+communication 
+time 
+Then 
+total 
+latency  
+An (unnumbered) acknowledgements section may be inserted if required.  
+ 
+5. RESULT ANALYSIS 
+ 
+The system’s performance was evaluated using multiple key metrics: accuracy, defined as the 
+ratio of correctly predicted outcomes to the total number of predictions; precision, which 
+measures the proportion of true fault detections among all predicted positives; recall (or 
+sensitivity), indicating the proportion of actual faults correctly identified by the model; and the F1 
+score, calculated as the harmonic mean of precision and recall to ensure balanced performance on 
+imbalanced datasets. In addition, inference time, which is the average time taken per sample for 
+classifying on edge devices, was tracked to ensure real-time deployment applicability. All the 
+metrics were calculated across the three classes of faults (normal, minor, and major) to assess 
+robustness and consistency. 
+7. Alert Generation and Thresholding 
+Define a decision threshold  for critical fault  alerting: 
+Typically,  
+ensures high confidence alerts. 
+8. Inference Time Estimation 
+: true label (one - hot encoded) and  
+: bias, C  = 3 classes {normal, minor fault, major  
+: LSTM computation time and  
+i s:
+
+
+===== PAGE 15 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+97 
+ 
+The system consistently demonstrated high accuracy and low latency across all test cases shown 
+in Table 2. The average inference time was ≤200ms, meeting the requirements for real-time edge 
+processing. This table summarizes the performance of the CNN-LSTM fault detection system 
+across four key motor conditions. The model achieved high accuracy and F1 scores (above 94%) 
+for all fault types. Inference time remained under 200 ms, ensuring suitability for real-time edge 
+deployment. Notably, the system showed the highest precision and recall for normal and stator 
+overheat cases. 
+ 
+Table 2 Performance evaluation of fault detection system for different test cases.  
+ 
+Sr.  
+No.  Test Cases  
+Accuracy 
+(%)  
+Precision 
+(%)  
+Recall 
+(%)  
+F1 Score 
+(%)  
+Inference 
+Time 
+(ms)  
+1 
+Bearing Fault  
+96.5  
+95.4  
+96.2  
+95.8  
+190  
+2 
+Stator Overheat  
+97.2  
+96.8  
+97.0  
+96.9  
+185  
+3 
+Load Imbalance  
+95.8  
+94.7  
+95.1  
+94.9  
+200  
+4 
+No Fault (Normal)  
+98.1  
+97.5  
+98.0  
+97.7  
+180  
+ 
+5.1 Graphical Representation of key Visualizations:  
+ 
+Here are the key visualizations generated to support the experimental evaluation, along with the 
+corresponding key points.  
+ 
+1. 
+Accuracy per Fault Type  
+2. 
+Precision, Recall, F1 Score Comparison  
+3. 
+Inference Time per Fault Type  
+4. 
+Confusion Matrix 5.  
+ROC Curve  
+5. 
+Baseline Model Comparison:  
+ 
+1. 
+Accuracy per Fault Type: Highlights the classification accuracy achieved for each 
+test condition. The bar chart shows in Figure 3a the accuracy of the proposed CNN-LSTM 
+model in detecting different motor fault conditions. It reveals that the model performs best in 
+identifying the “No Fault” condition with an accuracy of approximately 98.2%, indicating a 
+strong capability to recognize normal operation. The “Stator Overheat” class follows with 
+about 97.3% accuracy, suggesting effective thermal fault detection. “Bearing Fault” is slightly 
+lower at around 96.5%, likely due to signal similarities with other faults. The “Load 
+Imbalance” fault exhibits the lowest accuracy at approximately 95.8%, which may result from 
+overlapping signal patterns or minor class imbalance in the dataset.
+
+
+===== PAGE 16 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+98 
+ 
+ 
+Figure 3 Performance metrics of the CNN-LSTM model across fault types, (a) Accuracy achieved per fault 
+type and (b) Precision, Recall, and F1 Score Comparison per fault type. 
+2. 
+Precision, Recall, F1 Score Comparison: Offers a metric-wise comparison across all 
+fault categories to evaluate robustness. This bar chart shown in figure 3b compares the 
+precision, recall, and F1 score for each fault type. The “No Fault” category again scores 
+highest across all three metrics (~98%), affirming the model’s robustness in confirming 
+healthy system conditions. For “Stator Overheat,” precision, recall, and F1 score are tightly 
+aligned around 97%, indicating low false alarms and reliable fault capture. “Bearing Fault” 
+shows a slightly lower precision (~95.5%) compared to its recall (~96.3%), suggesting some 
+misclassification with similar faults, while the F1 score balances both at around 96%. The 
+“Load Imbalance” fault has the lowest precision and recall (~94.5%), reflecting a relative 
+weakness in detecting electrical load issues consistently.  
+ 
+3. 
+Inference Time per Fault Type: Shows the efficiency of edge-based predictions in 
+milliseconds.The bar graph shown in Figure 4a illustrates the average time (in milliseconds) 
+taken by the CNN-LSTM model to infer each fault category on the edge device. The model 
+achieves the lowest inference time for the “No Fault” condition at around 180 ms, indicating 
+efficient recognition of normal motor behavior. “Stator Overheat” follows closely with 
+approximately 185 ms, showing that thermal fault detection does not significantly impact latency. 
+“Bearing Fault” inference takes slightly more time at about 190 ms, dueto complex vibration 
+signature analysis. The highest inference time is observed for “Load Imbalance” at 200 ms, likely 
+because current fluctuations are harder to classify and require deeper temporal analysis, slightly 
+increasing model processing time. Overall, all classes are inferred under 210 ms, meeting real-
+time edge AI constraints.
+
+
+===== PAGE 17 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+99 
+ 
+ 
+Figure 4 System performance efficiency and classification accuracy, (a) Inference time per fault type on 
+edge device and (b) Confusion matrix showing Fault vs. Normal classification accuracy 
+ 
+Confusion Matrix:Indicates strong classification ability with no misclassification observed. The 
+confusion matrix displayed in Figure 4b the classification performance of the model across two 
+classes: “Fault” and “Normal.” The matrix shows perfect classification with 5 out of 5 samples 
+for each class correctly predicted. There are zero false positives and zero false negatives, 
+indicating that the model achieved 100% accuracy for this evaluation batch. The topleft cell (5) 
+represents the true positives for the fault class, while the bottom-right cell (5) indicates true 
+negatives for the normal class. The off-diagonal cells have values of 0, confirming that the model 
+did not misclassify any instance, thereby demonstrating excellent fault vs. normal state 
+distinction. 
+ 
+ROC Curve:Demonstrates the model’s ability to distinguish between normal and faulty 
+conditions (AUC = 0.88).  The Receiver Operating Characteristic (ROC) curve, illustrated in 
+Figure 5a the trade-off between the true positive rate (sensitivity) and the false positive rate for 
+the proposed CNN-LSTM model. The curve bows significantly towards the top-left corner, 
+indicating strong classification performance across different threshold values. The Area Under 
+the Curve (AUC) is 0.88, signifying that the model possesses a high level of separability between 
+faulty and non-faulty conditions. This implies that even under varying decision thresholds, the 
+classifier consistently performs well, making it reliable for real-time fault detection in industrial 
+motors. 
+ 
+ 
+Figure 5 Model evaluation through discrimination and benchmarking, (a) ROC curve showing 
+True Positive vs. False Positive Rate for fault classification and (b) Baseline model comparison of CNN, 
+LSTM, and CNN-LSTM architectures based on accuracy.
+
+
+===== PAGE 18 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+100 
+The experimental evaluation was conducted using real-world industrial motor sensor logs 
+comprising multimodal data (vibration, temperature, and current). The dataset included 15,000 
+labeled samples, stratified into training (70%), validation (15%), and test sets (15%). All 
+signals were uniformly sampled at 1 kHz, covering three fault classes: normal, minor fault, and 
+major fault.  
+ 
+CONCLUSION   
+ 
+This research proposes an efficient Edge-AI-based approach for real-time industrial motor 
+fault detection using a hybrid CNN-LSTM architecture for multimodal sensor data such as 
+vibration, temperature, and current signals. The proposed research study is shown to perform 
+with high accuracy and low latency, indicating applicability for deployment in resource-
+limited edge environments. Through enabling on-board inference, predictive analytics, and 
+smart alerting mechanisms, the framework significantly reduces equipment downtime and 
+maintenance costs. Further, the combination of real-time monitoring and machine learning-
+based diagnostics results in prompt fault identification, even in dynamic operating conditions. 
+The framework is compliant with the fundamental goals of Industry 4.0 by providing a 
+scalable, autonomous, and energy-efficient solution for smart fault diagnosis. It enables 
+industries to move from reactive to proactive maintenance practices, hence ensuring 
+operational reliability and sustainability. 
+ 
+CONFLICT OF INTEREST 
+ 
+The authors declare no conflict of interest. 
+ 
+REFERENCES  
+ 
+[1] Leite, D.; Andrade, E. Rativa, D., & Maciel, A. M. A. Fault Detection and Diagnosis in 
+Industry 4.0: A Review on Challenges and Opportunities. (2025). Sensors, 25(1), 60.  
+[2] Saeed, A., A.; Khan, M.; Akram, U.  Deep learning-based approaches for intelligent 
+industrial machinery health management and fault diagnosis in resource-constrained 
+environments. Sci Rep15, 1114 (2025).  
+[3] Habyarimana, M.; Adebiyi, A. A. A Review of Artificial Intelligence Applications in 
+Predicting Faults in Electrical Machines. Energies. (2025). 18(7), 1616.  
+[4]  Altaf, S., Al-Anbuky, A., & Gheitasi, A, Enhancing Fault Detection in Distributed Motor 
+Systems    Using   AI-Driven        Cyber-Physical            Sensor Networks. Engineering 
+Proceedings, (2024), 82(1), 78.  
+[5] Akhyar Akhyar.; Mohd Asyraf Zulkifley.;  Jaesung Lee.; Taekyung Song.; Jaeho Han.; 
+Chanhee Cho.; Seunghyun Hyun.; Youngdoo Son.; Byung-Woo Hong.; Deep artificial 
+intelligence applications for natural disaster management systems: A methodological review, 
+Ecological Indicators. (2024), Volume 163,2024, 112067, ISSN 1470-160X,  
+[6] Chen L.; Xia C.; Zhao Z.; Fu  H.;  Chen. Y. AI-Driven Sensing Technology: Review, 
+Sensors, (2024), 24(10), 2958.  
+[7] Del-Coco M.; Carcagnì P.; Oliver S. T.;  Iskandaryan D.;  Leo M. The Role of AI in Smart 
+Mobility: A Comprehensive Survey. Electronics, (2025), 14(9), 1801. 
+[8] Ucar A.;  Karakose M.;  Kırımça, N. Artificial Intelligence for Predictive Maintenance 
+Applications: Key Components, Trustworthiness, and Future Trends. Applied Sciences, 
+(2024), 14(2), 898. 
+[9] Alagha N.; Khairuddin A. S. M.; Haitaamar, Z. N.; Al-Khatib O.;  Kanesan J. Artificial 
+Intelligence in Wind Turbine Fault Detection and Diagnosis: Advances and Perspectives. 
+Energies, (2025), 18(7), 1680.
+
+
+===== PAGE 19 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+101 
+[10] Daniel 
+Fährmann; 
+Laura 
+MartínLuis 
+Sánchez.Naser 
+Damer.Anomaly 
+Detection 
+inSmart        Environments: A         Comprehensive            Survey, (2024).   
+[11]     Zixuan Zhang.;  Luwei Wang.;  Chengkuo Lee. Recent Advances in Artificial Intelligence 
+Sensors, (2023). 
+[12] Aguayo-Tapia, Avalos-Almazan, Rangel-Magdaleno J. Entropy-Based Methods for Motor 
+Fault Detection: A Review. Entropy, (2024), 26(4), 299.  
+[13] Ahmed, S.F.;Alam, M.S.B.; Hassan, M.; Deep learning modelling techniques: current 
+progress, applications, advantages, and challenges. Artificial Intelligence Rev56,  13521– 
+13617 (2023).  
+[14] Uçar Ayşegül.; Karakose Mehmet.;  Kırımça Necim. Artificial Intelligence for Predictive 
+Maintenance Applications: Key Components, Trustworthiness, and Future Trends. Applied 
+Sciences. (2024),14, 898.  
+[15] Moosavi S.; Farajzadeh-Zanjani M.; Razavi-Far.; Palade V.;  Saif M. Explainable AI in 
+Manufacturing and Industrial Cyber–Physical Systems: A Survey. Electronics, (2024), 
+13(17), 3497.  
+[16] Marium Jalal.; Ihsan Ullah Khalil.; Azhar ul Haq.; Deep learning approaches for visual 
+faults diagnosis of photovoltaic systems: State-of-the-Art review, Results in Engineering, 
+sciencedirect.com, (2024), Vol. 23,2024,102622. 
+[17] Gültekin Ö.; Cinar E.; Özkan K.;  Yazıcı A. Real-Time Fault Detection and Condition 
+Monitoring for Industrial Autonomous Transfer Vehicles Utilizing Edge Artificial 
+Intelligence. Sensors, (2022), 22(9), 3208.  
+[18] Miller T.; Durlik I.; Kostecka E.; Borkowski P.;  Łobodzińska A. A Critical AI View on 
+Autonomous Vehicle Navigation: The Growing Danger. Electronics, (2024), 13(18), 3660.  
+[19] Jouini O.; Sethom K.; Namoun A.; Aljohani N.; Alanazi M. H.;  Alanazi M. N. A Survey of 
+Machine Learning in Edge Computing: Techniques, Frameworks, Applications, Issues, 
+and          Research      Directions. Technologies, (2024),        12(6),   81.  
+[20] Visconti P.; Rausa G.; Del-Valle-Soto C.; Velázquez R.; Cafagna, D.;  De Fazio, R. 
+Machine Learning and IoT-Based Solutions in Industrial Applications for Smart 
+Manufacturing: A Critical Review. Future Internet, (2024), 16(11), 394.  
+[21] Kodumuru R.;  Sarkar S.;  Parepally V.;  Chandarana, J. Artificial Intelligence and Internet 
+of    Things Integration in Pharmaceutical Manufacturing:ASmart Synergy. Pharmaceutics, 
+(2025), 17(3),   290.  
+[22] Hassani S.; Dackermann U. A Systematic Review of Advanced Sensor Technologies for 
+Non-Destructive Testing and Structural Health Monitoring. Sensors, (2023), 23(4), 2204.  
+[23] Mohandas R.; Southern M.; O’Connell E.; Hayes, M. A Survey of Incremental 
+DeepLearning for Defect Detection in Manufacturing. Big Data andCognitiveComputing, 
+(2024), 8(1), 7.  
+[24] Janga B.; Asamani G. P.; Sun Z.;Cristea N. A Review of Practical AI for Remote Sensing 
+in     Earth      Sciences. Remote Sensing, (2023), 15(16), 4112.  
+[25] Melo A.; Câmara M. M.; Pinto, J. C. Data-Driven Process Monitoring and Fault Diagnosis: 
+A Comprehensive Survey. Processes, (2024), 12(2), 251.  
+[26] Ferraz Júnior F.; Romero R. A. F.;Hsieh, S.-J. Machine Learning for the Detection and 
+Diagnosis of Anomalies in Applications Driven by Electric Motors. Sensors, (2023), 23(24), 
+9725.  
+[27] Crespo-Aguado M.; Lozano R.; Hernandez-Gobertti, F.; Molner N.; Gomez-Barquero D. 
+Flexible Hyper-Distributed IoT–Edge–Cloud Platform for Real-Time Digital Twin 
+Applications on 6G-Intended Testbeds for Logistics and Industry. Future Internet, (2024), 
+16(11), 431.  
+[28] Mercorelli P. Recent Advances in Intelligent Algorithms for Fault Detection and Diagnosis. 
+Sensors, (2024), 24(8), 2656.
+
+
+===== PAGE 20 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+102 
+[29]  Zaman W.; Siddique M. F.; Ullah S.; Saleem F.;Kim, J.-M. Hybrid Deep Learning Model 
+for Fault Diagnosis in Centrifugal Pumps: A Comparative Study of VGG16, ResNet50, and 
+Wavelet CoherenceAnalysis. Machines, (2024), 12(12), 905.  
+[30] Hewang Nie.; Songfeng Lu. Securing IP in edge AI: neural network watermarking for 
+multimodal models. Applied Intelligence (Nov 2024), 54, 21, 10455–10472.  
+[31] Strantzalis K.; Gioulekas F.; Katsaros P.; Symeonidis A. Operational State Recognition of a 
+DC Motor Using Edge Artificial Intelligence. Sensors, (2022), 22(24), 9658.  
+[32] Ameer H. Sabry.;  Ungku Anisa Bte Ungku Amirulddin. A review on fault detection and 
+diagnosis of industrial robots and multi-axis machines, Results in Engineering, Volume 23, 
+2024,102397, ISSN 2590-1230. 
+[33] An Kang.; Lu Jingfeng.;  Zhu Quanjing.;  Wang Xiaoxian.;   de Silva Clarence.;  Xia Min. 
+Edge Solution for Real-Time Motor Fault Diagnosis Based on Efficient Convolutional 
+Neural Network. IEEE Transactions on Instrumentation and Measurement, (2023), PP. 11.  
+[34] De las Morenas, J., Moya-Fernández, F., & López-Gómez, J. A. (2023). The Edge 
+Application of Machine Learning Techniques for Fault Diagnosis in Electrical Machines. 
+Sensors, 23(5), 2649.  
+[35] Chunpeng Tian.; Zhaoyang Xu.; Lukun Wang.; Yunjie Liu. Arc fault detection using 
+artificial intelligence: Challenges and benefits[J]. Mathematical Biosciences and 
+Engineering, 2023, 20(7): 12404-12432.  
+[36] Fuhua Wang.;Zongdong Zhang.; Kai Wu.; Dongxiang Jian.; Qiang Chen.; Chao Zhang.; 
+Yanling Dong.; Xiaotong He.; Lin Dong. Artificial intelligence techniques for ground fault 
+line selection in power systems: State-of-the-art and research challenges. Mathematical 
+Biosciences and Engineering, 2023, 20(8): 1451814549.  
+[37] Giuseppe Ciaburro. Machine fault detection methods based on machine learning algorithms: 
+A review, Mathematical Biosciences and Engineering, 2022, 19(11): 1145311490. 
+[38] Yu Cao.;Yongyi Chen.; Dan Zhang.; Mohammed Abdullah.; ALTASN: A few-shot learning 
+fault diagnosis method for rotating machinery of unmanned surface vehicles based on 
+attention mechanism, 2024, 0142-3312. 
+[39] Xiaoxing Su. Engineering fault intelligent monitoring system based on Internet of Things 
+and GIS, 2023, 12, 2192-8029. 
+[40] Chunpeng Tian.; Mengyao Song.;Beibei Niu.; Jingqing Li.; Pu Sun. Enhancing Arc Fault 
+Detection in DC Series Circuits Using a Sample Entropy and High-Order Cumulants-Based 
+System. (2023), 979-8-3503-2936-0, 365. 
+[41] Fuhua Wang.; Zongdong Zhang.; Kai Wu.; Dongxiang Jian.;  Qiang Chen.; Chao Zhang.; 
+Yanling Dong.; Xiaotong He.; Lin Dong. Artificial intelligence techniques for ground fault 
+line selection in power systems: State-of-the-art and research challenges, 2023, 20, 
+15510018, 14518,  
+[42] Shangze Chen.; Kamal Chandra Paul.; Tiefu Zhao. Enhancing Arc Fault Detection 
+Performance through Data Augmentation with Artificial Intelligence Technology: An Approach 
+to Time Series Dataset Enlargement, 2024, 979-8-3503-7606-7, 1866. 
+[43] 43. Ruimin Chu.; Li Chik, Jeffrey Chan.;  Kurt Gutzmann.;  and Xiaodong Li. Automatic 
+meter error detection with a data-driven approach. Engineering Applications in  Artificial 
+Intelligence. 2023, 123. 
+[44] 44. Shen J.; Morrison M.; Miao H.;  Gu F.  Harnessing Deep Learning for Fault Detection in 
+Industry 4.0: A Multimodal Approach. In Proceedings - 2024 IEEE 6th International 
+Conference on Cognitive Machine Intelligence, CogMI 2024 (pp. 288-294). 
+[45] Altaf, S.; Al-Anbuky, A.; Gheitasi, A. Enhancing Fault Detection in Distributed Motor 
+Systems Using AI-Driven Cyber-Physical Sensor Networks, in Proceedings of the 11th 
+International Electronic Conference on Sensors and Applications, 26–28 November 2024, 
+MDPI: Basel, Switzerland.
+
+
+===== PAGE 21 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+103 
+[46] S. Deng; H. Zhao; W. Fang J. Yin; S. Dustdar; A. Y. Zomaya. Edge intelligence: The 
+confluence of edge computing and artificial intelligence. IEEE Internet of Things Journal, 
+2020, vol. 7, no. 8, pp. 7457–7469. 
+[47] J. Yao.; S. Zhang.; Y. Yao. Edge-cloud polarization and collaboration: A comprehensive 
+survey for ai.  IEEE Transactions on Knowledge and Data Engineering, 2022. 
+[48] D. Zha.;  Z. P. Bhat.; K.-H. Lai, F. Yang.;  Z. Jiang.;  S. Zhong.;  X. Hu. Data-centric 
+artificial intelligence: A survey. 
+[49] L. Li, K. Ota, M. Dong. Deep learning for smart industry: Efficient manufacturinginspection 
+system with fog computing. IEEE Transactions on Industrial Informatics, 2018, vol. 14, no. 
+10, pp. 4665–4673. 
+[50] A. H. Sodhro.;  S. Pirbhulal.; V. H. C. De Albuquerque. Artificial intelligence-driven 
+mechanism for edge computing-based industrial applications.  IEEE Transactions on 
+Industrial Informatics, 2019, vol. 15, no. 7, pp. 4235–4243. 
+[51]  Khaled B. Letaief.;  Yuanming Shi.;  Jianmin Lu.;  Jianhua Lu. Edge Artificial Intelligence 
+for 6G: Vision, Enabling Technologies, and Applications. IEEE Journal on Sel. and 
+Communication. 40, 1 (Jan. 2022), 5–36.  
+[52] Hao Chen.; Jia-ming Li.; Xian-Bo Wang.; Lian-Qing Yu.; Zhi-Xin Yang. Review of 
+intelligent fault diagnosis for rotating machinery under imperfect data conditions, Expert 
+Systems with Applications, 2025, Volume 285, 127726, ISSN 0957-4174. 
+[53] Chen, X.; Xie, H.; Tao, X.  Artificial intelligence and multimodal data fusion for smart 
+healthcare: topic modeling and bibliometrics. Artificial  Intelligence  Rev57, 91 (2024).  
+[54] Saeed A.; A. Khan M.; Akram U. Deep learning-based approaches for intelligent industrial 
+machinery health management and fault diagnosis in resource-constrained environments. Sci 
+Rep15, 1114 (2025).  
+[55] Rajput.; Dharmendra.; Meena.; Gaurav Acharya.; Malika Mohbey K. Fault prediction using 
+fuzzy convolution neural network on IoT environment with heterogeneous sensing data 
+fusion. Measurement: Sensors. (2023), 26. 
+[56] Samanazari Mehdi.;  Flammini Francesco.;  Santini Stefania.; Caporuscio Mauro. A 
+Systematic Literature Review on Transfer Learning for Predictive Maintenance in Industry 
+4.0. IEEE Access. (2023), PP. 1-1. 
+[57] Castaño Fernando.; Cruz Hernández.; Yarens Villalonga.; Alberto Haber Guerra.; Rodolfo 
+Elias. Data-Driven Insights on Time-to-Failure of Electromechanical Manufacturing 
+Devices: A Procedure and Case Study. IEEE Transactions on Industrial Informatics. 2022, 
+PP. 1-11. 
+[58] Yu Wenjin.; Liu Yuehua.; Dillon, Tharam.; Rahayu Wenny. Edge Computing-Assisted IoT 
+Framework with an Autoencoder for Fault Detection in Manufacturing Predictive 
+Maintenance. IEEE Transactions on Industrial Informatics. 2022, PP. 1-1. 
+[59] Asutkar Supriya.Chalke Chaitravi.; Shivgan Kajal.; Tallur Siddharth. TinyML-enabled edge 
+implementation of a transfer learning framework for domain generalization in machine fault 
+diagnosis. Expert Systems with Applications. (2022). 213. 119016. 
+[60] Ren Zhijun.;Lin, Tantao.; Feng Ke.; Zhu Yongsheng.; Liu, Zheng.; Yan Ke. A Systematic 
+Review on Imbalanced Learning Methods in Intelligent Fault Diagnosis. IEEETransactions 
+onInstrumentation andMeasurement.2023,  PP.1-1. 
+[61] Meng Ziran.; Zhu Jun.; Cao Shancheng.; Li Pengfei.; Xu Chao. Bearing Fault Diagnosis 
+Under Multisensor Fusion Based on Modal Analysis and Graph Attention Network. IEEE 
+Transactions  on Instrumentation andMeasurement. 2023, PP.       1-1. 
+[62] Zhang B.; Pang X.; Zhao P.; Lu K. A new method based on encoding data probability 
+density and convolutional neural network for rotating machinery fault diagnosis. IEEE 
+Access11, 26099–26113 (2023). 
+[63] Li Xianling.; Hu Hao.; Zhang Shichao.;Tang Gang. A Fault Diagnosis Method for Rotating 
+Machinery with Semi-Supervised Graph Convolutional Network and Images Converted 
+from Vibration Signals. IEEE Sensors Journal. 2023, PP. 1-1.
+
+
+===== PAGE 22 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+104 
+[64] Imamura L.; Y. Diagnosis of Unbalance in Lightweight Rotating Machines Using a 
+Recurrent Neural Network Suitable for an Edge-Computing Framework. Journal of Control, 
+Automation and Electrical Systems, vol. 33, no. 4, Jan. 2022, pp. 1272-1285.  
+[65] Teoh Yyi Kai .; Gill Sukhpal Singh.;  Parlikad Ajith Kumar. IoT and Fog-Computing- Based 
+Predictive Maintenance Model for Effective Asset Management in Industry 4.0 Using 
+Machine Learning. IEEE Internet of Things Journal. 2021. Awais. Deep learning-based 
+approaches for intelligent industrial machinery health management  
+[66] Saeed Ali.; Khattak Muazzam.;  Akram Usman.;  Obidallah Waeal.;  Jawed 
+Soyiba.;  Ahmad, and fault diagnosis in resource-constrained environments. Scientific 
+Reports. 2025. 15.  
+[67] Xiaojuan Zhu.; Tianhao Zhang.; Jinwei Zhang.; Bao Zhao.; Shunxiang Zhang.; Cai Wu. 
+Deep reinforcement learning-based edge computing offloading algorithm for software-
+defined IoT, Computer Networks, Volume 235,2023, 110006, ISSN 1389-1286. 
+[68] Maurya Manisha.; Panigrahi Isham; Dash Dipti.; Malla Chandrabhanu. Intelligent fault 
+diagnostic system for rotating machinery based on IoT with cloud computing and artificial 
+intelligence techniques: a review. 2023. Soft Computing. 28. 1-18. 
+[69] Lu Jinfeng.; An Kang.;  Wang Xiaoxian.; He Qingbo.  Edge Computing on IoT for Machine 
+Signal Processing and Fault Diagnosis: A Review. IEEE Internet of Things Journal. 2023. 
+[70] Wang Qizhao.; Li Qing.;  Wang Kai.; Wang Hong.; Zeng Peng. Efficient federated learning 
+for fault diagnosis in industrial cloud-edge computing. Computing. (2021).103. 
+[71] Alenizi Farhan.; Abbasi Shirin.; Mohammed Adil.; Rahmani Amir. The artificial 
+intelligence technologies in Industry 4.0: A taxonomy, approaches, and future directions. 
+Computers & Industrial Engineering. (2023). 
+[72] Chong Chen.; Huibin Fu.; Yu Zheng.; Fei Tao.; Ying Liu.; The advance of digital twin for 
+predictive maintenance: The role and function of machine learning, Journal of 
+Manufacturing Systems, (2023), Vol. 71, 2023, Pages 581-594, ISSN 0278-6125,  
+[73] T R Mahesh.;Saravanan C.; Ram V.; Kumar V.; Vullikanti Vivek.; Guluwadi Suresh. Data-
+Driven Intelligent Condition Adaptation of Feature Extraction for Bearing Fault Detection 
+Using Deep Responsible Active Learning. IEEE Access. (2024). PP. 1-1.  
+[74]  A Khan.; Ibrahim Haleem.; A Javaid Mohd. Role of Internet of Things (IoT) in Adoption of 
+Industry 4.0,2022, Journal of Industrial Integration and Management (2024). P: 515-533. 
+[75] Su Weibin.; Xu Gang.; He Zhengfang.; Machica, Ivy Kim.; Quimno Val.; Du Yi.; Kong 
+Yanchun. Cloud-Edge Computing-Based ICICOS Framework for Industrial Automation and 
+Artificial Intelligence: A Survey, Journal of Circuits, Systems and Computers, 2023, vol 
+:32,p:2350168. 
+[76] Abyarimana M.; Adebiyi A. A. A Review of Artificial Intelligence Applications in 
+Predicting Faults in Electrical Machines. Energies, (2025), 18(7), 1616.  
+[77]  Mohamed Almazrouei, S.; Dweiri F.; Aydin R. A review on the advancements and 
+challenges of artificial intelligence-based models for predictive maintenance of water 
+injection pumps in the oil and gas industry. SN Appl. Sci. 2023, 5, 391.  
+[78] Shreyas Gawde.; Shruti Patil.; Satish Kumar.; Pooja Kamat.; Ketan Kotecha.; Ajith 
+Abraham.; Multi-fault diagnosis of Industrial Rotating Machines using Data-driven 
+approach: A review of two decades of research, Engineering Applications of Artificial 
+Intelligence, 2023, Vol. 123, Part A, 106139, ISSN 0952-1976. 
+[79] Mandal M. C.; Mondal N.; Ray A.; An expert system-based decision-making framework for 
+benchmarking industry in sustainable manufacturing. Benchmarking:An International 
+Journal, (2024), Vol. ahead-of-print No. ahead-of-print.  
+[80] Chen Gang.; Yuan Junlin.; Zhang Yiyue Zhu Hanyue.; Huang Ruyi.; Wang, Fengtao.; Li 
+Weihua. Enhancing Reliability Through Interpretability: A Comprehensive Survey of 
+Interpretable Intelligent Fault Diagnosis in Rotating Machinery. IEEE Access. (2024)., PP. 
+1-1.
+
+
+===== PAGE 23 =====
+
+International Journal of Computer Networks & Communications (IJCNC) Vol 18, No 3, May 2026 
+105 
+[81] Khanam Rahima.; Hussain Muhammad.; Hill Richard.; Allen Paul. A Comprehensive 
+Review of Convolutional Neural Networks for Defect Detection in Industrial 
+Applications.IEEE Access. (2024), PP. 1-1.

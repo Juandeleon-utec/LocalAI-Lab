@@ -1,0 +1,981 @@
+
+
+===== PAGE 1 =====
+
+Advanced Edge Computing Framework for Grid
+Power Quality Monitoring of Industrial Motor Drive
+Applications
+Sachin Kumar Bhoi1,2, Sajib Chakraborty1,2, Boud Verbrugge1,2,Stijn Helsen2,Steven Robyns2,
+Mohamed El Baghdadi1,2, Omar Hegazy1,2,∗
+1 Vrije Universiteit Brussel (VUB), ETEC Dept., & MOBI-EPOWERS research group, Pleinlaan 2, 1050 Brussel, Belgium
+2 Flanders Make, 3001 Heverlee, Belgium
+∗omar.hegazy@vub.be
+Abstract—In
+large-scale
+industrial
+machine
+applications
+(IMAs) during condition monitoring, all sensor devices can
+produce raw data up to
+15TB of data/week. Transmitting
+these large high-frequency data sets to the cloud to closely
+monitor the operational environment and make decisions is not
+feasible for two reasons : (a) bandwidth and latency issues
+and (b) higher cost of data transfer and storage. Condition
+monitoring applications usually extract critical features from
+raw high frequency sensor signals and discard raw data to
+mitigate this issue. The computation is carried out on an edge
+device near to the application hardware and the role of the
+cloud/remote server is limited to receiving fault types, features,
+and monitoring. Therefore, this paper proposes an intelligent
+data capturing methodology with an edge-cloud framework for
+grid power quality monitoring of the IMAs that only triggers
+and transmits datasets to the cloud if the raw datasets contain
+any grid events and/or grid side anomalies. Using dSPACE, grid
+emulation is carried out virtually. Feature extraction using Short
+Term Fourier Transform (STFT) is done in the edge device
+and grid events are detected based on features. The proposed
+methodology is conﬁgured to send raw grid voltage data and
+features in the Microsoft Azure-based cloud that contain at least
+one abnormal grid event. Thus, the proposed approach of this
+paper limits the space requirement in the cloud by 95%, saves
+data transmission costs, and enables the cloud to run predictive
+maintenance algorithms.
+Index Terms—Cloud, Edge computing, power quality, condi-
+tion monitoring, Internet of Things, STFT
+I. INTRODUCTION
+The emergence of Internet of Things (IoT) has opened a
+multitude of possibilities for real-time complex systems. The
+smart industry or industry 4.0 [1] envisions to use digital
+technologies for processing sensor data for useful applications.
+Condition monitoring and predictive health maintenance are
+major application areas in electromechanical systems. The
+key enabling digital technologies are edge computing, big
+data analysis, machine learning, 4G/5G communication, and
+cloud computing. Traditionally sensor-cloud based approaches
+were used in IoT setups. Due to the increasing demand in
+real-time monitoring of systems to capture events of ms
+range, the traditional approach falls short in terms of latency
+and bandwidth. To mitigate these issues edge computing has
+emerged as the most promising technology in recent times [2].
+An efﬁcient edge-cloud communication strategy is needed to
+use digital technologies to the fullest possibilities.
+Industrial motor drives suffer due to undesirable variations
+in the input voltage of the 3-phase grid power supply, often
+leading to a loss of production and quality issues [3]. The
+variation in voltage, magnitude, shape, and frequency is a
+result of switching on/off of high loads, grid faults, and
+capacitor bank switching [4]. The increasing usage of power
+electronics converters also contributes to the existing power
+quality (PQ) issues. PQ problems can cause equipment failure,
+data/memory loss, and protection/relay failure [5]. Good PQ
+is essential for reliable and continuous operation of industrial
+machines [6]. Monitoring power quality is a necessary pre-
+condition for the development of countermeasures [7].
+Monitoring of PQ requires grid voltage and current sensors
+to measure 3-phase voltage and current (Vab, Vbc, Vca, Ia,
+Ib, Ic), which are sampled at high frequency (typically from
+2kHz - 10kHz) to obtain useful information. As a typical
+industrial setup will contain a ﬂeet of power electronics drives,
+the amount of data generated will be very high. It is not
+feasible to send the data from a remote location to the cloud
+to be processed due to cost and reliability issues associated
+with data transfer. Processing and computing data on the edge
+(near to the system) and sending data to the cloud as and when
+required is the best solution.
+Data reduction techniques such as ﬁltering, compression,
+pattern detection, and deduplication are being applied at the
+edge device to reduce data transmission. [8]. This paper
+proposes an advanced framework consisting of Edge-Cloud
+computational functionality to efﬁciently monitor IMAs, and
+implemented in Python. Raw sampled data is processed on
+the edge to monitor faults/events in real-time. Raw data and
+calculated features are sent to the cloud intelligently. The
+framework is applied to power quality problems for IMA
+setups. Section II describes the details of the proposed frame-
+work. Section III details the application-speciﬁc PQ event
+detection methodology. In section IV the proposed framework
+is tested virtually with dSPACE and an edge PC. Section V
+provides the concluding remarks.
+978-1-6654-8459-6/22/$31.00 ©2022 IEEE
+2022 International Symposium on Power Electronics,
+Electrical Drives, Automation and Motion
+455
+2022 International Symposium on Power Electronics, Electrical Drives, Automation and Motion (SPEEDAM) | 978-1-6654-8459-6/22/$31.00 ©2022 IEEE | DOI: 10.1109/SPEEDAM53979.2022.9841966
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:12 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+(a) Edge Device Software Architecture
+3 Phase
+AC
+DC
+DC
+AC
+Data Acquisition
+System
+M
+Va
+Vb
+Vc
+DC LINK
+To Edge Device
+(b) Industrial Motor Drive Setup
+Fig. 1: Software and Hardware Setup
+II. FRAMEWORK CONFIGURATION
+The proposed digital framework in Figure 1a depicts the
+software architecture on the edge device. The IMA setup
+is shown in ﬁgure 1b, which is supplied from a 3-phase
+power supply. The IMA setup is virtually emulated in real-
+time hardware using Simulink and dSPACE. The edge device
+handles real-time data processing,condition monitoring, and
+communicates with the cloud, which receives data to run com-
+plex algorithms for predictive maintenance. The framework
+can be described as follows
+• Sensor Data Reception: The sensor data from data ac-
+quisition hardware (DAQ) is received through Ethernet
+communication protocol.
+• Pre-Processing: The data integrity is checked. Also, ﬁl-
+tering could be implemented if necessary. The received
+data is stored in a FIFO (First-in-First-out) queue for
+further processing.
+• Snapshot Creator: The continuous stream of raw sen-
+sor data is divided into ﬁxed time length sampled data
+(Snapshot). Along with raw data, a snapshot also con-
+tains sensor information, sampling frequency, calculated
+features, and fault status. For the application of PQ
+monitoring, snapshot time is 3s with 4kHz sampling.
+• Feature Extraction: This block extracts useful features
+from the raw data, which will be used by classiﬁcation
+and detection algorithms. Popular feature calculation
+methods are FFT (Fast Fourier Transform), STFT (Short
+Time Fourier Transform), Wavelet transform (WT), and
+S-transform [9]. In this paper, STFT is used for feature
+extraction.
+• Power Quality Event Classiﬁer: This function imple-
+ments the classiﬁer algorithm to detect PQ events. If an
+event is detected, it triggers the program to send data to
+cloud. This paper implements a decision tree(DT) for
+the classiﬁcation problem.
+• Periodic Check: This block gives a trigger to send data
+to cloud periodically even when no PQ event is detected.
+The frequency of trigger can be varied dynamically as
+per requirement and communication from the cloud. It
+Data Storage and FIFO Queue
+Communication
+and
+Data Logging
+Digital 
+Framework
+Cloud
+Communication
+THREAD 1
+THREAD 2
+THREAD 3
+Fig. 2: Python Implementation
+is an essential feature, as during initial operation the
+cloud can request a high amount of snapshots and once
+the cloud has enough data-sets, the periodic checker can
+be set to a high value to reduce data transmission.
+• Cloud Communication: This function sends snapshots
+to the cloud with inputs from the event classiﬁer and
+the periodic checker. The extracted features are always
+sent for each snapshot.
+Figure 2 shows the multi-threading software implementation
+strategy. Three threads run in parallel in Python to keep the
+edge computing in real-time. Thread 1 runs the communication
+with DAQ and logs the data in a FIFO queue. Thread 2 takes
+the data from the FIFO queue for snapshot creation, feature
+extraction, and classiﬁcation. Thread 2 also speciﬁes which
+snapshots are to be sent to the cloud. Thread 3 takes the
+speciﬁed snapshot from thread 2 and sends it to the cloud.
+Thread 3 adds an advantage to the system, as during an internet
+communication failure, the PQ detection algorithm could still
+run in real-time, and data can be sent to cloud once internet
+connection is resumed.
+III. POWER QUALITY DISTURBANCES
+The importance of PQ monitoring is increasing due to
+the signiﬁcant growth of interest in smart grid, distributed
+456
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:12 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+TABLE I: Power Quality Events [10]- [11]
+Category
+Spectral Information
+Equation
+Parameters
+Voltage Sag
+Duration : 10ms - 3s
+Vpeak(1 −α(u(t −t1) −u(t −t2)))sin(ωt −φ)
+0.1 ≤α ≤0.9, u: step function
+t1, t2: Start,End time
+Voltage Swell
+Duration: 10ms-3s
+Vpeak(1 + β(u(t −t1) −u(t −t2)))sin(ωt −φ)
+0.1 ≤β ≤0.8 u: step function
+t1, t2: Start,End time
+Voltage Interruption
+Duration: 10ms-3s
+Vpeak(1 + γ(u(t −t1) −u(t −t2)))sin(ωt −φ)
+0.9 ≤γ ≤1.0 u: step function
+t1, t2: Start,End time
+Flicker
+Spectrum: Upto 9kHz
+Vpeak(1 + λsin(ωft))sin(ωt −φ)
+0.05 ≤λ ≤0.1
+ff ∈[8Hz, 25Hz], ωf = 2πff
+Harmonics
+Spectrum: Upto 9kHz
+Vpeak(sin(ωt −φ) + 7
+n=3 αnsin(nωt −υn))
+0.05 ≤αn ≤0.15
+−π ≤υn ≤π
+generation, usage of power electronics equipment, and integra-
+tion of renewable energies [4]. IEEE 1159, IEC 61000-4-30
+and EN50160 present power quality indices [10], [12], [13].
+IEEE 1159 standard details the deﬁnition of various power
+quality events. This paper considers the PQ events described
+in Table I. The equations in Table I are used to synthesize the
+waveforms for the DT training. All the parameter variations
+are considered while generating the training data set.
+A. Waveform Analysis with Short Time Fourier Transform
+STFT is a common method to evaluate time-varying wave-
+form distortions [14]. The non-stationary nature of PQ dis-
+turbances makes STFT a useful tool for analysis. STFT
+applies a moving window of a ﬁxed length to the signal and
+performs Fourier Transform to obtain both time and frequency
+information. The discrete STFT for a signal x[n] is
+X(m, k) =
+∞
+
+n=−∞
+x[n]w[n −m]e−j2πkn/N
+(1)
+where w is the window function, m is the position of the
+window, kω0 refers to discrete frequency and ω0 is the fre-
+quency resolution of applied Fourier transform. The time and
+frequency resolution of STFT is ﬁxed as the window length
+is selected in advance. The overlap between two consecutive
+windows also affects the time resolution of the output. STFT
+returns Fast Fourier Transform (FFT) coefﬁcients for each
+window. The time and frequency resolution of STFT is
+Δt = N −No
+Fs
+Δf = Fs
+N
+(2)
+where Fs is the sampling frequency of the data, N is the
+window length on which FFT is performed and No is the
+number of sample overlap. For the extraction of features STFT
+is performed with N = 256 and No = 216 resulting in Δt =
+10ms and Δf = 15.62Hz. Figure 3 shows the STFT output
+data for various power quality disturbances. It is evident from
+Figures 3b, 3d, 3f, 3h that low frequency FFT coefﬁcients
+varies when there is a momentary sag/swell/interruption/ﬂicker
+in the voltage. Figure 3j shows the STFT for low frequency
+harmonic disturbances.
+B. Feature Extraction from STFT Data
+It is evident from the STFT graph that a few frequency
+components of the STFT output matrix are most useful
+for detection of disturbances. The frequencies 46.8Hz (a3),
+62.5Hz (a4) and 156.2 Hz (a10) are considered for extracting
+the features. The sag/swell/interruption/ﬂickering could be
+observed using a3 and a4 and harmonics could be observed
+on a10 output. Figure 4 shows the variation of the selected
+frequency coefﬁcients with respect to the snapshot time. The
+graph for voltage interruption is not given in the ﬁgure, as
+interruption behaviour of features is similar to voltage sag. The
+statistical data for the time-varying FFT coefﬁcient is used as
+features. The ﬁnal feature used for DT training are
+1) a3: Minimum, Variance, Kurtosis, Skewness
+2) a4: Variance, Kurtosis, Skewness
+3) a10: Mean Value
+C. Decision Tree Classiﬁer
+DTs are a non-parametric supervised learning method used
+for classiﬁcation problems. The model predicts the target
+variable by learning simple decision rules from a feature set
+[15]. The DT has nodes, where each node represents a test
+based on feature value, and each branch of a node represents
+a distinct outcome of the test. DT is a white-box model.
+It is highly interpretable through proper visualization. This
+makes it very attractive for real-time deployment. DT has been
+successfully applied to PQ event classiﬁcation problem in [16]
+with Hilbert Transform. The total data-set consists of 678 3-
+phase voltage snapshot. The normal 3-phase supply snapshot
+is added with white noise, and acceptable frequency variation.
+70% of the data is used for training purpose and 30% is used
+for testing. The formulated DT is shown in Figure 5.
+The
+TABLE II: Decision Tree Validation Test Result
+PQ Event
+Number of Test Sample
+Number of Prediction
+Normal
+46
+46
+Sag
+56
+57
+Swell
+54
+53
+Interruption
+16
+16
+Flicker
+11
+11
+Harmonics
+46
+46
+validation accuracy is 98%. Table II lists the output of the
+decision tree validation.
+457
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:12 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+0.50
+0.75
+1.00
+1.25
+1.50
+1.75
+2.00
+2.25
+2.50
+Time(s)
+−400
+−200
+0
+200
+400
+V
+oltage (V)
+(a) Voltage Sag
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot time(s)
+0
+25
+50
+75
+100
+125
+150
+175
+200
+Frequency(Hz)
+0
+30
+60
+90
+120
+150
+180
+210
+240
+FFT Magnitude(V)
+(b) STFT of Voltage Sag
+0.50
+0.75
+1.00
+1.25
+1.50
+1.75
+2.00
+2.25
+2.50
+Time(s)
+−800
+−600
+−400
+−200
+0
+200
+400
+600
+800
+V
+oltage (V)
+(c) Voltage Swell
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot time(s)
+0
+25
+50
+75
+100
+125
+150
+175
+200
+Frequency(Hz)
+0
+60
+120
+180
+240
+300
+360
+FFT Magnitude(V)
+(d) STFT of Voltage Swell
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Time(s)
+−600
+−400
+−200
+0
+200
+400
+600
+V
+oltage (V)
+(e) Voltage Interruption
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot time(s)
+0
+100
+200
+300
+400
+500
+600
+700
+800
+F
+requency(Hz)
+0
+45
+90
+135
+180
+225
+270
+FFT Magnitude(V)
+(f) STFT of Voltage Interruption
+1.0
+1.1
+1.2
+1.3
+1.4
+1.5
+Time(s)
+−600
+−400
+−200
+0
+200
+400
+600
+V
+oltage (V)
+(g) Voltage Flickering
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot time(s)
+0
+100
+200
+300
+400
+500
+Frequency(Hz)
+0
+45
+90
+135
+180
+225
+270
+315
+FFT Magnitude(V)
+(h) STFT of Voltage Flickering
+1.00
+1.05
+1.10
+1.15
+1.20
+1.25
+Time(s)
+−400
+−200
+0
+200
+400
+V
+oltage (V)
+(i) Voltage with Harmonics
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot time(s)
+0
+100
+200
+300
+400
+500
+600
+700
+800
+Frequency(Hz)
+0
+30
+60
+90
+120
+150
+180
+210
+240
+FFT Magnitude(V)
+(j) STFT of Voltage with Harmonics
+Fig. 3: STFT for Various Power Quality Disturbances
+IV. RESULTS
+The software framework is implemented in Python envi-
+ronment. The snapshot is created using a user-deﬁned class.
+Snapshot uses NumPy array for storing raw sensor data and
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot Time (s)
+210
+215
+220
+225
+230
+FFT Magnitude
+a3: 46.8Hz
+a4 : 62.5Hz
+(a) Voltage Sag
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot Time (s)
+0
+50
+100
+150
+200
+FFT Magnitude
+a3 : 46.8Hz
+a4 : 62.5Hz
+a10: 156.2Hz
+(b) Voltage Harmonics
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot Time (s)
+230
+240
+250
+260
+270
+280
+290
+300
+FFT Magnitude
+a3: 46.8Hz
+a4 : 62.5Hz
+(c) Voltage Swell
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Snapshot Time (s)
+265
+270
+275
+280
+285
+290
+295
+FFT Magnitude
+a3: 46.8Hz
+a4 : 62.5Hz
+(d) Voltage Flicker
+Fig. 4: Frequency coefﬁcients (a3,a4,a10) of STFT for PQ Event
+gini = 0.0
+samples = 1
+value = [0, 0, 0, 0, 0, 1]
+class = Swell
+gini = 0.0
+samples = 1
+value = [0, 0, 0, 0, 1, 0]
+class = Sag
+gini = 0.0
+samples = 17
+value = [0, 0, 0, 0, 17, 0]
+class = Sag
+a3_Min <= 285.466
+gini = 0.5
+samples = 2
+value = [0, 0, 0, 0, 1, 1]
+class = Sag
+gini = 0.0
+samples = 7
+value = [0, 0, 0, 0, 0, 7]
+class = Swell
+gini = 0.0
+samples = 1
+value = [0, 0, 0, 0, 1, 0]
+class = Sag
+gini = 0.0
+samples = 7
+value = [0, 0, 0, 0, 0, 7]
+class = Swell
+gini = 0.0
+samples = 1
+value = [0, 0, 0, 0, 1, 0]
+class = Sag
+gini = 0.0
+samples = 1
+value = [0, 0, 0, 0, 0, 1]
+class = Swell
+a3_Min <= 277.793
+gini = 0.1
+samples = 19
+value = [0, 0, 0, 0, 18, 1]
+class = Sag
+gini = 0.0
+samples = 2
+value = [0, 0, 0, 0, 2, 0]
+class = Sag
+a10_Mean <= 0.022
+gini = 0.219
+samples = 8
+value = [0, 0, 0, 0, 1, 7]
+class = Swell
+a3_Skewness <= 0.526
+gini = 0.219
+samples = 8
+value = [0, 0, 0, 0, 1, 7]
+class = Swell
+gini = 0.0
+samples = 73
+value = [0, 0, 0, 0, 0, 73]
+class = Swell
+a3_Min <= 233.031
+gini = 0.18
+samples = 20
+value = [0, 0, 0, 0, 18, 2]
+class = Sag
+gini = 0.0
+samples = 7
+value = [0, 0, 0, 0, 0, 7]
+class = Swell
+a3_Skewness <= -0.0
+gini = 0.42
+samples = 10
+value = [0, 0, 0, 0, 3, 7]
+class = Swell
+a4_Kurtosis <= -0.885
+gini = 0.024
+samples = 81
+value = [0, 0, 0, 0, 1, 80]
+class = Swell
+a3_Variance <= 188.254
+gini = 0.444
+samples = 27
+value = [0, 0, 0, 0, 18, 9]
+class = Sag
+a10_Mean <= 0.023
+gini = 0.084
+samples = 91
+value = [0, 0, 0, 0, 4, 87]
+class = Swell
+gini = 0.0
+samples = 9
+value = [9, 0, 0, 0, 0, 0]
+class = Flicker
+gini = 0.0
+samples = 147
+value = [0, 0, 0, 0, 147, 0]
+class = Sag
+gini = 0.0
+samples = 25
+value = [25, 0, 0, 0, 0, 0]
+class = Flicker
+a4_Skewness <= -1.052
+gini = 0.303
+samples = 118
+value = [0, 0, 0, 0, 22, 96]
+class = Swell
+gini = 0.0
+samples = 29
+value = [0, 0, 29, 0, 0, 0]
+class = Interruption
+a10_Mean <= 0.008
+gini = 0.109
+samples = 156
+value = [9, 0, 0, 0, 147, 0]
+class = Sag
+gini = 0.0
+samples = 42
+value = [0, 0, 0, 42, 0, 0]
+class = Normal
+a10_Mean <= 0.008
+gini = 0.495
+samples = 143
+value = [25, 0, 0, 0, 22, 96]
+class = Swell
+a3_Min <= 28.01
+gini = 0.342
+samples = 185
+value = [9, 0, 29, 0, 147, 0]
+class = Sag
+a3_Variance <= 0.537
+gini = 0.647
+samples = 185
+value = [25, 0, 0, 42, 22, 96]
+class = Swell
+a3_Min <= 220.805
+gini = 0.697
+samples = 370
+value = [34, 0, 29, 42, 169, 96]
+class = Sag
+gini = 0.0
+samples = 104
+value = [0, 104, 0, 0, 0, 0]
+class = Harmonics
+a10_Mean <= 4.21
+gini = 0.767
+samples = 474
+value = [34, 104, 29, 42, 169, 96]
+class = Sag
+Fig. 5: PQ Event Decision Tree Classiﬁer
+dictionary for storing data such as sensor information, signal
+name, and sampling frequency. STFT feature extraction algo-
+rithm is developed on top of FFT, and the DT is implemented
+using the sklearn Python module. The testing data is generated
+by taking random parameters for different power quality
+events. The 3-phase power supply is simulated in real-time
+hardware in dSPACE and data is sent to edge device through
+Ethernet. Figure 6 shows the result of the virtual test. It shows
+the graph of the detected PQ event with respect to the received
+snapshot number. The red dots in the ﬁgure are the snapshots
+that will be sent to cloud. The periodic checker is set to 1-
+458
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:12 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+0
+100
+200
+300
+400
+500
+Received Snapshot Number
+Flicker
+Normal
+Swell
+Interruption
+Harmonics
+Sag
+Power Quality Data
+Fig. 6: PQ Event Classiﬁcation Results
+minute, so snapshots are sent to cloud periodically after every
+20 snapshots even when there is no abnormal PQ detection.
+For a single snapshot with a length of 3s, the raw sensor
+data size is 288KB and feature set data size is 0.2KB. For
+a 24hour time duration, the total sensor data size would be
+around 8GB. Assuming that 50 grid event occurs in a day,
+the total data transmission size in 24 hours is the sum of the
+periodic transmission (each minute interval), the 50 Snapshots
+of the PQ event, and the feature set of 24 hours. The total
+data transmission using the proposed framework is 424.68MB,
+which is 94.8% less than the sensor data size of 8GB.
+V. CONCLUSION
+The usage of the proposed edge computation framework is
+not limited to condition monitoring and anomaly detection.
+Applications, where edge computing is used to monitor local
+electromechanical systems, can use the framework to effec-
+tively communicate with the cloud. Data reduction techniques
+focus to minimize the amount of raw data that is being sent to
+the cloud for further processing but the framework intelligently
+ﬁlters out redundant snapshots using a classiﬁcation algorithm
+at the edge. The paper demonstrates the application of the
+proposed software framework to power quality monitoring
+and implements STFT and DT algorithm for classiﬁcation
+purposes, which resulted in approximately 95% reduction
+of transmitted data in comparison to the only cloud-based
+framework.
+Future work will improve upon the proposed software
+framework to establish communication from cloud to edge
+and update the edge device software such as periodic checker,
+classiﬁcation algorithm, and snapshot time. Future work also
+includes implementation of real-time PQ event detection and
+testing with the industrial drive. The feature sets will be
+optimized to include all the possible abnormal PQ events that
+can be detected by keeping the sampling time pragmatic with
+low-cost edge device.
+ACKNOWLEDGEMENT
+This research is part of the INCADD ICON project funded and
+supported by Flanders Make, the strategic research center for
+the manufacturing industry. We acknowledge Flanders Make
+for the support to our research group.
+REFERENCES
+[1] Aceto, G., Persico, V., & Pescap´e, A. (2019). A Survey on In-
+formation and Communication Technologies for Industry 4.0: State-
+of-the-Art,
+Taxonomies,
+Perspectives,
+and
+Challenges.
+In
+IEEE
+Communications
+Surveys
+and
+Tutorials
+(Vol.
+21,
+Issue
+4,
+pp.
+3467–3501). Institute of Electrical and Electronics Engineers Inc.
+https://doi.org/10.1109/COMST.2019.2938259
+[2] Hafeez, T., Xu, L., & McArdle, G. (2021). Edge intelligence for
+data handling and predictive maintenance in IIoT. IEEE Access, 9,
+49355–49371. https://doi.org/10.1109/ACCESS.2021.3069137
+[3] Prudenzi, A., Falvo, M. C., & Mascitelli, S. (2008). Power qual-
+ity survey on Italian industrial customers: Paper industries. IEEE
+Power
+and
+Energy
+Society
+2008
+General
+Meeting:
+Conversion
+and
+Delivery
+of
+Electrical
+Energy
+in
+the
+21st
+Century,
+PES.
+https://doi.org/10.1109/PES.2008.4596463
+[4] Beniwal, R. K., Saini, M. K., Nayyar, A., Qureshi, B., & Aggarwal,
+A. (2021). A critical analysis of methodologies for detection and
+classiﬁcation of power quality events in smart grid. IEEE Access, 9,
+83507–83534. https://doi.org/10.1109/ACCESS.2021.3087016
+[5] Thapar, A., Saha, T. K., & Dong, Z. Y. (2004). Investigation of power
+quality categorisation and simulating it’s impact on sensitive electronic
+equipment. 2004 IEEE Power Engineering Society General Meeting, 1,
+528–533. https://doi.org/10.1109/PES.2004.1372855
+[6] Hunter I. Power quality issues – a distribution company perspective.
+Power Engineering Journal 2001;15(2):75–80.
+[7] Azam, M. S., Tu, F., Pattipati, K. R., & Karanam, R. (2004). A depen-
+dency model-based approach for identifying and evaluating power qual-
+ity problems. IEEE Transactions on Power Delivery, 19(3), 1154–1166.
+https://doi.org/10.1109/TPWRD.2003.822537
+[8] Pioli, L., Dorneles, C. F., de Macedo, D. D. J., & Dantas, M.
+A. R. (2022). An overview of data reduction solutions at the edge
+of IoT systems: a systematic mapping of the literature. Computing.
+https://doi.org/10.1007/s00607-022-01073-6
+[9] Saini, M. K., & Kapoor, R. (2012). Classiﬁcation of power quality
+events - A review. International Journal of Electrical Power and Energy
+Systems, 43(1), 11–19. https://doi.org/10.1016/j.ijepes.2012.04.045
+[10] Committee of the IEEE Power, D., & Society, E. (2009). IEEE Recom-
+mended Practice for Monitoring Electric Power Quality IEEE Power &
+Energy Society.
+[11] Igual, R., Medrano, C., Arcega, F. J., & Mantescu, G. (2018). Integral
+mathematical model of power quality disturbances. Proceedings of
+International Conference on Harmonics and Quality of Power, ICHQP,
+2018-May, 1–6. https://doi.org/10.1109/ICHQP.2018.8378902
+[12] Testing and Measurement Techniques-Power Quality Measurement
+Methods,
+International
+Electrotechnical
+Commision
+Standard
+IEC
+61000-4-30, 2003
+[13] Voltage Characteristics of Electricity Supplied by Public Distribution
+System, European Standard EN 50160, 2010.
+[14] Baghzouz, Y., Burch, R. F., Capasso, A., Cavallini, A., Emanuel,
+A. E., Halpin, M., Imece, A., Ludbrook, A., Montanari, G., Ole-
+jniczak, K. J., Ribeiro, P., Rios-Marcuello, S., Tang, L., Thallam, R.,
+& Verde, P. (1998). Time-varying harmonics: Part I - Characterizing
+measured data. IEEE Transactions on Power Delivery, 13(3), 938–944.
+https://doi.org/10.1109/61.686996
+[15] 1.10.
+Decision
+Trees
+—
+scikit-learn
+1.0.2
+documentation.
+(n.d.).
+Retrieved
+March
+9,
+2022,
+from
+https://scikit-
+learn.org/stable/modules/tree.html
+[16] Saini, R., Mahela, O.P. and Sharma, D., 2018, December. An algorithm
+based on hilbert transform and rule based decision tree classiﬁcation of
+power quality disturbances. In 2018 IEEE 8th Power India International
+Conference (PIICON) (pp. 1-6). IEEE.
+459
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:12 UTC from IEEE Xplore.  Restrictions apply.

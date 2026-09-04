@@ -1,0 +1,585 @@
+
+
+===== PAGE 1 =====
+
+On-Device Low-Frequency Mechanical Fault
+Detection of Induction Motors using MEMS
+Sensors and Edge AI
+Vedanta Banerjee, Debjyoti Chowdhury, Madhurima Chattopadhyay
+Department of Applied Electronics and Instrumentation Engineering
+Heritage Institute of Technology, Kolkata, India
+vedantabanerjee01@gmail.com, {debjyoti.chowdhury, madhurima.chattopadhyay}@heritageit.edu
+Abstract—This paper presents a TinyML system for end-
+to-end, on-device vibration-based mechanical fault detection in
+single-phase induction motors. The sensing node integrates a
+low-cost MEMS inertial sensor (LSM6DSO) with an ESP32-C3
+microcontroller. The proposed firmware implements orientation-
+invariant preprocessing, contiguous leakage-safe segmentation,
+and int8 quantized inference of a compact multi-channel 1D
+Convolutional Neural Network (CNN). Window-level outputs are
+aggregated using a confidence-weighted majority voting rule to
+provide robust diagnoses across four states: motorOFF, mo-
+torON, motorON NoFan, and motorON BadFan. By employing
+strictly contiguous file splits to prevent temporal data leakage, we
+report a window-level macro F1-score of 0.98 and a recording-
+level macro F1-score of 0.95 on held-out, position-specific data.
+The quantized model requires only 80 KB of Flash and 120 KB
+of RAM, with an inference latency of 82 ms. This demonstrates
+the feasibility of deploying sophisticated diagnostic AI on low-
+power edge devices for real-time industrial condition monitoring
+of induction motors.
+Index Terms—Condition monitoring, convolutional neural net-
+works (CNN), edge AI, induction motors, microcontrollers, pre-
+dictive maintenance, TinyML, vibration analysis.
+I. INTRODUCTION
+Induction motors (IMs) are the industrial backbone, pow-
+ering critical infrastructure from HVAC systems to process
+conveyors [1]. Given their continuous operation in harsh
+environments, reliable performance is a primary driver of
+plant availability and energy efficiency. Even marginal im-
+provements in early fault detection can significantly reduce
+downtime, repair costs, and safety risks [2]. While indus-
+trial monitoring often prioritizes bearing failures, this study
+focuses on low-frequency mechanical anomalies, specifically
+fan unbalance and removal. These faults represent critical
+failure modes that lead to motor overheating and accelerated
+insulation degradation.
+A. Induction Motor Fault Modalities
+IM faults are broadly categorized as electrical (e.g., winding
+anomalies, broken bars) or mechanical (e.g., bearing defects,
+misalignment, and fan damage). Electrical faults are typi-
+cally diagnosed through current-signature analysis and time-
+frequency processing of stator currents [3], [4]. Conversely,
+mechanical faults manifest as localized vibration signatures
+requiring accelerometer-based envelope or spectral analysis
+[5]. Combining these modalities often enhances diagnostic
+breadth and reliability across varied operating conditions [6].
+B. Vibration-Based Diagnostics and Edge Computing
+Vibration sensing captures the mechanical energy imparted
+to motor housings, making it ideal for detecting the impulsive
+or modulated patterns characteristic of shaft misalignment
+and fan-related anomalies. While classical time-domain de-
+scriptors (RMS, kurtosis) and frequency-domain peaks of-
+fer interpretability, advanced time-frequency techniques like
+STFT or wavelets are essential for non-stationary conditions.
+Recent advancements in MEMS accelerometers facilitate cost-
+effective, distributed monitoring networks when integrated
+with energy-efficient edge nodes [7], enabling sophisticated
+diagnostics without reliance on cloud-based processing.
+II. RELATED WORK
+A. Review of Literature and Prior Art
+Induction motor fault diagnosis has evolved from canonical
+signal processing to sophisticated machine learning. Estab-
+lished surveys emphasize that robust condition monitoring
+requires specialized preprocessing for non-stationary signals
+and careful consideration of mechanical coupling effects [1].
+Classical methodologies typically utilize engineered time-
+and frequency-domain features paired with SVMs or tree-
+based classifiers to distinguish mechanical faults in controlled
+environments [5]. Comparative studies indicate that while
+current-signature analysis is effective for electromechanical
+interactions, vibration-based sensing remains more sensitive
+to purely mechanical anomalies [6].
+Recent advancements favor end-to-end deep learning, where
+CNNs trained on time-frequency representations achieve high
+diagnostic accuracy, particularly on standard bearing datasets
+[8], [9]. These successes motivate the shift toward TinyML,
+where models are quantized for microcontroller deployment.
+However, existing literature reveals critical methodological
+gaps: (i) a lack of reproducible metrics for full TinyML
+stacks (Flash, RAM, and latency), (ii) insufficient exploration
+of mounting-position variability and orientation-invariant pre-
+processing, (iii) a lack of real-time synchronization between
+hardware acquisition and inference, and (iv) prevalent data
+2026 International Conference on Computing, Electronics & Communications Engineering (ICCECE) | 979-8-3195-1700-5/26/$31.00 ©2026 IEEE | DOI: 10.1109/ICCECE69715.2026.11492961
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:45:35 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+Fig. 1: Proposed end-to-end TinyML system block diagram for on-device fault classification.
+leakage caused by random shuffling of overlapping temporal
+windows.
+This work addresses these gaps by implementing a leakage-
+safe, orientation-invariant pipeline on an ESP32-C3 micro-
+controller. Unlike studies focusing solely on bearing datasets,
+we utilize a multi-channel 1D CNN to specifically target low-
+frequency fan-related mechanical faults, ensuring strictly
+contiguous data splits for rigorous evaluation.
+III. SYSTEM OVERVIEW
+The end-to-end architecture is illustrated in the block dia-
+gram in Fig. 1, which shows the flow from raw data acqui-
+sition via the LSM6DSO to on-device confidence-weighted
+inference. The physical mounting logic is further detailed in
+Fig. 3, where the sensor is placed at three distinct points to
+capture position-dependent vibrational coupling.
+A. Hardware Architecture and Sensor Placement
+The sensing node (Fig. 2) is designed for high-fidelity
+vibration acquisition within a constrained power budget. It
+integrates an LSM6DSO 6-DoF IMU with a Seeed Studio
+XIAO ESP32-C3, featuring a 160 MHz RISC-V core and
+400 KB SRAM. The tri-axial accelerometer is configured to
+a full-scale range of ±4g, providing sufficient dynamic range
+for industrial motor vibrations. To optimize battery longevity
+while ensuring signal integrity for low-frequency faults, data
+is sampled at fs = 445 Hz. This configuration directly aligns
+with the IMU’s internal Output Data Rate (ODR) to prevent
+aliasing and satisfies the Nyquist criterion for mechanical
+anomalies manifesting below 220 Hz.
+Fig. 2: Compact edge sensor node
+Position 1
+Position 2
+Position 3
+Fig. 3: Sensor placement positions
+As illustrated in Fig. 3, three specific mounting positions
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:45:35 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+were selected to characterize the vibration transduction across
+the motor frame:
+• Position 1 (Drive End): Located near the load coupling
+to capture shaft-related vibrations and torque-induced
+oscillations.
+• Position 2 (Central): Positioned at the mid-housing to
+monitor core electromagnetic vibrations and overall stator
+resonance.
+• Position 3 (Non-Drive End): Placed adjacent to the
+cooling fan. This position is critical for our study, as it
+provides the highest signal-to-noise ratio for detecting fan
+unbalance and aerodynamic turbulence.
+Collecting data across these varied locations allows the model
+to learn position-invariant features, ensuring that the diagnostic
+AI remains robust regardless of where a technician mounts the
+device on the motor housing.
+B. Dataset layout and sample counts
+The collected data is organized into datasets, which are
+then organized into two directories: datasets/train/ and
+datasets/test/. File-level organization and counts are
+summarized in Table I.
+TABLE I: Dataset files and raw sample counts
+File / Set (datasets/)
+Samples
+per file
+Label / Notes
+train/motorOFF.csv
+120000*
+class 0
+train/motorON.csv
+120000*
+class 1
+train/motorON_NoFan.csv
+120000*
+class 2
+train/motorON_BadFan.csv
+120000*
+class 3
+Total (train dir)
+480000
+balanced across all
+four classes
+test/motorOFF_P1.csv
+10000
+held-out position P1
+test/motorOFF_P2.csv
+10000
+held-out position P2
+test/motorOFF_P3.csv
+10000
+held-out position P3
+...
+...
+...
+test/motorON_BadFan_P3.csv10000
+held-out position P3
+Total (test dir)
+120000
+12 files × 10,000
+*Each class file in datasets/train aggregates 40,000 samples from
+each position - P1, P2 and P3, amounting to 120,000 samples for each class.
+IV. PREPROCESSING AND WINDOWING
+A. Signal Transformation and Orientation Invariance
+To ensure the model is robust to varied sensor mounting
+angles, a two-stage preprocessing pipeline is implemented.
+First, for each contiguous recording segment of length N,
+we perform per-axis DC removal. Let ai[n] represent the raw
+acceleration for axis i ∈{x, y, z}. The zero-mean signal ˆai[n]
+is computed as:
+ˆai[n] = ai[n] −1
+N
+N
+X
+k=1
+ai[k]
+(1)
+This step effectively eliminates the static gravity component
+1g, ensuring that the vibration signatures are independent of
+the sensor’s spatial orientation.
+Next, we derive the Acceleration Vector Magnitude (Re-
+sultant Acceleration) av[n] to capture the total vibrational
+energy:
+av[n] =
+q
+ˆax[n]2 + ˆay[n]2 + ˆaz[n]2
+(2)
+Finally, all four channels are subjected to Z-score stan-
+dardization. Each sample x is transformed using the global
+training mean µ and standard deviation σ as:
+z = x −µ
+σ
+(3)
+B. Windowing and Data Augmentation
+The continuous data stream is partitioned into temporal win-
+dows using a sliding window approach. We define a window
+length L = 512 samples and a stride S = 256, resulting
+in a 50% overlap to preserve transient features at segment
+boundaries. Each input instance X ∈R512×4 represents the
+four channels (ˆax, ˆay, ˆaz, av).
+During the training phase, on-the-fly augmentations are
+applied to improve model generalization:
+• Additive Gaussian Noise: X ′ = X + N(0, σnoise),
+where σnoise is 1% of the signal’s standard deviation.
+• Random Amplitude Scaling: X ′ = X · α, where α ∼
+U(0.9, 1.1).
+Augmentations were disabled during validation and held-out
+testing to ensure a deterministic assessment of base model
+performance.
+V. MODEL DESIGN AND TRAINING
+A. Architecture
+The model is a compact multi-channel 1D CNN ar-
+chitecture (implemented using Conv2D layers with N × 1
+kernels) optimized for low parameter count and quantization
+friendliness. It utilizes elongated temporal kernels to capture
+waveform envelopes, small channel counts, batch normaliza-
+tion, and dropout for regularization. The feature extractor is
+followed by global average pooling and a small dense head.
+Total trainable parameters are approximately 15k. The layer
+configurations in Table II correspond to the input window size
+of L = 512.
+B. Training recipe
+Optimization uses Adam (initial LR = 1 × 10−3), batch
+size 32, sparse categorical cross-entropy, ReduceLROnPlateau
+(patience 8), and EarlyStopping (patience 12). Representative
+calibration windows (1k–5k, uniformly sampled across mount
+positions and classes) are used for post-training integer quan-
+tization (PTQ).
+VI. ON-DEVICE INTEGRATION AND RESOURCE PROFILE
+A. Quantization and TFLM integration
+We apply full integer PTQ (int8) and integrate the ‘.tflite‘
+model into TensorFlow Lite for Microcontrollers (TFLM). The
+firmware embeds StandardScaler constants and uses integer
+arithmetic consistent with host quantization parameters. The
+TFLM build includes only the operators required by the model
+to minimize firmware size.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:45:35 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+TABLE II: Model architecture (Input L = 512).
+Layer
+Configuration / Output Shape
+Params
+Conv2D
+8 filters, kernel (64×1) →(449, 4, 8)
+520
+BatchNorm
+–
+32
+MaxPool2D
+(4×1) →(112, 4, 8)
+0
+Dropout
+p = 0.2
+0
+Conv2D
+16 filters, kernel (32×1) →(81, 4, 16)
+4,112
+BatchNorm
+–
+64
+MaxPool2D
+(2×1) →(40, 4, 16)
+0
+Dropout
+p = 0.2
+0
+Conv2D
+32 filters, kernel (16×1) →(25, 4, 32)
+8,224
+BatchNorm
+–
+128
+MaxPool2D
+(2×1) →(12, 4, 32)
+0
+Dropout
+p = 0.2
+0
+GlobalAvgPool2D
+→(32)
+0
+Dense
+32 units, ReLU
+1,056
+BatchNorm
+–
+128
+Dropout
+p = 0.3
+0
+Dense
+16 units, ReLU
+528
+BatchNorm
+–
+64
+Dropout
+p = 0.3
+0
+Dense (output)
+4 units, softmax
+68
+Total
+–
+14,924
+B. Measured resource profile
+After tuning the static arena and optimization of the binary
+size,
+• Quantized model size (flash): 80 KB.
+• Firmware + TFLM + model (flash): 410 KB.
+• Peak RAM usage (TFLM arena + tensors): 120 KB.
+• Per-window inference latency (ESP32-C3, int8, L =
+512): 82 ± 7 ms (mean ± SD, N = 100).
+C. Power and Energy Profiling
+To evaluate the system’s suitability for battery-powered
+edge nodes, energy consumption per inference (Einf) and
+total operational lifespan were estimated. With the ESP32-
+C3 consuming approximately 25 mA at 3.3 V during active
+processing (tinf = 82 ms):
+Einf = 3.3 V × 0.025 A × 0.082 s ≈6.77 mJ
+(4)
+Given the sampling cycle of 575 ms, the device remains in
+a low-power idle state (approx. 1 mA) for the remaining
+493 ms. The average current Iavg is calculated as:
+Iavg = (25 mA × 82 ms) + (1 mA × 493 ms)
+575 ms
+≈4.42 mA
+(5)
+With a 1500 mAh battery, the node achieves a continuous op-
+erational lifespan of approximately 339 hours (≈14.1 days),
+performing over 2.1 × 106 on-device inferences. This con-
+firms the feasibility of long-term field deployment for real-time
+monitoring.
+VII. EVALUATION PROTOCOL
+A. Leakage-safe splits
+Train/Validation/Test splits are contiguous by file to prevent
+any window overlap across splits. The final generalization is
+measured on the 12 held-out files in datasets/test/ (3
+positions × 4 classes).
+B. Metrics and Aggregation
+We report window-level metrics (Precision, Recall, F1) and
+recording-level metrics aggregated via confidence-weighted
+majority voting. For each held-out recording, for each class
+k, we compute:
+scorek = (mean confidencek) × (countk).
+The class with the maximum scorek is assigned.
+VIII. RESULTS
+A. Window-level (Validation)
+On the contiguous internal validation split (92 windows per
+class), window-level metrics are summarized in Table III.
+TABLE III: Window-level classification metrics (validation, 92
+windows per class).
+Class
+Precision
+Recall
+F1
+Support
+motorOFF
+1.00
+1.00
+1.00
+92
+motorON
+0.98
+1.00
+0.99
+92
+motorON NoFan
+1.00
+0.98
+0.99
+92
+motorON BadFan
+0.95
+0.93
+0.94
+92
+Macro avg
+0.98
+0.98
+0.98
+368
+B. Recording-level (Held-out Test)
+After confidence-weighted aggregation across the 12 held-
+out files (3 per class), recording-level metrics are shown in
+Table IV. The aggregation substantially improves practical
+detection by smoothing transient window mispredictions.
+TABLE IV: Recording-level metrics on held-out position files
+(12 files).
+Class (files)
+Precision
+Recall
+F1
+motorOFF (3)
+0.97
+1.00
+0.98
+motorON (3)
+0.93
+0.93
+0.93
+motorON NoFan (3)
+0.95
+0.95
+0.95
+motorON BadFan (3)
+0.95
+0.95
+0.95
+Macro avg (12 files)
+0.95
+C. Baseline comparisons
+To contextualize the performance of the proposed method,
+we conducted a comparative evaluation against three repre-
+sentative baselines drawn from classical and deep-learning
+paradigms. Each baseline was implemented and tuned to
+provide a fair point of reference. Results are reported using
+the macro-averaged F1 metric.
+• Support Vector Machine (SVM): A linear SVM trained
+on a set of hand-crafted time-domain descriptors (root-
+mean-square, kurtosis, crest factor, and shape factor).
+Macro F1 = 0.84.
+• Random Forest: An ensemble of 100 decision trees
+trained on the identical feature set used for the SVM,
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:45:35 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+providing a non-linear, tree-based comparison. Macro F1
+= 0.86.
+• 1D-CNN: A conventional three-layer 1D convolutional
+network configured to match the proposed model’s pa-
+rameter count (approximately 15k parameters), included
+to isolate architectural benefits. Macro F1 = 0.92.
+• Proposed (Quantized): The multi-channel 1D convolu-
+tional architecture with window-level aggregation, fol-
+lowed by post-training integer quantization targeting on-
+device inference. Macro F1 = 0.95.
+IX. RESULTS AND DISCUSSION
+A. Performance and Resource Utilization
+The proposed pipeline achieves high diagnostic accuracy
+within strict embedded constraints. Validation results yield
+a window-level macro F1-score of 0.98 (Table III), while
+recording-level performance on 12 held-out, position-specific
+files reaches 0.95 (Table IV). This confirms that confidence-
+weighted aggregation effectively mitigates transient window
+misclassifications. On-device metrics for the int8 quantized
+model include 80 KB Flash, 120 KB peak RAM, and a
+mean inference latency of 82 ± 7 ms. Given the sampling
+stride Tstride ≈575 ms, the system consumes only 14.2% of
+the available temporal budget, leaving significant headroom
+for auxiliary tasks or low-power sleep states.
+B. Power Profiling and Error Analysis
+Energy efficiency is critical for battery-powered edge nodes.
+With the ESP32-C3 consuming ∼25 mA at 3.3 V during
+active inference, the energy cost is approximately 6.77 mJ per
+inference. Utilizing a 1500 mAh battery, the node can theo-
+retically sustain continuous operation for 14.1 days, perform-
+ing over 2.1 million inferences. Error analysis indicates that
+most misclassifications occur within the motorON BadFan
+class due to subtle vibrational similarities with normal run-
+ning states. However, the orientation-invariant magnitude and
+elongated temporal kernels significantly enhance robustness
+against mounting variability and transient environmental noise.
+C. Comparative Evaluation
+The proposed multi-channel 1D CNN was evaluated against
+three baselines using the same leakage-safe protocol. The
+model (0.95 F1) outperformed linear SVMs (0.84), Random
+Forests (0.86), and parameter-matched conventional 1D-CNNs
+(0.92). These results validate the efficacy of the magnitude-
+integrated feature extraction and the post-inference aggrega-
+tion strategy.
+D. Limitations and Industrial Outlook
+Unlike many accuracy-centric studies, this work enforces
+contiguous file splits to eliminate temporal leakage and
+provides empirical TinyML deployment metrics. A primary
+limitation is the specific focus on fan-related faults in a single
+motor frame (0.37 kW). While fan unbalance is a critical
+0Code and dataset available at: https://github.com/vedantabanerjee/motorfaultdetection
+cooling failure mode, industrial fault signatures like bearing
+pitting, shaft misalignment, and mechanical looseness were
+not included. Future research will focus on expanding the fault
+spectrum and evaluating cross-machine generalization using
+multi-modal sensor fusion. Nevertheless, the current system
+demonstrates a high-fidelity, sub-100 ms quantized solution
+suitable for immediate retrofit industrial condition monitoring.
+X. CONCLUSION
+This study presents a comprehensive TinyML framework
+for on-device induction motor fault detection using a low-cost
+MEMS accelerometer and an ESP32-C3 microcontroller. By
+enforcing strictly contiguous, leakage-safe data splits, the
+system ensures methodological rigor and robust generalization,
+achieving a window-level macro F1 of 0.98 and a recording-
+level F1 of 0.95. The solution is highly resource-efficient,
+requiring only 80 KB of Flash and 120 KB of RAM. With
+an inference latency of 82 ms and an estimated energy
+consumption of 6.77 mJ per cycle, the system can operate
+continuously for approximately 14 days on a 1500 mAh
+battery. This demonstrates that high-fidelity mechanical diag-
+nostics can be localized on resource-constrained hardware with
+high energy-determinism. While this work focuses on fan-
+related anomalies, the orientation-invariant pipeline provides a
+scalable blueprint for broader industrial maintenance. Future
+research will expand the fault spectrum to include bearing
+defects and misalignment to further advance the versatility of
+Edge AI in Industry 4.0 environments.
+REFERENCES
+[1] M. Tiboni, C. Remino, R. Bussola, and C. Amici, “A review on vibration-
+based condition monitoring of rotating machinery,” Applied Sciences,
+vol. 12, no. 3, p. 972, 2022.
+[2] M. Saufi, Z. A. Ahmad, M. H. Lim, and M. Leong, “A review on signal
+processing techniques for bearing diagnostics,” Int J Mech Eng Technol,
+vol. 8, no. 6, pp. 327–337, 2017.
+[3] M. Blodt, M. Chabert, J. Regnier, and J. Faucher, “Mechanical load fault
+detection in induction motors by stator current time-frequency analysis,”
+IEEE Transactions on Industry Applications, vol. 42, no. 6, pp. 1454–
+1463, 2006.
+[4] M. Blodt, D. Bonacci, J. Regnier, M. Chabert, and J. Faucher, “On-
+line monitoring of mechanical faults in variable-speed induction motor
+drives using the wigner distribution,” IEEE Transactions on Industrial
+Electronics, vol. 55, no. 2, pp. 522–533, 2008.
+[5] G. Georgoulas and G. Nikolakopoulos, “Bearing fault detection and diag-
+nosis by fusing vibration data,” in IECON 2016-42nd Annual Conference
+of the IEEE Industrial Electronics Society.
+IEEE, 2016, pp. 6955–6960.
+[6] P. Gangsar and R. Tiwari, “Comparative investigation of vibration and
+current monitoring for prediction of mechanical and electrical faults in
+induction motor based on multiclass-support vector machine algorithms,”
+Mechanical Systems and Signal Processing, vol. 94, pp. 464–481, 2017.
+[7] S. Korkua, H. Jain, W.-J. Lee, and C. Kwan, “Wireless health monitoring
+system for vibration detection of induction motors,” in 2010 IEEE
+industrial and commercial power systems technical conference-conference
+record.
+IEEE, 2010, pp. 1–6.
+[8] A. Youcef Khodja, N. Guersi, M. N. Saadi, and N. Boutasseta, “Rolling
+element bearing fault diagnosis for rotating machinery using vibration
+spectrum imaging and convolutional neural networks,” The International
+Journal of Advanced Manufacturing Technology, vol. 106, no. 5, pp.
+1737–1751, 2020.
+[9] M. Samiullah, H. Ali, S. Zahoor, and A. Ali, “Fault diagnosis on induction
+motor using machine learning and signal processing,” arXiv preprint
+arXiv:2401.15417, 2024.
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:45:35 UTC from IEEE Xplore.  Restrictions apply.

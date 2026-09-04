@@ -1,0 +1,1201 @@
+
+
+===== PAGE 1 =====
+
+Transformer with multi-head attention mechanism for bearing 
+fault detection
+Prashant Kumar a
+, Izaz Raouf b, Muhammad Muzammil Azad c
+, Heung Soo Kim c,*
+a Department of AI and Big Data, Woosong University, Daejeon 34606, Republic of Korea
+b Department of Aerospace and Mechanical Engineering, Case Western Reserve University, Cleveland, OH 44106, USA
+c Department of Mechanical, Robotics and Energy Engineering, Dongguk University, Seoul 04620, Republic of Korea
+A R T I C L E I N F O
+Keywords:
+Bearing fault
+Transformer
+Multi-head attention
+Vibration
+A B S T R A C T
+Timely fault detection of bearings is vital to ensure the uninterrupted functioning of rotating machinery in in­
+dustry. Research on fault detection strategy for bearings has accelerated due to developments in artificial in­
+telligence and computation, although managing large amounts of intricate sensor data remains complex. The 
+traditional approaches rely on handcrafted features and shallow learning models, which in high-dimensional 
+sensor data, may struggle to capture complex fault patterns. Using the transformer model with a multi-head 
+attention mechanism, this work designs an innovative bearing fault detection method. Transformer architec­
+ture, renowned for its efficacy in natural language processing applications, is tailored to handle sequential sensor 
+input efficiently, without requiring identifiable features. The multi-head attention mechanism enables the model 
+to capture both local and global dependencies that are essential for fault recognition, which aids in the model’s 
+focus on various input sequence segments. The model was evaluated on a two real-world benchmark bearing 
+dataset namely, Case Western Reserve University (CWRU) bearing dataset and Society for Machinery Failure 
+Prevention Technology (MFPT) bearing dataset and compared with the deep learning baselines. This work also 
+eliminated the need for extensive data processing and achieved superior fault detection accuracy. The results 
+reveal the efficacy of the transformer model with multi-head attention in accurately detecting bearing faults, 
+showcasing its potential for real-time condition monitoring in industrial scenarios. These findings demonstrate 
+transformers’ contribution to predictive maintenance advancement, guiding the industry toward scalable, real- 
+time monitoring that reduces downtime and increases sustainability. The future work could integrate the edge 
+computing for on-device use and adapt to multi-fault scenarios.
+1. Introduction
+Bearings are prime movers of rotating machines, like motors, tur­
+bines, generators, and other mechanical systems. The bearing is also 
+known as a machine element that lessens friction between moving ele­
+ments and restricts relative motion to only the desired motion. The 
+essential parts of the bearing include rings (outer and inner race), rolling 
+elements (balls, rollers, needles), cage, and fitting surfaces. The different 
+bearing faults include outer race fault, inner race fault, ball defect, and 
+cage defect [1]. Bearing health directly affects the overall health of the 
+machinery and can directly affect performance and safety. Early detec­
+tion of bearing faults is vital to ensure smooth operation of the machine, 
+preventing catastrophic failure while allowing efficient scheduled 
+maintenance. The traditional bearing fault detection (BFD) approaches 
+are based on manual feature extraction from vibration signals, followed 
+by classification using statistical methods and machine learning (ML) 
+methods. However, manual feature extraction is a labor-intensive task 
+that is prone to human error. It also requires a great deal of experience 
+and prior knowledge. Algorithms, like support vector machines (SVMs), 
+decision trees (DTs), random forest (RF), and k-nearest neighbor (kNN), 
+have been extensively used for the BFD [2–5]. Using these ML tech­
+niques presents several challenges, including the need for effective 
+feature engineering. SVM is also sensitive to the choice of the kernel 
+function and its parameters, which can significantly impact the BFD 
+performance. Also, the performance of SVM suffers under noisy data or 
+high-dimensional data. DT is also prone to overfitting when dealing with 
+complex or noisy data. A small variation in the training data can lead to 
+very different tree structures, resulting in instability. Although RFs are 
+* Corresponding author.
+E-mail address: heungsoo@dgu.edu (H.S. Kim). 
+Contents lists available at ScienceDirect
+Applied Soft Computing
+journal homepage: www.elsevier.com/locate/asoc
+https://doi.org/10.1016/j.asoc.2026.114980
+Received 9 September 2024; Received in revised form 23 February 2026; Accepted 5 March 2026  
+Applied Soft Computing Journal 194 (2026) 114980 
+Available online 9 March 2026 
+1568-4946/© 2026 Elsevier B.V. All rights are reserved, including those for text and data mining, AI training, and similar technologies.
+
+
+===== PAGE 2 =====
+
+more resilient than DTs, tuning them can be challenging, due to the 
+numerous trees and features that need to be considered at each split. 
+When dealing with large datasets, kNN is computationally expensive, as 
+it requires calculation of the distance between the test sample and all 
+training samples. Also, as the concept of nearest neighbors becomes less 
+meaningful, it may not perform well in high-dimensional feature spaces 
+[6]. These algorithms have been employed for the BFD, but they have 
+their own constraints and weaknesses. Recent years have seen wide­
+spread use of deep learning (DL) for the BFD. Algorithms like convolu­
+tional neural networks (CNN), deep Boltzmann machines (DBM), 
+stacked auto-encoders (SAE), and numerous others have been exten­
+sively used in the fault diagnosis domain. Without the need for manual 
+feature engineering, DL models can automatically identify and extract 
+pertinent characteristics from unprocessed vibration signals. A signifi­
+cant flaw in ML algorithms is naturally addressed by DL models [7]. DL 
+models have also shown better FD accuracy, compared to classical ML 
+models like SVMs and RFs. Also, DL models can handle large and com­
+plex datasets, making them more scalable than conventional ML ap­
+proaches [8]. This simplifies the overall fault detection process and leads 
+to better performance.
+In recent times, much emphasis has been placed on DL application in 
+the BFD to where DL has become a cornerstone of BFD domain research. 
+CNN has been among the most dominant algorithms in FD applications, 
+and has also yielded good results. Among DL models, CNN has been 
+among the most popular choices in the domain of the BFD. CNN can use 
+the vibration data to perform autonomous feature engineering. It can 
+also handle large and complex datasets, and aid in developing efficient 
+BFD methods. Reference [9] used CNN in combination with the spec­
+trogram of the vibration signals for various BFDs. In Ref. [10], BFD 
+techniques were developed with the help of CNN, having a rectangular 
+input shape and rectangular convolutional kernels. The physics-guided 
+CNN has also been shown to perform better than the standard CNN 
+models. Reference [11] proposed a BFD method that employed spec­
+trogram images as an input to the CNN model with switchable 
+normalization; the proposed method was assessed on the Case Western 
+Reserve University (CWRU) public domain bearing dataset. Reference 
+[12] employed variational mode decomposition to eliminate noise from 
+the motor signals, and Mel spectrum voiceprint features were extracted; 
+CNN layers were utilized to extract these features, and the Mel–CNN 
+model was applied for the BFD. Reference [13] proposed a BFD utilizing 
+the representation learning method based on spatiotemporal tensors and 
+the CNN model. Reference [14] proposed a multiscale fully CNN model 
+for the BFD under a noisy environment; after retrofitting, the vibration 
+signals were used in convolution with a sizable kernel to extract tem­
+poral features across a wide area, and suppress high-frequency noise. 
+Reference [15] demonstrated the application of CNNs in extracting local 
+features from vibration signals for the accurate BFD. CNNs are excellent 
+at identifying spatial details in images. On the other hand, they have 
+trouble capturing long-term dependencies in the sequence of 1D signals. 
+In general, CNNs are primarily designed to capture localized features 
+within a limited window of the signal. This can be a limitation for the 
+BFD, where fault-related information might span over larger sequences 
+in the vibration data. In recent times, vision transformers (ViTs), a DL 
+architecture proposed by Vaswani et al. [16], have revolutionized nat­
+ural language processing tasks. Transformers are rapidly being used in 
+various instances of time-series anomaly detection, in addition to their 
+widespread use in natural language processing. Anomaly transformers 
+can outperform baseline anomaly detection techniques, raising F1 scores 
+by up to 17% and lowering training times significantly, as shown by 
+extensive trials on benchmark datasets [17]. In addition, by combining 
+reversible instance normalization with the anomaly transformer archi­
+tecture, the reversible instance normalized anomaly transformer pro­
+posed in Ref. [18] improves the capacity to identify anomalies in time 
+series data. The attention mechanism used by transformers enables the 
+model to concentrate on particular segments of the input sequence that 
+are most pertinent to the task at hand. A technique known as 
+self-attention enables each element in an input sequence to focus on 
+every other element, thereby capturing contextual linkages throughout 
+the sequence. The ability of the model to capture a variety of relation­
+ships in complicated signals may be limited by single-head attention, a 
+particular type of self-attention that employs a single set of queries, keys, 
+and values. On the other hand, multi-head attention (MHA) allows the 
+model to focus on numerous representation subspaces at once by using 
+various sets of queries, keys, and values in parallel. This mechanism in 
+transformers provides the advantage of capturing diverse representa­
+tions, enhanced feature extraction, and improved model capacity 
+[19–21]. This inherent capability of transformers makes them well 
+suited to analyzing time series signals, such as in the case of BFD, using 
+vibration signals, where capturing long-range dependencies is crucial. 
+Inner race defects, outer race defects, ball defects, cage defects, and 
+combined or mixed faults (e.g., simultaneous damage in inner and outer 
+raceways) are the most commonly described anomalies in the literature. 
+Each of these fault types contributes to the development of deterioration 
+and modifies the bearing's vibration characteristics in unique ways. It is 
+crucial to carefully specify the area of research because not all of these 
+abnormalities are regularly available or well-represented in benchmark 
+datasets. In the proposed study, for the CWRU bearing dataset, inner 
+race, outer race, and ball defects are taken into consideration in this 
+study and for the Society for Machinery Failure Prevention Technology 
+(MFPT) bearing dataset [25], inner race and outer race defects are taken 
+into consideration. There are two reasons behind this choice. First, the 
+MFPT dataset only contains inner and outer race faults in adequate 
+quality and quantity, but the CWRU dataset offers well-labeled and 
+validated samples for all three defect categories. The second point of 
+practical significance is that the most important and common fault 
+modes in industrial bearings are inner and outer race defects, which 
+immediately lead to system failure and degradation. In order to expand 
+the scope of the evaluation, ball defects which are less frequent in 
+practice were kept for the CWRU dataset, whereas cage and combination 
+faults were eliminated because of their inconsistent annotation and low 
+representation.
+Inspired by the above features of the transformers and MHA mech­
+anism, this work proposes a data-driven BFD method using the trans­
+formers with the MHA mechanism to address the shortcomings of the 
+CNN-based BFD approaches. The key contributions of the work are: 
+1) A transformer backed with an MHA mechanism is introduced for 
+various FDs in bearings. This scheme better captures the complex and 
+non-linear fault patterns in the vibration signals, compared to the 
+local feature extraction of the CNNs.
+2) The proposed model can apprehend distant relations in the data, 
+which is beneficial for FD. The long- and short-range temporal re­
+lationships of the vibration signals are also captured.
+3) The efficacy of the proposed approach in actual industrial settings is 
+demonstrated by evaluating its performance in noisy environments.
+4) The effectiveness of the proposed strategy is demonstrated through 
+in-depth analysis in CWRU and MFPT bearing dataset, and a com­
+parison made with baseline methods. The findings show that the 
+suggested methodology facilitates effective BFD.
+There are several sections to the remaining portion of this work. 
+Section 2 describes the preliminary design of the transformer with an 
+MHA mechanism. Section 3 covers the specifics of the suggested meth­
+odology, while Section 4 provides specifics of the experimental config­
+uration, data collection process, results and a discussion of the proposed 
+work, while Section 5 concludes the work.
+2. Transformer with a multi-head attention mechanism
+The transformer belongs to the category of DL architecture and has 
+obtained substantial consideration in natural language processing and 
+computer vision tasks. It relies on the self-attention mechanism (SAM) 
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+2
+
+
+===== PAGE 3 =====
+
+instead of recurrent or convolutional layers, making it highly paral­
+lelizable, and enabling it to more effectively capture long-range de­
+pendencies [16]. Transformers can learn long-range relationships by 
+attending to entire sequences, unlike recurrent neural networks, which 
+repeatedly process sequence elements, and that are restricted to 
+short-term dependencies. The transformer model comprises a 
+self-attention mechanism, MHA, and a position-wise feed-forward 
+network (PWFFN) integrated into a transformer encoder [22]. With an 
+input sequence of the form [x1,x2,x3,…,xt], where t represents the po­
+sition of each instance, the input to the transformer model is often in the 
+form of the tensor Rb × Rn, where b and n are the batch size and 
+sequence length, respectively. The input to the transformer is first pro­
+cessed via an embedding layer, which transforms it into a one-hot token 
+of dimensions Rb × Rn × Rd, where d is the number of embedding di­
+mensions. Next, the newly computed tensor is combined with a position 
+encoding of sinusoidal form, and fed through an MHA module. A 
+normalization layer is used before and after the self-attention mecha­
+nism with a residual connection. Subsequently, the resulting output is 
+directed to a two-layer PWFFN. Similar to the previous step, this 
+network also joins the input and output using a residual connection, 
+followed by another normalization layer. Fig. 1 shows the entire trans­
+former model architecture, while the following sections describe each 
+component.
+2.1. Self-attention mechanism
+Self-attention is the fundamental module of the transformer model, 
+with the purpose of centering on certain regions of the input data to 
+extract meaningful feature information. In classification tasks, the self- 
+attention mechanism learns the discriminative feature from the data, 
+making it better in terms of extracting the internal correlation of the 
+data, rather than relying on external information [23]. SAM receives the 
+input embedding X of dimension d from the embedding layer, and ap­
+plies a linear transformation. This linear transformation converts the 
+embeddings into queries (Qs), keys (Ks), and values (Vs). Then, the dot 
+product of Q and K is computed, resulting in a single-head scaled 
+dot-product attention. After dividing it by a scaling factor ̅̅̅̅̅
+dk
+√
+to obtain 
+the corresponding weight values, a SoftMax activation function is then 
+applied to their dot product. This transformation is expressed as: 
+As(Qs, Ks, Vs) = softmax
+(QsKT
+s̅̅̅̅̅
+dk
+√
+)
+Vs
+(1) 
+where, Qs = XWq
+s , Ks = XWk
+s , and Vs = XWv
+s, with dimensions dq, dk, 
+and dv.
+2.2. Multi-head attention
+Multi-head attention is the extended form of the SAM that permits 
+the transformer model to pay attention to various sub-sequences. 
+Therefore, instead of mapping with a single set of linear trans­
+formations, the input tokens are transformed into h queries, keys, and 
+values. This results in h different outputs through parallel self- 
+attentions. These individual outputs (hi) are then concatenated and re- 
+projected, forming an MHA mechanism as expressed in the following 
+equations: 
+Ah(X) = concat(h1, h2, h3, …, hi)W0
+(2) 
+hi = As(XWq
+i , XWq
+i , XWq
+i )
+(3) 
+where, the ith projection on the embedding X is used to find queries, 
+keys, and values that are denoted as: Wq
+i ∈Rd×dq, Wk
+i ∈Rd×dk, and 
+Wv
+i ∈Rd×dv, respectively. Moreover, W0 ∈Rh.dv×d represents the linear 
+projection on the concatenated multi-head, while dk = dv = d/h in the 
+transformer model.
+2.3. Position-wise feedforward networks
+A two-layer position-wise feed-forward network receives the output 
+from the MHA module. The hidden layers in this network are activated 
+using the Rectified Linear Unit (ReLU) activation function. The feed- 
+forward layer independently processes each position, therefore making 
+it a PWFFN. The operation of the PWFFN is expressed as: 
+FFN(XA) = ReLU(0, XAW1 + b1)W1 + b2
+(4) 
+where, W and b denote the weights and bias of the layers of the network, 
+d denotes the number of embedding dimensions, and W1 ∈Rd×dFFN, 
+W2 ∈RdFFN×d, b1 ∈RdFFN, and b2 ∈Rd.
+Fig. 1. The proposed transformer (MHA-T) model with its components is used for BFD.
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+3
+
+
+===== PAGE 4 =====
+
+2.4. Transformer encoder
+The transformer encoder is the main module of the transformer ar­
+chitecture, which integrates the attention head mechanism, multi-head 
+attention, and the PWFFN. Within the transformer encoder, both the 
+MHA module and PWFFN use a residual connection and the normali­
+zation layer. The combination of all these blocks results in the trans­
+former encoder. While the previous sections have already explained the 
+remaining blocks, the two normalization layers present in the trans­
+former encoder can be expressed as: 
+XA = Norm(Ah(X) + X)
+(5) 
+XFFN = Norm(FFN(XA) + XA)
+(6) 
+where, XA and XFFN represent the outputs of the multi-head attention and 
+PWFFN, respectively. Furthermore, it is important to note that while 
+multiple transformer encoders stacked together in the same transformer 
+model share the same architecture, they do not share the same hyper­
+parameters.
+3. The proposed methodology
+In recent times, computer vision tasks have made substantial use of 
+the vision transformer model. Studies show that a vision transformer 
+model based on the attention mechanism can also be directly applied, 
+instead of the convolutional structure. In addition, the vision trans­
+former model has advantages of capturing diverse representations, 
+enhanced feature extraction, and improved model capacity [19–21]. 
+This paper therefore proposes the use of the transformer model with 
+MHA for the BFD. Considering the one-dimensional characteristics of the 
+original vibration data acquired from the electric motor, an end-to-end 
+MHA-based transformer model, namely MHA−T, is proposed for the 
+BFD. This model can work on the direct input of the original vibration 
+data and facilitate autonomous feature extraction. Fig. 1 shows the 
+layout. The original Transformer framework was developed for 
+sequential data, where inputs are represented as a series of tokens. In the 
+proposed study, the Transformer was adapted for 1D time-series vibra­
+tion signals. Each input signal was segmented into non-overlapping 1D 
+patches of length L, where L was chosen based on the signal sampling 
+rate and the frequency range of interest. A fixed-dimensional embedding 
+was then obtained by flattening each patch and projecting it through a 
+linear layer. These embeddings, along with positional encodings, were 
+provided as input token to the Transformer encoder. The multi-head 
+self-attention mechanism enables the model to capture long-range de­
+pendencies in the time-series data, while the patching strategy preserves 
+local temporal patterns. The proposed methodology involves the 
+development of an MHA-based transformer model for multiple fault 
+detection in the bearings. The MHA mechanism is a core component of 
+the proposed transformer architecture that helps the model focus on 
+information pertinent to the task by allowing it to pay attention to 
+particular segments of the input sequence. The structure of MHA−T 
+model can be segregated into different parts, which are given below:
+3.1. Transformer block
+This block contains the “transformer_block” function, which repre­
+sents a single block within a Transformer architecture. It relies on the 
+SAMs to weigh the significance of numerous input elements against each 
+other, making them highly suitable for sequence-based tasks. It com­
+prises the following layers: 
+• Multi-head attention layer: This layer calculates the attention 
+score between a query (Q) and a key (K) matrix to retrieve values (V). 
+The formula used is: 
+MHA(Q, K, V) = softmax
+(
+QKT/̅̅̅̅̅
+dk
+√
+)
+V
+(7) 
+where, dk denotes the key dimension.
+• Layer normalization: This normalizes the output of the attention 
+layer, and helps improve convergence during training. The normal­
+ization formula is: 
+LayerNormalization (x) =
+(x −μ)/(σ + ∈)
+(8) 
+where, μ and σ denote the mean and standard deviation of the input 
+tensor, respectively, and ∈denotes a small constant for numerical 
+stability.
+• Feed-forward network (FFN): The output from the normalization 
+passes through this network with a ReLU activation function: 
+FFN(x) = ReLU(W1x + b1) • W2 + b2
+(9) 
+where, W1 and W2 denote the weight matrices, and b1 and b2 
+represent the bias vectors.
+• Residual connection: A residual link is formed by adding the 
+original input tensor to the output of the feedforward network. This 
+aids in preventing the training-related vanishing gradient problem.
+3.2. Transformer module
+This module assembles the overall model architecture, incorporating 
+the transformer block to learn the hierarchical representations. It com­
+prises dense layers, instances of transformer block, global average 
+pooling (GAP) layers, and a dense layer with a SoftMax activation 
+function. Using a dense layer, the input features are first converted into 
+an embedding space. This layer learns the first representation of the 
+input data. There are successive stacks of “transformer_block” functions. 
+Employing self-attention, normalization, and feedforward processing, 
+every block enhances the input features. A GAP layer is added after the 
+Transformer blocks to minimize the spatial dimensions of the output 
+features. Feature data from the entire sequence is combined in this layer. 
+To generate class probabilities for multi-class classification tasks, a 
+dense layer with SoftMax activation is added at the end.
+4. Application on bearing dataset
+For the implementation of proposed methodology, the raw vibration 
+signals were segmented using an non-overlapping sliding window 
+approach with a window length of 784 samples and a stride of 300 
+samples. Each segment was designated with the fault category that 
+matched the window's end. The proposed one-dimensional transformer 
+model initially projects input segments of shape (784, 1) onto a 64- 
+dimensional embedding space. Multi-head self-attention, a feed- 
+forward layer of dimension 64 with ReLU activation, residual connec­
+tions, and layer normalization (ε = 1e−6) are all incorporated in the 
+architecture, which is made up of four stacked Transformer blocks. The 
+number of attention heads was changed between {2, 4, 8} for ablation 
+analysis, and a configuration without multi-head attention was also 
+assessed. Global average pooling is applied before the final SoftMax 
+classification layer. With a batch size of 50 and a maximum of 50 epochs, 
+the model was trained using stochastic gradient descent (learning rate =
+0.01) with categorical cross-entropy loss. As a regularization technique, 
+early stopping with a 10 epoch patience based on validation loss was 
+used. All trials were conducted five times using controlled random seeds, 
+and the dataset was divided into 70% training and 30% testing sets with 
+shuffling enabled. The total number of trainable parameters is explicitly 
+reported in the manuscript to ensure full reproducibility.
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+4
+
+
+===== PAGE 5 =====
+
+4.1. CWRU bearing dataset
+4.1.1. Experimental set-up
+The experimental set-up shown in Fig. 2 comprises a 2 hp electric 
+motor, dynamometer, and control electronics (not indicated). The test 
+bearing supports the shaft of the motor. Using electro-discharge 
+machining with varying fault dimensions, single-point faults were 
+induced into the test bearings to emulate the various faults in the 
+bearing. The vibration data were gathered with the help of accelerom­
+eters, which were placed in the magnetic base housing. These data were 
+acquired with a sampling frequency of 48 kHz. The different fault con­
+ditions include faults in the inner race (FIR), outer race (FOR), and ball 
+bearing (FBB). The data were acquired under different operating con­
+ditions, including various loading conditions like (0, 1, 2, and 3) hp and 
+various operating speeds from the drive end of the motor. The data 
+conditioning and model development was on a PC with a Windows 11 
+system, Intel Core i7 processor, NVIDIA GeForce RTX 3080 graphics 
+card, and 32 GB memory.
+For the model assessment, these vibration data were used after data 
+conditioning. Data conditioning is critical to ensure that the model 
+learns the relevant patterns and extracts meaningful attributes using the 
+input data. The signal’s amplitude has been normalized between 0 and 1 
+to stabilize the training, and ensure consistent signal magnitudes across 
+different samples. After the conditioning, the continuous vibration sig­
+nals were divided into fixed-length segments to create a sequence suit­
+able for input into the proposed transformer model. Then, each segment 
+is treated as a sequence of data points within the segments, with each 
+data point being considered as a token. The tokenized segments with 
+positional encodings are arranged as an input to the transformer with an 
+MHA mechanism. It is worth noting that each segment is a sequence of 
+tokens representing the vibration signal data. It is ensured that all input 
+sequences (segments) are of the same length. After this, the transformer 
+model is designed in such a way that it can accommodate input di­
+mensions, sequence length, and attention mechanisms. The proposed 
+model was trained using the stochastic gradient descent (SGD) optimizer 
+and categorical cross entropy (CCE) loss function. SGD is generally 
+considered better for achieving higher generalization performance. SGD 
+tends to converge to flatter minima, which are more robust, and 
+generalize better to unseen data. To achieve the best possible general­
+ization performance, especially on complex tasks and large datasets, 
+SGD is generally preferred [24]. The CCE loss function was employed for 
+the BFD, as it is a common loss function for multi-class classification 
+problems. Stable gradients are produced during backpropagation by the 
+formulation of CCE loss, which facilitates smoother optimization and 
+convergence during training.
+4.1.2. Results
+The proposed model has been rigorously evaluated to ensure its 
+optimal performance. The model was trained on the CWRU bearing 
+dataset using the optimum network structure and hyperparameter 
+optimization. During training, a batch size of 50 was used. The trial was 
+repeated 10 times to ensure efficient training and optimal model 
+selection. Figs. 3 and 4, respectively, show the accuracy and loss curves 
+for training and validation. These figures show that following roughly 
+50 epochs, the model has begun to converge, and the accuracy and loss 
+values for the training and validation datasets have stabilized. It is 
+noteworthy that during the initial phase, the training loss surpasses the 
+validation loss. When used in conjunction with training, dropout re­
+duces the model’s capacity, and promotes robust feature learning. The 
+training and validation losses of the network are essentially constant at 
+the same value, which implies that the network has high generalization 
+capabilities.
+To evaluate the performance, the testing dataset is classified using 
+the trained model. Training and tests on the data were repeated multiple 
+times to ensure good performance. Table 1 shows the results. The per­
+formance of the model is also compared by computing the total number 
+of trainable parameters and the average training time. Real-time 
+applicability was assessed by measuring inference latency and mem­
+ory usage. On average, the model required less than 1.85 ms per sample 
+with approximately 2452.87 MB of memory, validating its efficiency for 
+Fig. 2. Experimental setup for vibration data acquisition.
+Fig. 3. Accuracy curve for the proposed MHA-T model for CWRU dataset.
+Fig. 4. Loss curve for the proposed MHA-T model for CWRU dataset.
+Table 1 
+Performance details of the MHA-T model for CWRU data.
+Model
+Average 
+accuracy 
+(%)
+Number of 
+parameters
+Training 
+time (s)
+Inference 
+time per 
+sample
+Memory 
+usage
+MHA- 
+T
+99.52
+300,164
+1336.96
+1.85 ms
+2452.87 
+MB
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+5
+
+
+===== PAGE 6 =====
+
+online fault detection. An accuracy of about 99.52% has been attained 
+on average. In order to assess the statistical reliability of the results, each 
+experiment was repeated five times, and the mean accuracy was 99.52% 
+with a 95% confidence interval of 99.10% - 99.94%. A table that shows 
+the performance of a classification model visually is called a confusion 
+matrix (CMX) in the context of DL-based classification; it provides an 
+overview of the number of instances of each class that were false posi­
+tives and false negatives, respectively, and the number that were 
+correctly predicted (true positives and true negatives). Fig. 5 shows the 
+CMX for the proposed MHA-T model. It is evident from the CMX that all 
+the states of the bearing, namely FIR, FOR, FBB, and N, have been 
+classified effectively. The different performance factors, precision (p), 
+sensitivity (s), and F1 score, were measured to assess the performance of 
+the MHA-T model. These values were used to estimate performance. 
+These factors can be calculated as follows: 
+p =
+tp
+tp + fp
+(10) 
+s =
+tp
+tp + fn
+(11) 
+F1 = 2 × p × s
+p + s
+(12) 
+where, tp indicates actual positive trials, tn indicates actual negative 
+trials, fp indicates incorrect positive trials, and fn indicates incorrect 
+negative trials. Table 2 lists the values of p, s, and F1 scores. These 
+parameter values are good, indicating the efficient performance of the 
+proposed MHA-T model.
+4.1.3. Ablation study
+To further support the proposed structure, an ablation study was 
+carried out with a focus on the influence of MHA, the number of 
+attention heads, and the segment length of the input sequence. These 
+components are crucial to the design of transformer-based models, and 
+assessing their function helps to understand the rationale behind 
+selecting a structure. A comparison was made between the length of the 
+input segment, the number of attention heads, and the MHA's contri­
+bution to the overall model performance. When MHA was removed and 
+a straight skip connection was employed in its stead, accuracy contin­
+uously dropped, implying that cross-segment feature interaction is 
+crucial for fault classification. The findings demonstrated that perfor­
+mance increased as the number of attention heads increased to four, 
+whereas over-parameterization caused additional increases to have little 
+or even detrimental effects. A range of two and four attention heads 
+were used. The effect of segment length was examined using window 
+sizes of 256, 512, and 784 samples. The 512–784 range yielded the best 
+results, whereas shorter segments provided worse accuracy due to 
+insufficient temporal context, while longer segments enhanced perfor­
+mance by capturing richer temporal dynamics. Table 3 displays the 
+entire ablation results. Overall, the ablation study supports the archi­
+tectural choices made in the proposed design by demonstrating that 
+using four attention heads, enabling MHA, and implementing moderate 
+segment lengths results in the most efficient arrangement.
+4.1.4. Performance evaluation in noisy environments
+It is important to study the model’s performance in a noisy envi­
+ronment. Adding white Gaussian noise is a popular method that is aimed 
+at emulating noisy environmental conditions, to further examine the 
+performance of the proposed BFD technique. The primary goal of 
+introducing noise is to evaluate the effectiveness of the proposed 
+method, and verify its resilience when processing noisy data. It also 
+offers insights into the performance of the algorithms in harsh envi­
+ronments, and aids in understanding their limitations. Furthermore, 
+extremely noisy surroundings may result in impractical conditions that 
+alter the essence of the issue at hand. As opposed to generalized noisy 
+circumstances, it can force the model to learn particular degradation 
+conditions. More precisely, excessive noise levels might necessitate 
+model tuning that performs poorly in less noisy environments, which 
+could result in overfitting to improbable events, and reduce the diag­
+nostic utility of the predictive mechanism. Therefore, a trade-off exists 
+between difficult, noisy conditions, and unrealistic situations. This is 
+significant when dealing with different faults, and it is crucial to add 
+noise without affecting the severity level of faults. To maintain the 
+ability to distinguish between severity levels, an equilibrium must be 
+reached between realistic and excessive noise, with enough noise added 
+to replicate real-world scenarios. When assessing how well algorithms 
+function in noisy, simulated environments, this is a crucial factor that 
+needs to be considered. 
+SNR = 10log(psignal
+pnoise
+)
+(13) 
+where, psignal denotes signal power, and pnoise denotes noise power. This 
+research, therefore, adheres to signal-to-noise ratio (SNR) range values 
+Fig. 5. CMX of the proposed MHA-T model for CWRU dataset.
+Table 2 
+Performance factors of the MHA-T model for CWRU data.
+State
+p
+s
+F1 score
+FBB
+0.996
+0.984
+0.989
+FIR
+0.985
+0.996
+0.990
+FOR
+1.0
+0.999
+0.999
+N
+0.998
+1.0
+0.998
+Table 3 
+Ablation study based on MHA, number of heads and segment length on CWRU 
+dataset.
+MHA
+Heads
+Segment length
+Accuracy (%)
+TRUE
+2
+256
+70.10
+2
+512
+73.20
+2
+784
+83
+4
+256
+78.80
+4
+512
+90.24
+4
+784
+99.24
+FALSE
+2
+256
+66.34
+2
+512
+71.12
+2
+784
+76.29
+4
+256
+78.34
+4
+512
+82.56
+4
+784
+88.45
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+6
+
+
+===== PAGE 7 =====
+
+that have been extensively examined in the field of FD. SNR range levels 
+ranging (−5–10) dB have been considered for the analysis. All the ex­
+periments are conducted independently 10 times, with the structure and 
+parameters of the proposed model remaining unchanged. Also, to extend 
+robustness of the proposed approach, Laplace noise was also injected, 
+which better represents heavy-tailored industrial disturbances. This 
+provides a more realistic robustness evaluation. Fig. 6 shows the accu­
+racy of the proposed model under different SNR levels for both noises. 
+The findings show that the classification accuracy of the proposed model 
+generally improves with increasing SNR levels. Higher SNR indicates 
+less noise in the input signal, which makes classification simpler. 
+Depending on the SNR level, the model performs differently. In essence, 
+it is evident that while the model performance can be affected by noisy 
+conditions, the proposed approach has also worked efficiently under 
+noisy conditions.
+4.2. MFPT dataset
+4.2.1. Experimental setup
+The Society for Machinery Failure Prevention Technology (MFPT) is 
+the source of the MFPT bearing dataset [25]. A NICE bearing is used in 
+the MFPT's bearing data. Three classes of bearing data are included in 
+this dataset: normal bearing data, inner race fault, and outer race fault at 
+different loads. The test setup was equipped with a NICE, 7 outer race 
+fault conditions: 25, 50, 100, 150, 200, 250 and 300 lbs of load and 7 
+inner race fault conditions: 0, 50, 100, 150, 200, 250 and 300 lbs of load. 
+For the proposed model assessment, these vibration data were used after 
+data conditioning. A data conditioning and processing strategy similar 
+to CWRU bearing dataset were followed for this dataset. The proposed 
+model was trained using the SGD optimizer and CCE loss function.
+4.2.2. Results
+In order to ensure optimal performance, the proposed model has 
+undergone a thorough evaluation. Using hyperparameter optimization 
+and the optimal network topology, the model was trained on the MFPT 
+bearing dataset. A batch size of 50 was used for training. To guarantee 
+effective training and ideal model selection, the trial was conducted 
+multiple times. The accuracy and loss curves for training and validation 
+are displayed in Figs. 7 and 8, respectively. According to these figures, 
+the model has started to converge after about 80 epochs, and the ac­
+curacy and loss values for the training and validation datasets have 
+leveled out. Dropout encourages strong feature learning while lowering 
+the model's capacity when used in conjunction with training. The net­
+work's great generalization capabilities are implied by the fact that its 
+training and validation losses are nearly constant at the same value.
+The trained model is used to classify the testing dataset in order to 
+assess performance. To guarantee optimal performance, training and 
+testing on the data were conducted several times. The results are dis­
+played in Table 4. Real-time applicability was assessed by measuring 
+inference latency and memory usage. On average, the model required 
+less than 1.76 ms per sample with approximately 2102.87 MB of 
+memory, validating its efficiency for online fault detection. By calcu­
+lating the average training time and the total number of trainable pa­
+rameters, the model's performance is also compared. On average, an 
+accuracy of 97.11% has been achieved. In order to assess the statistical 
+reliability of the results, each experiment was repeated five times, and 
+the mean accuracy was 97.11% with a 95% confidence interval of 
+96.54% - 97.68%. The CMX for the proposed model is displayed in 
+Fig. 9. The CMX makes it clear that every bearing state, FIR, FOR, and N 
+has been successfully categorized. Table 5 lists the values of p, s, and F1 
+scores. The different performance factors were measured to assess the 
+performance of the proposed model. Performance was estimated using 
+these parameters.
+4.2.3. Ablation study
+Ablation study was conducted to concentrate on the impact of MHA, 
+Fig. 6. Performance of the proposed method under different SNRs for 
+CWRU data.
+Fig. 7. Accuracy curve for the proposed model on MFPT dataset.
+Fig. 8. Loss curve for the proposed model on MFPT data.
+Table 4 
+Performance details of the proposed model on MFPT data.
+Model
+Average 
+accuracy 
+(%)
+Number of 
+parameters
+Training 
+time (s)
+Inference 
+time per 
+sample
+Memory 
+usage
+MHA- 
+T
+97.11
+300099
+2352
+1.76 ms
+2102.87 
+MB
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+7
+
+
+===== PAGE 8 =====
+
+the number of attention heads, and the segment length of the input 
+sequence in order to further support the proposed structure. These ele­
+ments are essential to transformer-based model design, and evaluating 
+their role clarifies the reasoning behind the configuration that was 
+selected. The contribution of the MHA, the number of attention heads, 
+and the length of the input segment to the overall model performance 
+were compared. Accuracy consistently decreased when MHA was 
+eliminated and a straight skip connection was used in its place, indi­
+cating that cross-segment feature interaction is essential for fault clas­
+sification. The results demonstrated that performance improved as the 
+number of attention heads climbed up to four, whereas subsequent in­
+creases had insignificant or even negative impacts due to over- 
+parameterization. The number of attention heads was varied between 
+two and four. Window sizes of 256, 512, and 784 samples were used in 
+order to investigate the impact of segment length. Longer segments 
+improved performance by capturing richer temporal dynamics, whereas 
+shorter segments produced lower accuracy due to insufficient temporal 
+context; the 512–784 range produced the greatest results. The 
+comprehensive ablation findings are shown in Table 6. Overall, the 
+ablation study validates the architectural decisions in the proposed 
+structure by showing that the most efficient configuration is achieved by 
+enabling MHA, employing four attention heads, and implementing 
+moderate segment lengths.
+4.2.4. Performance evaluation in noisy environments
+Analyzing the model's performance in a noisy setting is important. 
+An approach that is widely used to simulate noisy environments is the 
+addition of white Gaussian noise, which is used to further analyze the 
+effectiveness of the suggested BFD technique. Adding noise serves the 
+main purpose of assessing the proposed method's efficacy and con­
+firming its robustness in handling noisy data. It also helps comprehend 
+the algorithms' limitations and provides information about how well 
+they perform in challenging settings. The SNR range values used in this 
+study have been thoroughly studied in the field of FD. For the analysis, 
+SNR range ranges between −5 and 10 dB have been considered. Multi­
+ple independent runs of each experiment are carried out, keeping the 
+parameters and structure of the proposed model constant. Also, to 
+extend robustness of the proposed approach, Laplace noise was also 
+injected, which better represents heavy-tailored industrial disturbances. 
+This provides a more realistic robustness evaluation. Fig. 10 shows the 
+accuracy of the proposed model under different SNR levels for both 
+noises. The results demonstrate that the proposed model's classification 
+accuracy often increases as SNR levels rise. Classification is made easier 
+by higher SNR, which denotes less noise in the input signal. The model's 
+performance varies with the SNR level. Overall, it is clear that although 
+noisy situations can impact the model's performance, the proposed 
+approach has also proven effective in noisy environments.
+4.3. Cross-domain generalization study
+To evaluate the generalization capabilities of the proposed approach, 
+a cross-domain generalization study is done using the CWRU and MFPT 
+datasets. Cross-domain evaluation evaluates the robustness of the 
+learned representations under distribution shift triggered by variations 
+in operating conditions, sensor configurations, fault severities, and data 
+acquisition systems, in contrast to within-domain experiments where 
+training and testing samples come from the same dataset. Two experi­
+mental scenarios were considered: training on CWRU and testing on 
+MFPT (CWRU → MFPT) and training on MFPT and testing on CWRU 
+(MFPT → CWRU). Without any domain adaptation or fine-tuning, the 
+model was assessed on the target dataset after being trained solely on the 
+source dataset in both cases. Both datasets were subjected to the same 
+preprocessing and segmentation parameters (window length = 784, 
+stride = 300) and a single label encoding approach to ensure fairness. 
+Table 7 summarizes the within-domain and cross-domain results. It is 
+evident from Table 7
+that the within-domain performance is 
+Fig. 9. CMX of the proposed model on MFPT data.
+Table 5 
+Performance factors of the proposed model on MFPT data.
+State
+p
+s
+F1 score
+FIR
+0.9598
+0.9812
+0.9704
+FOR
+0.9785
+0.9338
+0.9556
+N
+0.9755
+0.9983
+0.9868
+Table 6 
+Ablation study based on MHA, number of heads and segment length on MFPT 
+dataset.
+MHA
+Heads
+Segment length
+Accuracy (%)
+TRUE
+2
+256
+68.24
+2
+512
+74.45
+2
+784
+82.38
+4
+256
+76.65
+4
+512
+91.43
+4
+784
+97.11
+FALSE
+2
+256
+65.45
+2
+512
+70.34
+2
+784
+75.58
+4
+256
+77.56
+4
+512
+81.24
+4
+784
+89.46
+Fig. 10. Performance of the proposed method under different SNRs on 
+MFPT data.
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+8
+
+
+===== PAGE 9 =====
+
+substantially better than the cross-domain performance. There is a 
+domain shift between the two datasets, as evidenced by the degradation 
+seen during cross-dataset evaluation. Many factors, such as variations in 
+sampling frequency, load conditions, fault sizes, sensor positioning, and 
+background noise characteristics, might be attributed to this perfor­
+mance disparity. Variations in signal distribution limit the direct 
+transferability of the proposed model across domains since it learns 
+dataset-specific spectral and temporal patterns. However, the proposed 
+model has reasonable performance in the cross-domain study, which 
+demonstrates its efficacy.
+4.4. Comparison with state-of-the-art methods
+The above performance evaluation of the developed method dem­
+onstrates the model performance under noisy environments. The pri­
+mary focus of these comparisons was the performance play of the 
+network over various operational conditions. However, a comparison 
+with the other BFD methods is crucial to verifying the efficacy of the 
+developed approach. This section compares the other baseline methods 
+that have employed comparable datasets for the BFD. These comparison 
+methods include the deep wavelet AE (DWAE) [26], AE-based deep 
+neural network (AE−DNN) [27], multi-scale deep CNN (MSD−CNN) 
+[28], hierarchical deep belief network (HDBN) [29], generative adver­
+sarial network (GAN) model [30], deep recurrent neural network model 
+(DRNN) [31], weighted principal component analysis with the Gaussian 
+mixture model (WPCA−GMM) [32], and a combination of wavelet 
+packet decomposition and the DBN model (WPD−DBN) [33]. A 
+comprehensive 
+performance 
+background 
+for 
+the 
+proposed 
+transformer-based framework is provided by the comparison results 
+shown in Table 8, which are taken from the corresponding original 
+publications. It should be mentioned that these investigations were 
+carried out in a variety of experimental conditions, such as differing 
+hardware configurations, training methods, segmentation techniques, 
+and data preparation. As a result, rather than being rigorously controlled 
+benchmarking research, the comparison is meant to serve as a general 
+performance reference. The ablation analysis of the proposed model 
+under a unified protocol is separately reported in previous sections to 
+ensure fair internal evaluation. The table clearly shows that the pro­
+posed method achieved performance comparable to state-of-the-art 
+approaches in fault classification accuracy across different bearing 
+fault types.
+4.5. Discussion and future challenges
+The proposed method has used transformers with multi-head atten­
+tion mechanism for the BFD. The model was evaluated on the two 
+bearing dataset to understand the performance on different bearing 
+datasets. The proposed model performed efficiently on both the datasets, 
+where it achieved consistent and competitive results. This shows the 
+model’s capability to generalize across datasets collected under diverse 
+conditions. But even with these positive outcomes, there are still limi­
+tations. For instance, data from machinery with different structural 
+configurations, sensor locations, or operational loads may be used in 
+real-world applications, which could nevertheless have an impact on the 
+model's transferability. Furthermore, even though the model performed 
+well in noisy settings, further extensive validation on a variety of in­
+dustrial datasets is required.
+These constraints could be addressed in future research using a va­
+riety of approaches. It may be possible to effectively adapt the model to 
+unknown datasets by using domain adaptation and transfer learning 
+techniques. Expanding the range of possibilities in training circum­
+stances may be facilitated by physics-informed simulation and data 
+augmentation. Additionally, by utilizing several complementary 
+models, ensemble learning techniques may increase robustness. Lastly, 
+thorough cross-domain benchmarking across various pieces of equip­
+ment and operating conditions would offer more profound under­
+standing of the proposed approach's scalability and industrial suitability.
+5. Conclusion
+In this study, we investigated the application of a transformer with a 
+multi-head attention mechanism for bearing fault detection on the 
+CWRU and MFPT bearing dataset. The experimental analysis displayed 
+the efficacy of the developed method in identifying suitable fault pat­
+terns and achieving high classification performance. One of the major 
+advantages of the proposed method lies in its ability to automatically 
+learn important representations from the raw vibration signal data, 
+without depending on handcrafted features or domain-specific knowl­
+edge. Originally intended for sequence modeling challenges in natural 
+language processing, the transformer architecture has shown itself to be 
+a good fit for capturing the complex connections and temporal de­
+pendencies observed in vibration signals. Using an MHA mechanism, the 
+model has categorized faults in an efficient manner by paying attention 
+to relevant fragments of the input sequence. Also, the performance of the 
+proposed model was evaluated under noisy environmental conditions 
+and performed reasonably well in these conditions. The comparison 
+showed that the proposed method achieved performance comparable to 
+state-of-the-art approaches in fault classification accuracy across 
+different bearing fault types. To sum up, the amalgamation of the 
+transformer and multi-head attention mechanism represents a note­
+worthy progression in the domain of bearing fault detection, offering an 
+efficient data-driven methodology for rotating machinery health moni­
+toring and predictive maintenance in industrial environments.
+CRediT authorship contribution statement
+Muhammad Muzammil Azad: Writing – review & editing, Inves­
+tigation, Formal analysis, Conceptualization. Heung Soo Kim: Writing – 
+review & editing, Validation, Resources, Project administration, Inves­
+tigation, Funding acquisition, Formal analysis, Conceptualization. Pra­
+shant Kumar: Writing – review & editing, Writing – original draft, 
+Validation, Software, Methodology, Investigation, Conceptualization. 
+Izaz Raouf: Writing – review & editing, Investigation, Formal analysis, 
+Conceptualization.
+Declaration of Competing Interest
+The authors declare that they have no known competing financial 
+Table 7 
+Cross-domain generalization study on CWRU and MFPT datasets.
+Train dataset
+Test dataset
+Accuracy (%)
+CWRU
+CWRU
+99.52
+MFPT
+MFPT
+97.11
+CWRU
+MFPT (CWRU → MFPT)
+76.16
+MFPT
+CWRU (MFPT → CWRU)
+72.45
+Table 8 
+Comparison of the proposed method with the state-of-the- 
+art methods based on the CWRU dataset.
+Method [Ref.]
+Accuracy (%)
+DWAE [26]
+95.20
+AE-DNN [27]
+97.47
+MSD-CNN [28]
+99.27
+HDBN [29]
+99.03
+GAN [30]
+96
+DRNN [31]
+98.67
+WPCA-GMM [32]
+82.50
+WPD-DBN [33]
+98.24
+MHA-T (CWRU)
+99.52
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+9
+
+
+===== PAGE 10 =====
+
+interests or personal relationships that could have appeared to influence 
+the work reported in this paper.
+Acknowledgments
+This work was supported by the National Research Foundation of 
+Korea (NRF) grant funded by the Korea government (MSIT) (RS-2025- 
+00523019).
+Data availability
+Data will be made available on request.
+References
+[1] F. Immovilli, A. Bellini, R. Rubini, C. Tassoni, Diagnosis of bearing faults in 
+induction machines by vibration or current signals: a critical comparison, IEEE 
+Trans. Ind. Appl. 46 (2010) 1350–1359, https://doi.org/10.1109/ 
+TIA.2010.2049623.
+[2] D. Goyal, A. Choudhary, B.S. Pabla, S.S. Dhami, Support vector machines based 
+non-contact fault diagnosis system for bearings, J. Intell. Manuf. 31 (2020) 
+1275–1289, https://doi.org/10.1007/s10845-019-01511-x.
+[3] F.B. Abid, M. Sallem, A. Braham, Optimized SWPT and Decision Tree for Incipient 
+Bearing Fault Diagnosis, in: 2019 19th International Conference on Sciences and 
+Techniques of Automatic Control and Computer Engineering (STA), 2019: pp. 
+231–236. https://doi.org/10.1109/STA.2019.8717197.
+[4] Z. Wang, Q. Zhang, J. Xiong, M. Xiao, G. Sun, J. He, Fault diagnosis of a rolling 
+bearing using wavelet packet denoising and random forests, IEEE Sens. J. 17 
+(2017) 5581–5588, https://doi.org/10.1109/JSEN.2017.2726011.
+[5] W. Li, Y. Cao, L. Li, S. Hou, An orthogonal wavelet transform-based k-nearest 
+neighbor algorithm to detect faults in bearings, Shock Vib. 2022 (2022) e5242106, 
+https://doi.org/10.1155/2022/5242106.
+[6] V. Sheth, U. Tripathi, A. Sharma, A comparative analysis of machine learning 
+algorithms for classification purpose, Procedia Comput. Sci. 215 (2022) 422–431, 
+https://doi.org/10.1016/j.procs.2022.12.044.
+[7] P.N. Mueller, L. Woelfl, S. Can, Bridging the gap between AI and the industry - a 
+study on bearing fault detection in PMSM-driven systems using CNN and inverter 
+measurement, Eng. Appl. Artif. Intell. 126 (2023) 106834, https://doi.org/ 
+10.1016/j.engappai.2023.106834.
+[8] S. Shen, H. Lu, M. Sadoughi, C. Hu, V. Nemani, A. Thelen, K. Webster, M. Darr, 
+J. Sidon, S. Kenny, A physics-informed deep learning approach for bearing fault 
+detection, Eng. Appl. Artif. Intell. 103 (2021) 104295, https://doi.org/10.1016/j. 
+engappai.2021.104295.
+[9] V. Pandhare, J. Singh, J. Lee, Convolutional Neural Network Based Rolling- 
+Element Bearing Fault Diagnosis for Naturally Occurring and Progressing Defects 
+Using Time-Frequency Domain Features, in: 2019 Prognostics and System Health 
+Management Conference (PHM-Paris), 2019: pp. 320–326. https://doi.org 
+/10.1109/PHM-Paris.2019.00061.
+[10] D. Ruan, J. Wang, J. Yan, C. Gühmann, CNN parameter design based on fault signal 
+analysis and its application in bearing fault diagnosis, Adv. Eng. Inform. 55 (2023) 
+101877, https://doi.org/10.1016/j.aei.2023.101877.
+[11] D. Neupane, Y. Kim, J. Seok, Bearing fault detection using scalogram and 
+switchable normalization-based CNN (SN-CNN), IEEE Access 9 (2021) 
+88151–88166, https://doi.org/10.1109/ACCESS.2021.3089698.
+[12] S. Shan, J. Liu, S. Wu, Y. Shao, H. Li, A motor bearing fault voiceprint recognition 
+method based on Mel-CNN model, Measurement 207 (2023) 112408, https://doi. 
+org/10.1016/j.measurement.2022.112408.
+[13] Z. Wang, H. Lu, Y. Shi, X. Wang, Lightweight CNN architecture design based on 
+spatial–temporal tensor and its application in bearing fault diagnosis, IEEE Trans. 
+Instrum. Meas. 73 (2024) 1–12, https://doi.org/10.1109/TIM.2023.3336435.
+[14] F. Li, L. Wang, D. Wang, J. Wu, H. Zhao, An adaptive multiscale fully convolutional 
+network for bearing fault diagnosis under noisy environments, Measurement 216 
+(2023) 112993, https://doi.org/10.1016/j.measurement.2023.112993.
+[15] H.-Y. Chen, C.-H. Lee, Deep learning approach for vibration signals applications, 
+Sensors 21 (2021) 3929, https://doi.org/10.3390/s21113929.
+[16] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A.N. Gomez, L. Kaiser, 
+I. Polosukhin, Atten. Is. All You Need (2023), https://doi.org/10.48550/ 
+arXiv.1706.03762.
+[17] S. Tuli, G. Casale, N.R. Jennings, TranAD Deep Transform. Netw. Anom. Detect. 
+Multivar. Time Ser. Data (2022), https://doi.org/10.48550/arXiv.2201.07284.
+[18] R. Baidya, H. Jeong, Anomaly detection in time series data using reversible 
+instance normalized anomaly transformer, Sensors 23 (2023) 9272, https://doi. 
+org/10.3390/s23229272.
+[19] S. Reza, M.C. Ferreira, J.J.M. Machado, J.M.R.S. Tavares, A multi-head attention- 
+based transformer model for traffic flow forecasting with a comparative analysis to 
+recurrent neural networks, Expert Syst. Appl. 202 (2022) 117275, https://doi.org/ 
+10.1016/j.eswa.2022.117275.
+[20] P. Zeng, G. Hu, X. Zhou, S. Li, P. Liu, S. Liu, Muformer: a long sequence time-series 
+forecasting model based on modified multi-head attention, Knowl. Based Syst. 254 
+(2022) 109584, https://doi.org/10.1016/j.knosys.2022.109584.
+[21] Z. Chen, M. Lin, Z. Wang, Q. Zheng, C. Liu, Spatio-temporal representation learning 
+enhanced speech emotion recognition with multi-head attention mechanisms, 
+Knowl. Based Syst. 281 (2023) 111077, https://doi.org/10.1016/j. 
+knosys.2023.111077.
+[22] W. Li, F. Qi, M. Tang, Z. Yu, Bidirectional LSTM with self-attention mechanism and 
+multi-channel features for sentiment classification, Neurocomputing 387 (2020) 
+63–77, https://doi.org/10.1016/j.neucom.2020.01.006.
+[23] S. Tabatabaei, K. Rezaee, M. Zhu, Attention transformer mechanism and fusion- 
+based deep learning architecture for MRI brain tumor classification system, 
+Biomed. Signal Process. Control 86 (2023) 105119, https://doi.org/10.1016/j. 
+bspc.2023.105119.
+[24] P. Zhou, J. Feng, C. Ma, C. Xiong, S.C.H. Hoi, Towards theoretically understanding 
+why sgd generalizes better than adam in deep learning, Adv. Neural Inf. Process. 
+Syst. 33 (2020) 21285–21296.
+[25] E. Bechhoefer, Condition based maintenance fault database for testing diagnostics 
+and prognostic algorithms, MFPT Data (2013).
+[26] S. Haidong, J. Hongkai, L. Xingqiu, W. Shuaipeng, Intelligent fault diagnosis of 
+rolling bearing using deep wavelet auto-encoder with extreme learning machine, 
+Knowl. Based Syst. 140 (2018) 1–14, https://doi.org/10.1016/j. 
+knosys.2017.10.024.
+[27] J. Sun, C. Yan, J. Wen, Intelligent bearing fault diagnosis method combining 
+compressed data acquisition and deep learning, IEEE Trans. Instrum. Meas. 67 
+(2018) 185–195, https://doi.org/10.1109/TIM.2017.2759418.
+[28] Z. Zilong, Q. Wei, Intelligent fault diagnosis of rolling bearing using one- 
+dimensional multi-scale deep convolutional neural network based health state 
+classification, IEEE 15th Int. Conf. Netw. Sens. Control (ICNSC) 2018 (2018) 1–6, 
+https://doi.org/10.1109/ICNSC.2018.8361296.
+[29] M. Gan, C. Wang, Construction of hierarchical diagnosis network based on deep 
+learning and its application in the fault pattern recognition of rolling element 
+bearings, Mech. Syst. Signal Process. 72 (2016) 92–104.
+[30] W. Mao, Y. Liu, L. Ding, Y. Li, Imbalanced fault diagnosis of rolling bearing based 
+on generative adversarial network: a comparative study, IEEE Access 7 (2019) 
+9515–9530, https://doi.org/10.1109/ACCESS.2018.2890693.
+[31] H. Jiang, X. Li, H. Shao, K. Zhao, Intelligent fault diagnosis of rolling bearings using 
+an improved deep recurrent neural network, Meas. Sci. Technol. 29 (2018) 
+065107.
+[32] A.E. Chaleshtori, A. Aghaie, A novel bearing fault diagnosis approach using the 
+Gaussian mixture model and the weighted principal component analysis, Reliab. 
+Eng. Syst. Saf. 242 (2024) 109720, https://doi.org/10.1016/j.ress.2023.109720.
+[33] F. Zhao, Y. Jiang, C. Cheng, S. Wang, An improved fault diagnosis method for 
+rolling bearings based on wavelet packet decomposition and network parameter 
+optimization, Meas. Sci. Technol. 35 (2023) 025004, https://doi.org/10.1088/ 
+1361-6501/ad0691.
+P. Kumar et al.                                                                                                                                                                                                                                  
+Applied Soft Computing 194 (2026) 114980 
+10

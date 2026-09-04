@@ -1,0 +1,1583 @@
+
+
+===== PAGE 1 =====
+
+CDGCN: A CNN-enhanced dynamic graph convolutional network for 
+multimodal fault diagnosis
+Songhua Xiao , Junqi Hou , Muhammad Jamshaid Khan , Beibei Sun *
+School of Mechanical Engineering, Southeast University, Nanjing 211189, China
+A R T I C L E I N F O
+Keywords:
+Fault diagnosis
+Graph neural network 
+Wasserstein distance 
+Dynamic graph structure 
+Multimodal fusion
+A B S T R A C T
+Intelligent fault diagnosis of rotating machinery under variable-speed and high-noise conditions remains chal-
+lenge. Current deep learning-based approaches to multimodal fault diagnosis (e.g., using vibration and acoustic 
+signals) face two major limitations. First, the approaches struggle to effectively fuse heterogeneous yet com-
+plementary information across different modalities. Second, when employing Graph Neural Networks (GNNs), 
+they often rely on manually defined or static graph structures. This reliance prevents end-to-end, data-driven 
+optimization and limits the adaptability to varying working conditions. To address these limitations, this paper 
+proposes a novel CNN-enhanced Dynamic Graph Convolutional Network (CDGCN) for cross-modal fault diag-
+nosis using vibration and acoustic signals. The CDGCN introduces an adaptively dynamic, data-driven graph 
+construction strategy. A shared CNN first extracts local discriminative features from raw signals and maps them 
+into probability distributions, from which Sinkhorn-approximated Wasserstein distances are computed to 
+construct a dynamic adjacency matrix. The resulting graph structure enables a Graph Convolutional Network 
+(GCN) to adaptively model inter-segment and cross-modal interactions, with the original CNN features serving as 
+rich node attributes. This architecture effectively integrates temporal pattern extraction and spatial relationship 
+learning, significantly enhancing diagnostic robustness under complex, variable-speed operating conditions. 
+Extensive experiments on a self-developed multi-sensor bearing dataset validate the superiority of the proposed 
+method, with classification accuracy exceeding 98.7% across various rotational speeds. Ablation and sensitivity 
+analyses further confirm the effectiveness of dynamic graph construction and the critical role of the entropic 
+regularization parameter ε.
+1. Introduction
+In modern industrial systems, mechanical equipment is undergoing 
+continuous upgrades in complexity and performance. With the rapid 
+development of advanced manufacturing technologies, there is a 
+growing emphasis on the operational stability and safety of rotating 
+machinery. Rolling bearings, as essential components within these sys-
+tems, play a pivotal role in supporting rotational motion and load 
+transfer. Their health status has a direct impact on the overall reliability 
+and safety of industrial operations. As core elements in electrome-
+chanical systems, bearing failures can lead to unexpected downtime, 
+substantial economic losses, and severe equipment damage. Therefore, 
+achieving accurate and reliable health monitoring of bearings is of 
+critical importance for ensuring safe and efficient system operation 
+[1–4].
+To meet the growing demand for accurate and real-time fault
+diagnosis, deep learning has emerged as a powerful tool due to its ability 
+to automatically extract meaningful features from raw sensor data. 
+Various neural network architectures—such as convolutional neural 
+networks (CNNs) [5,6], recurrent neural networks (RNNs) [7,8], 
+autoencoders (AEs) [9,10], long short-term memory networks (LSTMs) 
+[11,12], and transformers—have been successfully applied in machin-
+ery fault diagnosis. These models outperform traditional methods by 
+capturing complex temporal dependencies, spatial patterns, and struc-
+tural relationships in vibration and acoustic signals, reducing reliance on 
+manual feature engineering [13–15]. However, a significant practical 
+challenge remains that industrial rotating machinery often operates 
+under variable-speed conditions with high noise interference. Under 
+such complex and non-stationary environments, the fault signatures 
+captured by a single sensing modality (e.g., vibration) often become 
+obscured, unreliable, and insufficient to fully characterize the machin-
+ery health states. This inherent limitation of single-modality data
+* Corresponding author at: School of Mechanical Engineering, Southeast University, Nanjing 211189, China. 
+E-mail address: bbsun@seu.edu.cn (B. Sun).
+Contents lists available at ScienceDirect
+Measurement
+journal homepage: www.elsevier.com/locate/measurement
+https://doi.org/10.1016/j.measurement.2026.120788
+Received 6 September 2025; Received in revised form 14 January 2026; Accepted 9 February 2026
+Measurement 269 (2026) 120788 
+Available online 10 February 2026 
+0263-2241/© 2026 Elsevier Ltd. All rights are reserved, including those for text and data mining, AI training, and similar technologies.
+
+
+===== PAGE 2 =====
+
+necessitates the fusion of complementary information from multiple 
+sensing sources (e.g., vibration and acoustic) to enhance diagnostic 
+robustness. Yet, despite this clear need, most existing deep learning 
+models are still designed for and applied to single-modality data, lacking 
+the inherent capability to effectively perform such heterogeneous 
+fusion.
+To address the multimodal fusion challenge, research efforts have 
+explored fusion strategies at data, feature, and decision levels. For 
+instance, Ma et al. [16] introduced a deep coupling autoencoder for 
+multimodal signal fusion, while Ying et al. [17] developed a feature-
+enhance fusion network for acoustic and infrared data. Wan et al. [18] 
+and Fu et al. [19] proposed networks coupling multi-sensor information. 
+Zhang et al. [20] and Feng et al. [21] employed tensor representation 
+and multi-source heterogeneous data fusion, respectively. Despite 
+promising results, a common limitation persists that these methods 
+predominantly rely on handcrafted or manually designed fusion archi-
+tectures. Such fixed strategies struggle to capture the complex, dynamic, 
+and nonlinear relationships among heterogeneous signals that naturally 
+evolve under variable-speed conditions, often leading to degraded 
+robustness and adaptability in real-word applications.
+Graph Neural Networks (GNNs) offer a flexible and natural frame-
+work for modeling structural dependencies among multi-sensor signals 
+within a unified graph structure [22,23]. By operating on graph-
+structured data and updating nodes through message passing [24,25], 
+GNNs can learn embeddings that integrate local features and global 
+information. Among GNN variants, Graph Convolutional Networks 
+(GCNs) [26–28] have gained prominence for their efficiency. Recent 
+studies have leveraged GNNs for multimodal diagnosis by constructing 
+graphs where nodes represent sensors/modalities and edges encode 
+similarities. For instance, Wang er al. [29] proposed a temporal-spatial 
+graph neural network with an attention-aware module for fault diag-
+nosis, constructing graphs by treating sensors as nodes, signal segments 
+as attributes, selecting neighbors via cosine similarity and calculating 
+edge weights with Gaussian kernel. Sun et al. [30] proposed a multi-
+sensor temporal-spatial graph network fused with empirical mode 
+decomposition convolution for fault diagnosis, which constructs graph 
+to mine spatio-temporal correlations. Meng et al. [31] introduced a 
+multi-sensor fusion based on modal analysis and graph attention 
+network for bearing fault diagnosis, which constructs graph structures 
+via modal analysis (fusion video-derived phase vibration and acoustic 
+signals, using singular value decomposition and frequency-domain 
+decomposition to extract singular value vectors as nodes). Ren et al. 
+[32] presented a cross-attention-based dual-branch graph neural 
+network for multi-sensor fault diagnosis, which constructs graphs by 
+taking sensors as nodes, judging edge existence through Pearson corre-
+lation coefficient and calculating edge weights via Gaussian kernel 
+weight function. Li et al. [33] proposed an adversarially regularized 
+graph wavelet autoencoder for unsupervised mechanical fault diagnosis 
+by transforming multi-sensor signal into graph-structured representa-
+tions and using spectral graph wavelet convolutions with adversarial 
+regularization to extract multiscale features. However, these approaches 
+introduce a critical limitation that their graph structures are typically 
+predefined or constructed using fixed, non-learnable similarity metrics, 
+resulting in a static topology that is decoupled from the downstream 
+diagnostic task.
+In summary, the existing multimodal bearing fault diagnosis 
+methods are subject to three significant limitations:
+1) Static or fixed multimodal fusion schemes: Many current methods, 
+while capable of automatic feature extraction, adopt static fusion 
+mechanisms—such as simple concatenation, weighted averaging, or 
+pre-defined weights—that remain unchanged across different oper-
+ating conditions. These strategies lack the adaptability to capture the 
+evolving and context-dependent relationships between heteroge-
+neous signals (e.g., vibration and acoustic), which often leads to
+suboptimal feature integration and reduced robustness under dy-
+namic working conditions.
+2) Handcrafted graph construction in GNNs: Although GNNs offers a 
+structed way to model interactions among multimodal data, most 
+GNN-based diagnostic models rely on predefined graph topologies. 
+These are typically constructed using prior knowledge (e.g., sensor 
+physical layout) or simple similarity metrics (e.g., cosine or corre-
+lation coefficients). Such graphs remain static throughout training 
+and cannot adaptively reflect the latent, data-driven relationships 
+between signal segments or across modalities, thereby limiting the 
+ability to generalize under varying working conditions.
+3) Limited data-driven dynamic interaction modeling: While some 
+recent studies have explored adaptive fusion, there remains a scar-
+city of methods that fully integrate feature learning with dynamic 
+structure learning in an end-to-end trainable framework. Most 
+existing pipelines decouple representation extraction from relation 
+modeling, which hinders the joint optimization of multimodal fea-
+tures and their interactive patterns, ultimately constraining diag-
+nostic accuracy and system adaptability in real industrial 
+environments.
+This manual graph construction hinders fully data-driven, end-to-
+end training and reduces the adaptability and generalization capability 
+of the models. To address the limitations, this paper proposed a novel 
+CNN-enhanced Dynamic Graph Convolution Network (CDGCN) frame-
+work for multimodal fault diagnosis under variable-speed conditions. 
+The main contributions of this paper are as follows:
+1) A novel CNN-enhanced Dynamic Graph Convolutional Network 
+(CDGCN) is proposed for multimodal fault diagnosis under variable-
+speed conditions. The framework jointly optimizes a shared CNN-
+based feature extractor and a dynamic graph convolutional 
+network, where the graph topology is constructed in a fully data-
+driven 
+and 
+differentiable 
+scheme 
+employing 
+Sinkhorn-
+approximated Wasserstein distance to derive a segment-adaptive 
+adjacency matrix from distributional feature similarity. This design 
+enables effective modeling of evolving intra-modal and cross-modal 
+relationships without relying on static or predefined graph 
+structures.
+2) We establish a new, challenging self-developed multimodal bearing 
+fault dataset under variable-speed conditions. Extensive comparative 
+experiments are conducted against state-of-the-art methods, 
+demonstrating that the proposed CDGCN achieves superior diag-
+nostic accuracy (exceeding 99%) and robustness. Furthermore, 
+detailed ablation and sensitivity analysis are performed to rigorously 
+validate the effectiveness of the novel dynamic graph construction 
+mechanism and the critical role of the entropic regularization 
+parameter ε.
+The remainder of the paper is organized as follows: Section 2 in-
+troduces the methodology of the.
+proposed novel CDGCN. Section 3, provides the overview of the 
+proposed method. Section 4 reports the experimental verification, and 
+Section 5 presents ablation study. Finally, Section 6 summarizes the 
+conclusions.
+2. Methodology
+2.1. CNN-based feature extraction
+To capture discriminative temporal patterns from raw one-
+dimensional sensor signals, a lightweight Convolutional Neural 
+Network (CNN) is employed as the front-end feature extractor. CNNs are 
+particularly well-suited for feature extraction due to the ability to 
+automatically learn hierarchical spatial–temporal representations 
+through local receptive fields, and weight sharing, without relying on
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+2
+
+
+===== PAGE 3 =====
+
+manual feature engineering. In this paper, each sensor node—originat-
+ing from either the vibration or acoustic modality—provides a time-
+domain signal segment of fixed length, denoted as x i ∈ R 1×L , where L 
+represents the length of the time series, and the subscript i indexed the 
+sensor node. In general, the output of a one-dimension convolution layer 
+for the c-th output channel at time step t can be calculated as follow:
+y c (t) = 
+∑
+C in
+i=1
+∑ 
+K− 1
+j=0
+w c,i,j ⋅x i (t + j) + b c 
+(1)
+where C in denotes the number of input channels (typically 1 for one-
+dimension single-channel signals), K is the kernel size, w c,i,j and b c 
+represent the learnable convolution weight and bias term, respectively. 
+After each convolution operation, a non-linear activation function σ( • ) 
+is applied to introduce non-linearity into the model, which is essential 
+for learning complex patterns. In this paper, the ReLU is employed as the 
+activation function due to its computational efficiency and effectiveness 
+in mitigating the vanishing gradient problem. The output of the acti-
+vation for the c-th channel at time step t is given by:
+z c (t) = σ(y c (t) ) = ReLU(y c (t)) = max(0, y c (t)) 
+(2)
+where z c (t) is the output of the activation function for channel c at time 
+step t; y c (t) denotes the output of the convolution operation at time step 
+t. A pooling operation is employed to reduce the temporal resolution and 
+increase robustness of the model. Unlike fixed-size pooling, an adaptive 
+pooling layer is applied to dynamically downsample the temporal 
+dimension to a predefined length, regardless of the input size. Specif-
+ically, the adaptive pooling outputs a feature map of fixed temporal 
+length T ʹ , independent of the input length T. The output for channel c 
+after adaptive pooling is:
+f c (t ʹ ) =
+1 
+|R (t ʹ ) |
+∑
+t∈R (t ʹ )
+z c (t), t ʹ = 1, 2, ..., T ʹ 
+(3) 
+where R (t ʹ ) denotes the set of indices in the input corresponding to the
+output position t ʹ .
+The final output of the CNN-based feature extractor for each sensor 
+node is a two-dimension tensor f i ∈ R d×T ʹ , where d is the number of 
+convolutional output channels. These features are later interpreted as a 
+distribution for computing inter node distances in graph construction. 
+All sensor nodes share the same CNN weights, ensuring consistent 
+feature representation across different modalities and reducing the 
+number of trainable parameters.
+2.2. Wasserstein distance-based adaptive dynamic graph construction via 
+Sinkhorn approximation
+An adaptive dynamic graph structure is constructed based on the 
+distribution distance between node-level features, to model the latent 
+interactions among cross-modal multi-sensor nodes, as shown in Fig. 1. 
+To quantify the difference between nodes, the Wasserstein distance is 
+adopted as a metric to evaluate the similarity between feature distri-
+butions. The Wasserstein distance provides a geometrically meaningful 
+measure of the discrepancy between two probability distributions, 
+which is especially suitable for comparing structured representations 
+like feature maps. To enable end-to-end optimization, the Sinkhorn 
+algorithm—a differentiable approximation to the original Wasserstein 
+distance—is employed, which introduces an entropic regularization 
+term for computational efficiency and gradient stability.
+Given two node features f a , f b ∈ R d×T ʹ , probability distributions are 
+obtained by applying the softmax function to their flattened represen-
+tations, and can be expressed as follows:̃
+f a = softmax(flatten(f a ))
+(4)̃
+f b = softmax(flatten(f b ))
+(5)
+wherẽ
+ 
+f a ,̃
+ 
+f b ∈ R 1×dT ʹ
+The Sinkhorn distance is introduced as a differentiable approxima-
+tion to the original Wasserstein distance, enabling end-to-end optimi-
+zation of the entire model. Comparation with the traditional standard 
+Wasserstein distance formulation, which is non-differentiable and
+Fig. 1. Flowchart of dynamic graph construction process.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+3
+
+
+===== PAGE 4 =====
+
+computationally intensive, the Sinkhorn algorithm incorporates an 
+entropic regularization term, ensuring both smoothness and efficiency. 
+Gradient information can be back-propagated from the graph con-
+struction module to the CNN-based feature extractor, adopting the
+Sinkhorn-based formulation, and the formulation can be expressed as 
+follows:
+C pq =⃦⃦⃦⃦̃
+ 
+f 
+(p) 
+a − ̃ 
+f 
+(q)
+b ‖2
+2
+(6) 
+C =
+⎡ 
+⎢ 
+⎢ 
+⎢ 
+⎢ 
+⎢⎣ 
+C 11
+C 12
+⋯
+C 1T ʹ
+C 21
+C 22
+⋯
+C 2T ʹ
+⋮
+C T ʹ 1
+⋮
+C T ʹ 2
+⋮ ⋮ 
+⋯ C T ʹ T ʹ
+⎤
+⎥⎥⎥⎥⎥⎦
+(7)
+where C ∈ R dT ʹ ×dT ʹ denotes cost matrix, and here d = 1, C pq represents 
+the squared Euclidean distance between the feature vectors at temporal 
+index p and q from nodes a and b, respectively. The Sinkhorn distance 
+can be calculated by following formular:
+W ε 
+(̃ 
+f a ,̃ 
+f b
+) 
+= min 
+T∈Π ( ˜f a , ˜fb) 
+〈T, C〉 − εH(T), ε > 0
+(8)
+Π 
+( ̃
+ 
+f a ,̃ 
+f b
+) 
+= 
+{ 
+T ∈ R T ʹ ×T ʹ⃒⃒ T • I = ̃f a , T T • I =̃
+ 
+f b, T ij > 0 
+}
+(9)
+H(T) = − 
+∑ 
+pq 
+( 
+T pq • logT pq 
+)
+(10)
+I T = [1, 1, ⋯, 1]
+(11)
+where T denotes the transport matrix, Π 
+(̃
+ 
+f a ,̃
+ 
+f b
+) 
+represents the set of all 
+joint probability distributions whose marginals match the given input ̃f a
+and̃ f b , H(T) is transport entropy, ε is the regularization coefficient, and 
+the process for calculating the Sinkhorn distance is shown in Table 1. 
+To ensure that the dynamically constructed graph accurately reflects 
+the underlying relationships among signal segments, three guiding 
+principles are adopted during the graph construction process. These
+guidelines are designed to optimize node connectivity and enhance the 
+representational power of the resulting graph structure.
+(1) Node connection criterion: For each node in one modality (vi-
+bration or acoustic), the Sinkhorn distance between the node and 
+the other four nodes. The connections between nodes are driven 
+by the smallest distance, ensuring that each node is connected 
+bidirectionally with the node most similar to it, improving the 
+flow of information between nodes.
+(2) Representative node selection: After establishing the initial 
+bidirectionally connections, representative node in one domain is 
+selected by calculating the number of edges each node is con-
+nected to. The representative node is the one with the most 
+connections, effectively representing the main feature of its 
+domain. This criterion ensures that key nodes in each modality 
+are effectively represented, thereby improving the efficiency in 
+handling multimodal data.
+(3) Cross-modal connection: Finally, representative nodes of two 
+modalities are connected, ensuring the strongest connection be-
+tween vibration and acoustic modalities. This allows for more 
+efficient information transfer between nodes of different modal-
+ities, thereby enhancing the ability to learn across modalities 
+features.
+To explicitly encode reliable intra-modal similarity and compact 
+cross-modal correspondence while avoiding an overly dense topology, 
+the dynamic graph is constructed under three guiding principles. These 
+principles ensure that the constructed adjacency not only reflects 
+sample-wise feature relationships, but also remains sparse, stable, and 
+information-efficient for feature propagation.
+(1) Intra-modal mutual-nearest connectivity principle.
+For each node within a modality (vibration or acoustic), the Sink-
+horn distance is calculated to all other nodes in the same modality and 
+connect it to node with the minimum distance (the nearest neighbor 
+under Sinkhorn metric), and can be expressed as follows:
+j * = argmin 
+j∕=i W(i, j) 
+(12)
+where j * denotes the index of the nearest-neighbor node to i under the 
+Sinkhorn distance, i and j denote the two distinct nodes within the same 
+modality, respectively. W(i, j) denote the Sinkhorn distance between the 
+two nodes. A bidirectional edge between i and j * is established. This 
+mutual-nearest strategy yields a sparse but informative topology, pre-
+venting the graph from degenerating into a fully connected structure 
+while still preserving the strongest local relations that are most benefi-
+cial for information propagation.
+(2) Representative-node selection principle.
+After the initial intra-modal connections are formed, a representative 
+node was identified for each modality based on connectivity. Specif-
+ically, the number of established edges of the node computed and 
+representative node of each modality was selective by follows:
+deg m (i) = 
+∑ 
+N m
+j=1,j±i
+A ij 
+m 
+(13)
+r m = arg 
+[
+max 
+i∈{1,⋯,Nm } deg m (i) 
+] 
+(14)
+where, m denotes the modality index, and m ∈ {vibration, acoustic}, and 
+N m is the number of nodes in modality m, and in this paperN m = 5. A ij 
+m 
+represents the edge value of intra-modal adjacency matrix from node i to 
+node j within modality m. deg m (i) is the number of neighbors connected 
+to node i in modality m, and r m denote the representative node of the 
+modality m.
+Table 1
+The detailed calculation process of the Sinkhorn distance.
+Algorithm 1 Sinkhorn distance calculation process
+Input:
+Normalized feature vectors ̃ 
+f a , ̃ 
+f b
+​
+Regularization coefficient ε 
+​
+Maximum number of iterations N
+1:
+Construct cost matrix C using C pq =⃦⃦⃦⃦̃
+ 
+f 
+(p) 
+a − ̃ 
+f 
+(q)
+b ‖2
+2
+2:
+Compute kernel matrix K ∈ R T ʹ ×T ʹ using K = exp 
+(C
+ε 
+)
+3:
+Initialize U = I, V = I 
+4:
+for t = 1 to N do:
+5:
+U new =̃
+f a
+K • V and V new = ̃
+ 
+f b
+K • U
+6:
+if ‖U new − U‖ < δ and ‖V new − V‖ < δ do:
+7:
+break
+8:
+end if
+9:
+U = U new and V = V new
+10:
+end for
+11:
+Compute approximate solution of transport matrix 
+​
+T = diag(U) • K • diag(V)
+12:
+Compute Sinkhorn distance
+13:
+W ε 
+(̃
+ 
+f a ,̃
+ 
+f b
+) 
+= 〈T, C〉 = 
+∑T ʹ 
+p=1
+∑ T ʹ
+q=1 T pq • C pq
+14:
+return W ε 
+(̃
+f a ,̃
+ 
+f b
+)
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+4
+
+
+===== PAGE 5 =====
+
+The representative node serves as a modality-specific prototype, 
+encapsulating the canonical feature patterns inherent within its mo-
+dality, thereby providing a robust and condensed representation for
+cross-modal interaction, which enhances fusion efficiency. This identi-
+fication process is fully data-driven and adapts dynamically to the 
+feature distribution of each input.
+(3) Cross-modal connectivity principle.
+Finally, cross-modal connection is constructed by linking the repre-
+sentative vibration node r v and the representative acoustic node r a . The 
+edge weight is governed by their Sinkhorn distance, so that the cross-
+modal connection explicitly reflects the strongest and most reliable 
+correspondence between modalities. By employing representative nodes 
+rather than dense all-to-all cross-modal edges, the fusion becomes more 
+targeted and less susceptible to noisy or weakly related node pairs, 
+thereby enabling efficient and stable cross-modal information 
+propagation.
+By following these guidelines, dynamic graph structure (as detailed 
+in Table 2) can dynamically adjust node connections and topology, 
+ensuring that the model can automatically optimize and adapt to 
+different input data patterns during training. Fig. 2 illustrates a visual-
+ized representation of the dynamically constructed graph, where the 
+nodes correspond to the feature segments extracted from the vibration
+Table 2
+The detailed dynamic graph structure construction process.
+Algorithm 2 Dynamic graph structure construction process
+Input:
+Vibration nodes V = [v 1 ,v 2 ,v 3 ,v 4 ,v 5 ], acoustic nodes A = [a 1 ,a 2 ,a 3 ,a 4 ,a 5 ], 
+Node number N va
+Output:
+Adjacency matrix A adj
+1:
+Initialize input feature matrix M = [V, A]
+2:
+for i = 1 to N va do:
+3
+Calculate Sinkhorn distance between node i and other four nodes in same 
+modality
+4:
+Connect node i with the smallest Sinkhorn distance node in same modality 
+bidirectionally
+5:
+end for
+6:
+Calculate the connection number of each node
+7:
+Choose the most connections one node to be the representative node in 
+each modality
+8:
+Connect the representative nodes bidirectionally
+9:
+Save connection relationship between nodes as A adj
+10:
+return A adj
+Fig. 2. Visualization of the dynamically constructed graph structure.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+5
+
+
+===== PAGE 6 =====
+
+and acoustic modalities. It is essential to note that the visualization 
+presents only an example of the graph topology, and in practice, the 
+adjacency matrix and node connections are regenerated adaptively for 
+every input instance based on the Sinkhorn-approximated Wasserstein 
+distance-based dynamic construction mechanism.
+2.3. Graph convolutional network
+Graph convolutional network (GCN) is a type of neural network 
+specially designed for graph-structured data, extending traditional 
+convolution operations to non-Euclidean domains by aggregating 
+feature information from each node’s neighborhood. Once the adaptive 
+graph is constructed, GCN is applied to capture the interactions between 
+nodes within the dynamic graph structure.
+Let G = (V, E) denotes an undirected graph, where V is the set of N 
+nodes, and E is the set of edges. The adjacency matrix A ∈ R N×N de-
+scribes node connectivity, and the degree matrix D ∈ R N×N is a diagonal 
+matrix with D ii = ∑ 
+j A ij . The modified adjacency matrix is defined as̃
+A = A +I to ensure self-connections, where I is the identity matrix. Given
+an input node feature matrix X ∈ R N×F , where F denotes number of 
+features of each node, the propagation rule of a GCN layer is expressed 
+as follows:
+H (l+1) = σ 
+(̃
+ 
+D
+− 1/2 ̃A ̃ 
+D
+− 1/2 H (l) W (l) ) 
+(15)
+where H (0) = X, W (l) is a learnable weight matrix of l layer, and D de-
+notes the degree matrix. For graph classification, a graph-level repre-
+sentation from the node-level representations produced by the GCN 
+layers is obtained by introducing global mean pooling, and the operation 
+is as follows:
+h g = 1
+N va
+∑ 
+N va
+i=1
+H i 
+(16)
+where H i is the feature vector of the i-th node. Global mean pooling 
+aggregate node features into a single vector that represents the entire 
+graph. The graph-level representation h g is passed through a fully con-
+nected layer W f to output the final class label for the graph, and then a
+softmax function is applied to obtain prediction:̂
+y c =
+e ( W f h g +b ) 
+c
+∑ M
+i=1e ( W f h g +b ) 
+i
+(17) 
+here, ̂y c is the predicted probability for class c, b is the bias term. The 
+cross-entropy loss is introduced as loss function, and it can be described 
+as follows:
+L = − 
+∑ 
+M
+i=1
+y c log(̂y c ) 
+(18)
+where y c is an indicator for the c-th class, if class c is the ground truth 
+label y c = 1, else y c = 0. The Adaptive Moment Estimation (Adam) 
+optimizer is applied as the model optimizer, and the express is as fol-
+lows:
+g t = ∇ θ L t
+(19)
+m t = β 1 ⋅m t− 1 + (1 − β 1 )⋅g t
+(20)
+v t = β 2 ⋅v t− 1 + (1 − β 2 )⋅g 2
+t
+(21) 
+⎧
+⎪
+⎪
+⎨
+⎪ 
+⎪
+⎩ ̂
+ 
+mt = m t
+1 − βt
+1̂
+v t = v t
+1 − βt
+2
+(22) 
+θ t+1 = θ t − α⋅̂
+ 
+mt̅̅̅̅̅̅̅̅̅̅̅̅̅̂
+v t + ∊
+√ 
+(23)
+where θ t denotes the parameters of the network in the t iteration. ∇ θ ( • ) 
+denotes the gradient of ( • ) with respect of θ. m t , v t is the gradient first 
+moment estimate and the gradient second moment estimate in the t 
+iteration respectively. α, ∊ is the learning rate and numerical stability 
+term respectively.
+3. Overview of the proposed CDGCN
+To enhance fault diagnosis under cross-modal and variable condi-
+tions, a novel CNN-enhance Dynamic Graph Convolutional Network 
+(CDGCN) is proposed, as summarized in Table 3. As presented in Fig. 3, 
+CDGCN leverages two core components, a CNN-based feature extractor 
+and a GCN module with a data-driven, dynamically constructed graph 
+structure. Unlike conventional multimodal approaches that employ 
+static or handcrafted fusion strategies, CDGCN introduces a fundamen-
+tally different paradigm in which the graph topology is not predefined 
+but is adaptively inferred from the intrinsic statistical properties of the 
+input multimodal signals. 
+The lightweight CNN-based feature extractor is designed to learn 
+deep and discriminative representations from raw cross-modal signals 
+(vibration and acoustic signals), effectively capturing localized spa-
+tial–temporal features across different sensing sources. To improve
+computational efficiency and ensuring consistency across nodes, all 
+signal segments share the same feature extractor. This parameter-
+sharing strategy reduces redundant computations and ensures that all 
+node features are embedded in a unified representation space, which is 
+essential for stable graph construction and graph-based learning. 
+The key innovation lies in the subsequent adaptive graph construc-
+tion module. Instead of relying on fixed similarity measures or sensor 
+locations, the features, which are extracted from font-end CNN-based 
+extractor, are first transformed into probability distributions using a 
+Softmax-based normalization process. These probabilistic representa-
+tions are then used to compute pairwise Sinkhorn-approximated Was-
+serstein distances between signal segments within the same modality. 
+The Sinkhorn-approximated Wasserstein distance is chosen not only for 
+its ability to measure distributional similarity in a geometrically 
+meaningful way but also because it is differentiable, enabling end-to-end 
+training of the entire framework. To convert the resulting distance 
+matrix into a sparse yet informative topology, three guiding principles is 
+introduced for dynamic construction. Specially, nodes are linked to their
+intra-modal nearest neighbors under the Sinkhorn distance with bidi-
+rectional edges, a representative node is identified in each modality by 
+maximizing node connectivity, and the cross-modal interaction is
+established by connecting the representative nodes cross modalities. 
+These principles prevent noisy dense coupling while preserving the most 
+reliable relations for information propagation. Consequently, this
+Table 3
+Detailed configuration of the proposed CDGCN.
+Type of 
+layer
+Output
+size
+Input
+​
+[1]
+Conv-1
+Conv 16@[1 × 3] × 1, stride = 1.BN, ReLU.
+[16]
+Conv-2
+Conv 32@[1 × 3] × 1, stride = 1.BN
+, ReLU.Adaptive Pooling
+(size = 2), Linear-1:64 → 32. 
+[32]
+​
+Softmax.Wasserstein distance calculated
+(via Sinkhorn approximation, ε = 0.2).Dynamic 
+adjacency matrix (graph structure).
+​
+GCN-1
+GCN 64@[32 × 64] × 1, BN, ReLU.
+[640,64]
+GCN-2
+GCN 32@[64 × 32] × 1, BN, ReLUGlobal Pooling
+(Nodes = 10)
+[32]
+Classifier
+Linear-2:64 → 16, Linear-3: 16 → 5.Softmax.
+[5]
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+6
+
+
+===== PAGE 7 =====
+
+procedure generates a condition-sensitive, data-driven dynamic adja-
+cency matrix, which accurately reflects the evolving inter-node re-
+lationships influenced by varying operational speeds and cross-modal 
+interactions.
+Meanwhile, the original extracted features are retained and 
+employing as node attributes into the GCN, where graph convolutional 
+operations are performed based on the adaptively and differentially 
+generated topology. By integrating distributional similarities for adap-
+tive topology construction and semantically rich features for graph 
+learning, the CDGCN framework effectively bridges cross-modal dis-
+crepancies and enhances model robustness.
+4. Experimental verification
+4.1. Experimental design
+The effectiveness of the proposed method is verified through a self-
+built data acquisition platform (as shown in Fig. 4). The self-built plat-
+form is mainly composed of a motor, speed controller, gearbox, brake, 
+five microphones and five accelerometers. There is a variable rotation 
+speed of the motor (1200 rpm, 1800 rpm, 2400 rpm and 3000 rpm), and 
+the brake is set to the released state. There are 0.5 mm deep and 1 mm 
+wide grooves in the inner race and outer ring of the bearing, and 0.5 mm 
+deep and 0.5 mm wide groove in the ball. Data from five health condi-
+tions of bearing is collected, including normal, inner race fault (IF), 
+outer race fault (OF), rolling ball fault (BF) and hybrid fault (HF).
+The sampling frequency of the microphones and accelerometers are 
+all set equal to 12.8KHz. Each block remains 0.64 s and the block size is 
+8,192. Meanwhile, 15 blocks are acquired and total time is 9.6 s. Total 
+length for each signal is 122,880 for one bearing health condition, and 
+the data collected from different modalities and nodes under the 
+representative 3000 rpm working condition is shown in Fig. 5. 24,576 
+length segment (20% of the total signal length) was used as the test 
+signal. Train signal and test signal are both divided into segments of 
+length 512 with an overlap of 256. As a result, the total number of 
+samples is 386 for the training dataset and 95 for the test dataset under 
+each health state and rotating speed.
+4.2. Impact of entropic regularization parameter on diagnosis 
+performance
+In this section, the influence of hyperparameter ε on fault diagnosis 
+classification performance when approximating th Wasserstein distance 
+was investigated. By taking node 1 and node 2 in vibration domain 
+under 1200 rpm rotational speed as an example, the 512-length seg-
+ments from two nodes were first applied to calculate probability dis-
+tributions across 32 histogram bins (align with the output length of the 
+CNN-based feature extractor), as shown in Fig. 6, and it shows the 
+probability mass functions (PMFs) of two nodes, using histograms and 
+line plots. The distributional similarities and differences between the 
+two nodes are clearly visualized, serving as a basis for calculating dis-
+tribution distance.
+Both the exact Wasserstein distance and Sinkhorn distance (entropic 
+approximation Wasserstein distance) were computed, quantifying the 
+distribution differences between the two nodes. As shown in Fig. 7(a), 
+Sinkhorn distance varies significantly with entropic regularization 
+parameter ε, while, Wasserstein distance remains constant. Fig. 7(b) 
+presented the absolute difference between the Sinkhorn and Wasserstein 
+distance. It is evident that the approximation error becomes negligible 
+when ε is within the range of approximately 10 − 2 to 10 − 1 . This
+Fig. 3. Framework of CDGCN.
+Fig. 4. Self-built platform.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+7
+
+
+===== PAGE 8 =====
+
+Fig. 5. Acquired experimental data under 3000 rpm rotational speed.
+Fig. 6. Comparison of Probability Mass Functions.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+8
+
+
+===== PAGE 9 =====
+
+evaluation is not only intended to measure the distributional difference 
+between node signals, but more importantly, the Sinkhorn distance is 
+later employed to dynamically construct graph structure in a graph 
+convolutional network (GCN). Therefore, selecting an appropriate ε is 
+crucial to ensure both numerical stability and accurate structural
+representation within the dynamic graph.
+Fig. 8 expressed the impact of the entropic regularization parameter 
+ε on fault diagnosis accuracy under different rotation speed conditions. 
+It is observed that the classification accuracy generally improves as ε 
+increases from 10 − 3 to approximately 10 − 1 . However, a further increase
+Fig. 7. Wasserstein and Sinkhorn distance differences vs. hyperparameter ε.
+Fig. 8. Diagnostic accuracies vs. hyperparameter ε across under different conditions.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+9
+
+
+===== PAGE 10 =====
+
+in ε beyond this range leads to a sharp decline in accuracy across all 
+speed conditions. The performance peak for each speed occurs within 
+the range of ε = 0.1 to 0.3, indicating that a moderate regularization 
+strength facilitates more effective graph construction and fault feature 
+learning in the proposed CNN-enhanced Dynamic Graph Convolution 
+Network (CDGCN) model. Notably, the model achieved near-perfect 
+accuracy when ε is appropriately selected, underscoring the robustness 
+of the proposed CDGCN method, and in this paper ε is selected to 0.2.
+4.3. Diagnosis Effect analysis
+To verify the training stability and convergence of the proposed 
+CNN-enhanced Dynamic Graph Convolution Network (CDGCN), the 
+training curve under 3000 rpm working condition is presented in Fig. 9, 
+which shows both the loss and accuracy metrics over 1000 epochs. As
+shown in Fig. 9, the loss curve demonstrates a rapid decrease in the 
+initial epochs, indicating the high learning efficiency in capturing 
+essential features from the multimodal data. After approximately 800 
+epochs, the loss curve stabilizes to a low value, suggesting that the model 
+has effectively converged. Crucially, the accuracy curve exhibits 
+smooth, consistent growth that closely tracks the performance 
+improvement, plateauing near the maximum value without significant 
+oscillations. This stability confirms the robust generalization capability 
+of the CDGCN framework and validates the effectiveness of the 
+Sinkhorn-approximated dynamic graph construction in maintaining a 
+stable gradient flow, thereby avoiding overfitting and ensuring reliable 
+learning across the multimodal signals.
+The diagnostic accuracies of the proposed CDGCN under different 
+rotation speeds and five independent test sequences, are illustrated in 
+Table 4 and Fig. 10. Across all working conditions, the proposed method
+Fig. 9. Convergence of training process.
+Table 4
+Accuracy of fault diagnosis under different working conditions and test sequences [%].
+Working condition
+Test sequence
+Average
+STD
+Test 1
+Test 2
+Test 3
+Test 4
+Test 5
+1200 rpm
+99.16
+99.16
+99.37
+98.53
+98.95
+99.03
+0.28
+1800 rpm
+99.37
+99.16
+98.53
+98.95
+99.37
+99.08
+0.31
+2400 rpm
+99.79
+100.00
+100.00
+100.00
+100.00
+99.96
+0.08
+3000 rpm
+98.74
+98.95
+99.16
+98.32
+98.53
+98.74
+0.30
+Fig. 10. Diagnostic results of five tests under different working conditions.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+10
+
+
+===== PAGE 11 =====
+
+consistently achieved high diagnostic accuracy, with average accuracies 
+of 99.03%, 99.08%, 99.96% and 98.74% at 1200 rpm, 1800 rpm, 2400 
+rpm and 3000 rpm, respectively. Notably, the remarkably low standard 
+deviations (STD) of 0.28%, 0.31%, 0.08% and 0.30% corresponding to 
+each speed further confirm the excellent repeatability and robustness of 
+the method. Individual test accuracies remained consistently high, with 
+the lowest recorded value still above 98%, and several test sequences 
+achieving perfect 100% accuracy.
+Table 5 and Fig. 11 presented a comprehensive comparison of fault 
+diagnosis accuracy between the proposed method and six state-of-the-
+art methods under different working conditions, including: 1) DRMNN 
+[19], which uses a dynamic routing algorithm to adaptively weigh and 
+fuse feature from different modalities. 2) MDCFN [34], which is 
+designed for cross-modal fault diagnosis by integrating multiple mo-
+dalities. 3) GATU-Net [35], a graph attention-based network which 
+constructs a graph by representing each sensor as a node, with edges 
+established based on the cosine similarity between corresponding signal 
+segments. 4) MBGCN [36], a model that integrates Gaussian filters and a 
+multibranch GCN with enhanced multi-receptive fields to effectively 
+diagnose faults. 5) FIGNN [37], a GCN guided by fuzzy inference, and 6) 
+GCMN [38], a graph convolutional memory network to assess the 
+whole-life defect evolution of rolling bearings. 7) DGNN [39], a dynamic 
+graph neural network to constructs and updates graph structures 
+employing Gaussian similarity for accurate fault diagnosis.
+As comprehensively detailed in Table 5, the proposed CDGCN
+decisively outperformed all other advanced comparative methods, 
+achieving a remarkable average accuracy of 99.20% with notably low 
+variability (±0.53%). This performance significantly surpasses the sub-
+optimal method, FIGNN, which had an average accuracy of 84.24% with 
+standard deviations ranging from ± 0.77% to ± 1.41% across different 
+speed conditions. Notably, compared to the dynamic graph construction 
+method DGNN, which achieved an average accuracy of 82.58% (± 
+1.46%), our proposed CDGCN demonstrates a clear and substantial 
+improvement, highlighting the effectiveness of the Sinkhorn-
+approximated Wasserstein distance in adaptively modeling multi-
+modal relationships under variable speeds. While other methods 
+exhibited moderate accuracy with greater fluctuations, CDGCN consis-
+tently demonstrated both superior accuracy and exceptional stability 
+across all speeds. Even the lowest accuracy (98.74% at 3000 rpm) ex-
+ceeds the best average accuracy of any comparative method, under-
+scoring the robustness and reliability of the proposed method under 
+various operational conditions.
+The confusion matrices under the four working conditions are shown 
+in Fig. 12, and provides further evidences of the effectiveness of the 
+proposed method. The results show minimal misclassification, espe-
+cially for Normal and OF conditions, which are clearly differentiated by 
+the model. While there is some misclassification between BF and HF 
+health conditions, the overall performance remains strong, with high 
+diagnostic accuracy across all health states and working conditions. 
+Additionally, the Uniform Manifold Approximation and Projection 
+(UMAP), as shown in Fig. 13, is introduced to further validate the dis-
+criminability of the features extracted by CDGCN across different 
+bearing health states. In Fig. 13, the UMAP visualizations for the pro-
+posed method under four different rotational speeds are shown. These 
+visualizations highlight that the features extracted by CDGCN are well-
+separated for different health states, demonstrating that the model can 
+effectively distinguish between various fault types under different 
+working conditions.
+Furthermore, to comprehensively assess the practical deployment 
+potential of CDGCN, the performance analysis with a critical evaluation 
+of computational complexity was conducted. As quantitatively 
+compared in Table 6, CDGCN demonstrates a decisive advantage in 
+model efficiency over the three most competitive methods—MBGCN, 
+FIGNN, and GCMN. Specifically, the proposed method contains only 
+9,125 parameters, which is approximately 80% fewer than 
+MBGCN—the most parameter-efficient baseline among the three 
+methods. This substantial reduction in model size is directly reflected in 
+the inference speed. CDGCN requires merely 0.87 s for inference, 
+operating 4.4 times faster than MBGCN, 5.3 times faster than FIGNN, 
+and 8.3 times faster than GCMN. These results conclusively show that
+Table 5
+Fault diagnosis Accuracy of competitive methods under different conditions 
+[%].
+Method
+Working condition
+Average
+1200 rpm
+1800 rpm
+2400 rpm
+3000 rpm
+DRMNN
+72.35 ±
+1.45
+71.13 ±
+0.70
+70.36 ±
+2.42
+74.81 ±
+0.66
+72.16 ±
+2.25
+MDCFN
+68.84 ±
+1.52
+70.11 ±
+1.91
+69.78 ±
+2.34
+71.54 ±
+1.55
+70.07 ±
+2.10
+GATU-Net
+82.19 ±
+1.76
+80.51 ±
+1.12
+81.43 ±
+2.02
+82.95 ±
+1.85
+81.77 ±
+1.94
+MBGCN
+82.20 ±
+1.81
+84.45 ±
+0.63
+83.80 ±
+1.26
+81.46 ±
+1.38
+82.98 ±
+1.80
+FIGNN
+85.63 ±
+1.41
+83.92 ±
+0.84
+84.73 ±
+1.31
+82.67 ±
+0.77
+84.24 ±
+1.56
+GCMN
+81.02 ±
+1.71
+81.87 ±
+0.62
+82.95 ±
+1.19
+81.63 ±
+1.84
+81.87 ±
+1.59
+DGNN
+82.65 ±
+1.29
+83.96 ±
+0.92
+81.60 ±
+1.49
+82.11 ±
+0.83
+82.58 ±
+1.46
+Proposed
+method
+99.03 ± 
+0.28
+99.08 ±
+0.31
+99.96 ±
+0.08
+98.74 ±
+0.30
+99.20 ±
+0.53
+Fig. 11. Accuracy comparison with various state-of-the-art methods under different speeds.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+11
+
+
+===== PAGE 12 =====
+
+CDGCN achieves superior diagnostic accuracy not at the expense of 
+computational resources, but through a more efficient architectural 
+design. The significantly lower parameter counts and faster inference 
+speed, coupled with top accuracy, make CDGCN exceptionally suitable 
+for real-time industrial fault diagnosis scenarios where both high reli-
+ability and limited computational resources are critical concerns.
+The collective evidence from quantitative metrics, detailed classifi-
+cation analysis, and feature distribution visualization solidly demon-
+strates that CDGCN establishes a new state-of-the-art in cross-modal 
+fault diagnosis. The fundamental architectural and methodological ad-
+vancements result these superior experimental outcomes. The seamless 
+integration of a CNN-based feature extractor with a GCN creates a 
+cohesive model that simultaneously captures localized temporal pat-
+terns and global relational structures. Crucial, the innovative, fully data-
+driven graph construction mechanism—which leverages Sinkhorn-
+approximation Wasserstein distances on learned feature distribution-
+s—allows the model to adaptively infer and encode the intrinsic re-
+lationships among multi-source signal segments without relying on any 
+predefined topology. This end-to-end differentiable design enables the 
+joint and synergistic optimization of both the node representations and 
+the graph structure. It is this synergistic co-adaptation between feature 
+learning and relational reasoning that endows CDGCN with its excep-
+tional diagnostic accuracy, remarkable stability and strong generaliza-
+tion capability under various working conditions.
+5. Ablation study
+5.1. Effectiveness analysis of key modules
+To further evaluate the contribution of key modules in the proposed 
+framework, an ablation study was conducted by selectively removing 
+different components, and three methods are constructed as follows:
+(1) Method 1: The proposed CDGCN model.
+(2) Method 2: The model is obtained by removing CNN-based feature 
+extractor in the proposed method.
+(3) Method 3: The model is obtained by removing Wasserstein 
+distance-based dynamic graph structure in the proposed method, 
+static graph structure instead.
+Each experiment was conducted five time under different rotational 
+speeds, with the average accuracy and standard deviation presented in 
+Table 7. Method 1 (the completely proposed model) consistently ach-
+ieved the highest diagnostic performance across all working conditions, 
+with average accuracies of 99.03 ± 0.28%, 99.08 ± 0.31%, 99.96 ± 
+0.08%, and 98.74 ± 0.30% at 1200 rpm, 1800 rpm, 2400 rpm, and 3000 
+rpm, respectively. Removing the CNN-based feature extractor (Method
+2) led to a pronounced decline in diagnostic accuracy (e.g., 74.53 ± 
+1.93% at 1200 rpm) demonstrating that the deep discriminative features 
+learned by the CNN are essential for reliable fault classification. Simi-
+larly, substituting the dynamic graph structure with a static topology 
+(Method 3) also resulted in considerable performance degradation,
+Fig. 12. Confusion matrix under different working conditions. (a) 1200 rpm, (b) 1800 rpm, (c) 2400 rpm, (d) 3000 rpm.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+12
+
+
+===== PAGE 13 =====
+
+particularly under high rotational speeds (dropped to 76.34 ± 0.94% at 
+3000 rpm).
+These results underscore that both the CNN-based feature extractor 
+and the Wasserstein distance-driven dynamic graph construction are 
+critical to the robustness and generalization of the proposed CDGCN 
+framework.
+5.2. Dynamic graph construction mechanism Validation
+To quantitatively verify the effectiveness and superiority of our 
+proposed dynamic graph construction mechanism based on the 
+Sinkhorn-approximated Wasserstein distance compared to conventional
+Fig. 13. UMAP visualization under different working conditions. (a) 1200 rpm, (b) 1800 rpm, (c) 2400 rpm, (d) 3000 rpm.
+Table 6
+Computational complexity comparison.
+Method
+Parameters
+Inference Latency
+MBGCN
+47,461
+3.84 s
+FIGNN
+62,129
+4.63 s
+GCMN
+140,293
+7.29 s
+Proposed method
+9,125
+0.87 s
+Table 7
+Diagnostic accuracies with different methods [%].
+Method 
+Working condition 
+Average
+1200 rpm
+1800 rpm
+2400 rpm
+3000 rpm
+Method
+1
+99.03 ±
+0.28
+99.08 ±
+0.31
+99.96 ±
+0.08
+98.74 ±
+0.30
+99.20 ±
+0.53
+Method
+2
+74.53 ±
+1.93
+76.06 ±
+1.28
+78.81 ±
+2.08
+74.47 ±
+2.31
+75.97 ±
+2.62
+Method
+3
+81.01 ±
+1.99
+83.92 ±
+1.67
+80.06 ±
+2.97
+76.34 ±
+0.94
+80.33 ±
+3.38
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+13
+
+
+===== PAGE 14 =====
+
+approaches, a crucial ablation experiment within the CDGCN framework 
+is conducted by replacing the original graph construction mechanism 
+with other methods, and four methods are constructed as follows:
+(1) Method 4: The proposed CDGCN model.
+(2) Method 5: The model is obtained by replacing Sinkhorn-
+approximated Wasserstein distance-based graph mechanism 
+with a static graph structure based on the physical location of 
+sensors.
+(3) Method 6: The model is obtained by replacing original graph 
+construction mechanism in CDGCN framework with a fully con-
+nected topology structure where all nodes are bidirectionally 
+connected.
+(4) Method 7: The model is obtained by replacing original construc-
+tion mechanism in CDGCN framework with a method that cal-
+culates the similarity between different nodes using cosine 
+similarity and bidirectionally connects the most similar nodes.
+(5) Method 8: The model is obtained by replacing original construc-
+tion mechanism in CDGCN framework with a method that cal-
+culates the similarity between different nodes using Gaussian 
+similarity and bidirectionally connects the most similar nodes.
+The comparative results of the model performance when using these 
+different graph construction mechanisms are summarized in Table 8, 
+and Fig. 14. As presented in Table 8, and Fig. 14, the proposed Method 4 
+achieves the highest classification accuracy and the lowest standard 
+deviation, demonstrating superior performance and stability. In 
+contrast, Method 5 exhibits noticeably lower accuracy (e.g., 76.34 ± 
+0.94% at 3000 rpm) and higher variance, indicating that fixed sensor 
+location-based graph structure lack adaptability under various working 
+conditions. Method 6 (fully connected graph) performs still substantially
+worse than Method 4, with accuracies ranging from 78.36 ± 2.18% to 
+81.78 ± 1.10%, and shows greater fluctuations in 3000 rpm conditions. 
+Notably, Method 6 even underperforms Method 5 (sensor location-based 
+static graph), indicating that a fully connected topology, by forcing 
+every node to aggregate features from all others equally, not only in-
+troduces noisy, non-discriminative information but also undermines the 
+beneficial structural prior based on physical proximity and may accel-
+erate feature over-smoothing in the model, ultimately leading to 
+degraded diagnostic performance. Method 7 achieves slightly better 
+diagnostic accuracy than Method 5 and 6, yet average accuracy (83.34 ± 
+1.80) remains far below that of the proposed approach, underscoring the 
+limitation of cosine similarity in capturing distributional relationships 
+compared to the Sinkhorn-approximated Wasserstein distance. 
+Furthermore, Method 8, which employs Gaussian similarity for dynamic 
+edge construction, achieves an average accuracy of 83.81% (± 1.83%), 
+performing comparably to Method 7 but still significantly lower than 
+our proposed Method 4. This presentation suggests that while Gaussian-
+based similarity can capture local relationships in the feature space, it 
+still falls short in capturing the nuanced distributional discrepancies 
+between multimodal signal segments under variable-speed conditions, 
+compared to the Wasserstein distanced-based mechanism.
+These results collectively confirm that the proposed Sinkhorn-
+approximated Wasserstein distance-based dynamic graph construction 
+mechanism is not only more accurate but also more robust and 
+condition-adaptive than the conventional and advanced graph con-
+struction strategies, thereby validating the critical role in the CDGCN 
+framework.
+6. Conclusion
+In this paper, a novel CNN-enhanced Dynamic Graph Convolutional 
+Network (CDGCN) was proposed for cross-modal fault diagnosis under 
+different working conditions. The framework successfully integrates a 
+CNN-based feature extractor with a dynamically constructed graph 
+convolutional network, where the graph topology is adaptively built 
+using Sinkhorn-approximated Wasserstein distances to model inter-
+segment and cross-modal dependencies.
+Extensive experiments on a self-built test platform demonstrated that 
+the proposed CDGCN significantly outperforms several state-of-the-art 
+methods, achieving robust diagnostic accuracies above 98.5% across 
+all tested rotation speeds. Importantly, computational complexity 
+analysis confirmed that the CDGCN maintains high computational effi-
+ciency and a practical inference time, ensuring viability for real-time 
+industrial deployment. Ablation studies further confirmed the critical 
+role of both the CNN-based temporal feature extractor and the
+Table 8
+Performance comparison of different graph construction mechanisms [%].
+Method 
+Working condition 
+Average
+1200 rpm
+1800 rpm
+2400 rpm
+3000 rpm
+Method
+4
+99.03 ±
+0.28
+99.08 ±
+0.31
+99.96 ±
+0.08
+98.74 ±
+0.30
+99.20 ±
+0.53
+Method
+5
+81.01 ±
+1.99
+83.92 ±
+1.67
+80.06 ±
+2.97
+76.34 ±
+0.94
+80.33 ±
+3.38
+Method
+6
+78.36 ±
+2.18
+80.17 ±
+2.20
+81.78 ±
+1.10
+79.68 ±
+2.92
+80.00 ±
+2.52
+Method
+7
+83.21 ±
+1.36
+84.43 ±
+0.99
+83.75 ±
+2.36
+81.96 ±
+1.17
+83.34 ±
+1.80
+Method
+8
+84.51 ±
+1.47
+85.01 ±
+1.13
+82.27 ±
+1.26
+83.45 ±
+1.97
+83.81 ±
+1.83
+Fig. 14. Diagnostic accuracy with different graph construction mechanisms.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+14
+
+
+===== PAGE 15 =====
+
+adaptively dynamic graph construction strategy in achieving the supe-
+rior performance. Moreover, sensitivity analysis confirmed that the 
+entropic regularization parameter ε = 0.2 yield optimal diagnostic 
+results.
+In conclusion, CDGCN provides a scalable and effective solution for 
+multi-modal fault diagnosis in realistic industrial scenarios. Future 
+research will focus on enhancing the model with attention-based graph 
+mechanisms and extending its applicability to online and incremental 
+diagnostic tasks with real-time data streams.
+CRediT authorship contribution statement
+Songhua Xiao: Writing – review & editing, Writing – original draft, 
+Visualization, Validation, Supervision, Methodology, Data curation. 
+Junqi Hou: Visualization, Validation. Muhammad Jamshaid Khan: 
+Visualization, Validation. Beibei Sun: Writing – original draft, Super-
+vision, Resources, Funding acquisition.
+Funding
+This research was funded by the Jiangsu Provincial Major Science 
+and Technology Special Project (Grant No. BG2024008).
+Declaration of competing interest
+The authors declare that they have no known competing financial 
+interests or personal relationships that could have appeared to influence 
+the work reported in this paper.
+Acknowledgments
+The authors gratefully acknowledge the support for this work from 
+the Jiangsu Provincial Major Science and Technology Special Project 
+(Grant No. BG2024008).
+Data availability
+The authors do not have permission to share data.
+References
+[1] Z. Feng, R. Lin, Y. Zhang, Z. Lin, Vibration signal analytical model and signature
+analysis for harmonic drive flexible bearing fault diagnosis, Mech. Syst. Signal Pr. 
+237 (2025) 112877, https://doi.org/10.1016/j.ymssp.2025.112877.
+[2] X. Zhao, D. Liu, L. Cui, An optimal candidate fault frequency periodicity index
+optimization-gram for bearing fault diagnosis, Struct. Health Monit. (2025) 
+14759217251318217, https://doi.org/10.1177/14759217251318217.
+[3] Y. Zhang, X. Zhao, Z. Peng, Y. Hui, R. Xu, P. Chen, An interpretable frequency-
+enhanced domain adaptive network for cross-domain fault diagnosis of rotating 
+machinery, Appl. Acoust. 240 (2025) 110934, https://doi.org/10.1016/j. 
+apacoust.2025.110934.
+[4] M. Tian, W. An, X. Sun, L. Wang, C. Chen, A non-contact fault diagnosis method
+based on multi information fusion networks for rolling bearings, Appl. Acoust. 237 
+(2025) 110776, https://doi.org/10.1016/j.apacoust.2025.110776.
+[5] P. Wang, R.Q. Ananya, R.X. Yan, Gao, Virtualization and deep recognition for
+system fault classification, J. Manuf. Syst. 44 (2017) 310–316, https://doi.org/ 
+10.1016/j.jmsy.2017.04.012.
+[6] T. Ince, S. Kiranyaz, L. Eren, M. Askar, M. Gabbouj, Real-Time Motor Fault
+Detection by 1-D Convolutional Neural Networks, Ieee T Ind Electron 63 (11) 
+(2016) 7067–7075, https://doi.org/10.1109/TIE.2016.2582729.
+[7] Y. Zhang, T. Zhou, X. Huang, L. Cao, Q. Zhou, Fault diagnosis of rotating machinery
+based on recurrent neural networks, Measurement 171 (2021) 108774, https://doi. 
+org/10.1016/j.measurement.2020.108774.
+[8] X. Nie, G. Xie, A novel normalized recurrent neural network for fault diagnosis with
+noisy labels, J. Intell. Manuf. 32 (5) (2021) 1271–1288, https://doi.org/10.1007/ 
+s10845-020-01608-8.
+[9] D. Jana, J. Patil, S. Herkal, S. Nagarajaiah, L. Duenas-Osorio, CNN and
+Convolutional Autoencoder (CAE) based real-time sensor fault detection, 
+localization, and correction, Mech Syst Signal Pr 169 (2022) 108723, https://doi. 
+org/10.1016/j.ymssp.2021.108723.
+[10] J. Yu, X. Zhou, One-Dimensional Residual Convolutional Autoencoder based 
+Feature Learning for Gearbox Fault Diagnosis, Ieee T Ind Inform 16 (10) (2020) 
+6347–6358, https://doi.org/10.1109/TII.2020.2966326.
+[11] Y. Liu, K. Huang, B.J. Ma, K. Wei, Y. Li, C. Yang, W. Gui, Quality-related fault 
+detection for dynamic process based on quality-driven long short-term memory 
+network and autoencoder, Neural Netw. 181 (2025) 106819, https://doi.org/ 
+10.1016/j.neunet.2024.106819.
+[12] B. Song, Y. Liu, J. Fang, W. Liu, M. Zhong, X. Liu, An optimized CNN-BiLSTM 
+network for bearing fault diagnosis under multiple working conditions with limited 
+training samples, Neurocomputing 574 (2024) 127284, https://doi.org/10.1016/j. 
+neucom.2024.127284.
+[13] T. Zhang, L. Han, K. Wang, C. Duan, 1dRCBLnet: a method for heterogeneous drone 
+fault diagnosis based on acoustic signals, Appl. Acoust. 239 (2025) 110817, 
+https://doi.org/10.1016/j.apacoust.2025.110817.
+[14] G. Bai, T. Xing, W. Sun, H. Chi, Z. Zhong, Q. Sun, L. Sun, Unsupervised multiple-
+target domain adaptation for bearing fault diagnosis, Eng. Appl. Artif. Intel. 154 
+(2025) 111063, https://doi.org/10.1016/j.engappai.2025.111063.
+[15] S. Mo, P. Li, J. Shi, W. Liu, Z. Peng, Y. Zhou, J. Zhang, B. Yao, H. Houjoh, W. Zhang, 
+Rolling bearings fault diagnosis under various loads conditions based on GWJO-
+VMD-MAFCNN, Struct. Health Monit. (2025) 14759217251334315, https://doi. 
+org/10.1177/14759217251334315.
+[16] M. Ma, C. Sun, X. Chen, Deep Coupling Autoencoder for Fault Diagnosis with 
+Multimodal Sensory Data, Ieee T Ind Inform 14 (3) (2018) 1137–1145, https://doi. 
+org/10.1109/TII.2018.2793246.
+[17] W. Ying, L. Li, Y. Li, T. Wang, J. Zheng, K. Feng, Trustworthy multimodal feature-
+enhanced fusion network for non-contact rotating machinery fault diagnosis, 
+Inform Fusion 124 (2025) 103377, https://doi.org/10.1016/j.inffus.2025.103377.
+[18] S. Wan, T. Li, B. Fang, K. Yan, J. Hong, X. Li, Bearing fault diagnosis based on 
+multisensor information coupling and attentional feature fusion, IEEE T Instrum 
+Meas 72 (2023) 1–12, https://doi.org/10.1109/TIM.2023.3269115.
+[19] P. Fu, J. Wang, X. Zhang, L. Zhang, R.X. Gao, Dynamic routing-based multimodal 
+neural network for multi-sensory fault diagnosis of induction motor, J. Manuf. Syst. 
+55 (2020) 264–272, https://doi.org/10.1016/j.jmsy.2020.04.009.
+[20] X. Zhang, B. Liu, R. Ma, H. Wan, C. Wang, X. Chen, The multi-channel signals based 
+tensor sparse representation classification method for fault diagnosis of high-speed 
+train, Struct. Health Monit. 23 (6) (2024) 3640–3658, https://doi.org/10.1177/ 
+14759217231220220.
+[21] L. Feng, Z. Ding, Y. Yin, Y. Wang, Q. Zhang, X. Liu, Z. Yuan, H. Li, Scraper conveyor 
+gearbox fault diagnosis based on multi-source heterogeneous data fusion, 
+Measurement 247 (2025) 116797, https://doi.org/10.1016/j. 
+measurement.2025.116797.
+[22] H. Lu, L. Wang, X. Ma, J. Cheng, M. Zhou, A survey of graph neural networks and 
+their industrial applications, Neurocomputing 614 (2025) 128761, https://doi. 
+org/10.1016/j.neucom.2024.128761.
+[23] A. Ding, Y. Qin, B. Wang, L. Guo, L. Jia, X. Cheng, Evolvable graph neural network 
+for system-level incremental fault diagnosis of train transmission systems, Mech 
+Syst Signal Pr 210 (2024) 111175, https://doi.org/10.1016/j.ymssp.2024.111175.
+[24] B. Wang, M. Wang, Y. Xu, L. Wang, S. Chen, X. Chen, A diagnosis method based on 
+graph neural networks embedded with multirelationships of intrinsic mode 
+functions for multiple mechanical faults, Def. Technol. (2025), https://doi.org/ 
+10.1016/j.dt.2025.04.014.
+[25] C. Xie, Q. Song, J. Huang, W. Chen, L. Pan, Multi-level feature subgraph 
+aggregation graph neural network, Inform Fusion 121 (2025) 103141, https://doi. 
+org/10.1016/j.inffus.2025.103141.
+[26] Z. Liu, Z. Peng, Few-shot bearing fault diagnosis by semi-supervised meta-learning 
+with graph convolutional neural network under variable working conditions, 
+Measurement 240 (2025) 115402, https://doi.org/10.1016/j. 
+measurement.2024.115402.
+[27] P. Yin, J. Nie, X. Liang, S. Yu, C. Wang, W. Nie, X. Ding, A multiscale graph 
+convolutional neural network framework for fault diagnosis of rolling bearing, 
+IEEE T Instrum Meas 72 (2023) 1–13, https://doi.org/10.1109/ 
+TIM.2023.3291768.
+[28] Z. Mao, H. Wang, B. Jiang, J. Xu, H. Guo, Graph convolutional neural network for 
+intelligent fault diagnosis of machines via knowledge graph, IEEE T. Ind. Inform. 
+20 (5) (2024) 7862–7870, https://doi.org/10.1109/TII.2024.3367010.
+[29] Z. Wang, Z. Wu, X. Li, H. Shao, T. Han, M. Xie, Attention-aware temporal–spatial 
+graph neural network with multi-sensor information fusion for fault diagnosis, 
+Knowl.-Based Syst. 278 (2023) 110891, https://doi.org/10.1016/j. 
+knosys.2023.110891.
+[30] K. Sun, A. Yin, Multi-sensor temporal-spatial graph network fusion empirical mode 
+decomposition convolution for machine fault diagnosis, Inf. Fusion 114 (2025) 
+102708, https://doi.org/10.1016/j.inffus.2024.102708.
+[31] Z. Meng, J. Zhu, S. Cao, P. Li, C. Xu, Bearing fault diagnosis under multisensor 
+fusion based on modal analysis and graph attention network, IEEE T. Instrum. 
+Meas. 72 (2023) 1–10, https://doi.org/10.1109/TIM.2023.3301895.
+[32] Z. Ren, Y. Zhou, On cross-attention-based graph neural networks for fault diagnosis 
+using multi-sensor measurement, Struct. Health Monit. (2025) 
+14759217251327760, https://doi.org/10.1177/14759217251327760.
+[33] T. Li, C. Sun, R. Yan, X. Chen, A novel unsupervised graph wavelet autoencoder for 
+mechanical system fault detection, J. Intell. Manuf. 36 (8) (2025) 5397–5414, 
+https://doi.org/10.1007/s10845-024-02511-2.
+[34] Y. Zhang, J. Ding, Y. Li, Z. Ren, K. Feng, Multi-modal data cross-domain fusion 
+network for gearbox fault diagnosis under variable operating conditions, Eng. 
+Appl. Artif. Intel. 133 (2024) 108236, https://doi.org/10.1016/j. 
+engappai.2024.108236.
+[35] Y. Yang, T. Li, C. Sun, L. Zhang, R. Yan, Graph attention U-Net to fuse multi-sensor 
+signals for long-tailed distribution fault diagnosis, Eng. Appl. Artif. Intel. 126 
+(2023) 106927, https://doi.org/10.1016/j.engappai.2023.106927.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+15
+
+
+===== PAGE 16 =====
+
+[36] X. Li, X. Wu, T. Wang, Y. Xie, Z. Wang, X. Kong, Fault diagnosis of rotating 
+machinery in strong noise environment based on Gaussian filter and multibranch 
+graph convolutional neural network, Struct. Health Monit. (2025), https://doi.org/ 
+10.1177/14759217251332533.
+[37] Y. Wang, T. Yin, S. Zhu, X. Ma, L. Liang, J. Guo, FIGNN: fuzzy inference-guided 
+graph neural network for fault diagnosis in industrial processes, IEEE T Instrum. 
+Meas. 74 (2025) 1–16, https://doi.org/10.1109/TIM.2025.3575985.
+[38] Y. Xiao, L. Cui, D. Liu, X. Pan, Digital twin-driven graph convolutional memory 
+network for defect evolution assessment of rolling bearings, IEEE T Instrum. Meas 
+73 (2024) 1–10, https://doi.org/10.1109/TIM.2024.3385830.
+[39] R. Wang, Z. Lyu, F. Yan, L. Yu, X. Hu, A conditional adaption alignment dynamic 
+graph neural network model for unsupervised fault diagnosis of rotating 
+machinery, Mech. Syst. Signal Proc. 240 (2025) 113361, https://doi.org/10.1016/ 
+j.ymssp.2025.113361.
+S. Xiao et al.
+Measurement 269 (2026) 120788 
+16

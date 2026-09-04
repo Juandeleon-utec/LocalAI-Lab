@@ -1,0 +1,937 @@
+
+
+===== PAGE 1 =====
+
+Noise-Robust and Edge Deployable ML Framework
+for Predictive Maintenance of Industrial Motors
+Fatima Tu Zahra
+VeNIT Lab.
+Marmara University
+Istanbul, Turkey
+fatima.zahra@venit.org
+Anılcan Erciyes
+VeNIT Lab.
+Marmara University
+Istanbul, Turkey
+anilcan.erciyes@venit.org
+Mujdat Soyturk
+Dept. of Computer Engineering
+Marmara University
+Istanbul, Turkey
+mujdat.soyturk@marmara.edu.tr
+Abstract—Industrial three-phase induction motors are critical
+to manufacturing operations, yet their failure can cause costly
+downtime and maintenance overhead. This work introduces a
+machine learning framework tailored for fault diagnosis and
+severity assessment in such motors, using synthetic data that
+replicates six realistic electromagnetic and mechanical fault con-
+ditions. The system employs synchronized vibration and current
+signals, and evaluates several classifiers—including LSTM, GRU,
+TCN, RNN, and Random Forest—under varying industrial noise
+profiles such as phase jitter, frequency drift, and transient spikes.
+Experimental results demonstrate that time-series models con-
+sistently outperform classical approaches in noisy environments.
+For deployment on resource-constrained edge devices, structured
+pruning and quantization are applied to reduce model size
+and latency. Beyond motor fault classification, the framework
+also detects and visualizes approximately spherical clusters to
+comprehend fault severity levels. The proposed system enables
+scalable fault monitoring and low-latency predictive maintenance
+optimized for embedded industrial environments.
+Index Terms—Edge AI, edge computing, induction motor,
+industrial IoT, predictive maintenance, synthetic data
+I. INTRODUCTION
+Three-phase induction motors are foundational to industrial
+operations, manufacturing processes and transportation infras-
+tructure worldwide [1]. They are used to power a vast array of
+applications due to their robustness, ease of maintenance, and
+high efficiency. Given their crucial role, their uninterrupted
+operation is critical to production continuity. Even minor
+performance degradations can result in significant financial
+losses, production downtime, and potential safety hazards.
+Consequently, there is growing interest in predictive mainte-
+nance strategies that can detect faults early, reduce unplanned
+outages, and improve overall operational efficiency [2].
+Traditionally, diagnostic methods for industrial motors have
+relied on scheduled maintenance checks, simple threshold-
+based monitoring approaches and human expertise for analysis
+[3]. While these approaches provide some fault coverage, they
+are often reactive, lack sensitivity to early-stage anomalies,
+This work is supported by European Union (EU) Horizon Europe project
+”Device-Edge-Cloud Intelligent Collaboration Framework: DECICE” under
+Grant Agreement No. 101092582, and from the Chips Joint Undertaking
+project ”LoLiPoP-IoT: Long Life Power Platforms for Internet of Things”.
+The LoLiPoP-IoT project is funded by the Chips JU and TUBITAK under
+Grant Agreement No. 101112286.
+depend heavily on domain expertise and are prone to hu-
+man errors. With advancements in sensor technologies, data
+acquisition and computational capabilities, machine learning
+(ML) techniques have emerged as a powerful alternative for
+automating fault detection. ML algorithms can extract subtle
+fault signatures, adapt to varying operating conditions, and
+offer more accurate and timely diagnostics [4]. By analyz-
+ing patterns in operational data, these algorithms can detect
+anomalies and infer the health state of an induction motor more
+systematically and with greater precision and with minimized
+human intervention [3].
+Despite their promise, training robust ML models for in-
+dustrial environments presents several challenges. First, the
+development of robust models requires diverse, high-quality
+datasets representing various fault scenarios. However, col-
+lecting labeled data under all possible fault conditions is
+expensive, time-consuming, and often unsafe, especially if it
+involves deliberately inducing faults in operational machin-
+ery [5]. Second, industrial signals are subject to high noise
+levels, phase jitters, and intermittent interruptions resulting
+from voltage instabilities or environmental factors. These
+noise sources can hamper the performance of conventional
+algorithms, which struggle to extract reliable features under
+real-world conditions [6]. Third, real-time diagnostics demand
+continuous processing of high-throughput sensor streams, of-
+ten on resource-constrained edge devices with limited memory,
+compute power, and energy availability. These constraints
+necessitate lightweight and compressed ML models suitable
+for embedded deployments for onsite monitoring [7].
+In this study, we present a comprehensive framework for
+fault diagnosis in industrial three-phase induction motors,
+covering the entire diagnostic pipeline from data collection
+to deployment in resource-limited embedded systems. Our
+approach focuses on six distinct electromagnetic and me-
+chanical faults and evaluating multiple architectures under
+varying industrial noise conditions. To enhance real-world
+applicability, we apply compression techniques to increase ef-
+ficiency and support embedded deployment. Furthermore, we
+extend our analysis beyond fault classification by employing
+cluster visualizations to assess fault severity levels, providing
+a holistic understanding of fault progression and motor health.
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+978-3-903176-76-8/25/$31.00 ©2025 IEEE
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+II. LITERATURE REVIEW
+Machine learning-based motor fault diagnosis has evolved
+significantly, offering advancements in predictive maintenance
+strategies for industrial three-phase induction motors. By au-
+tomating feature extraction and improving classification accu-
+racy, ML techniques have outperformed traditional rule-based
+and threshold-driven approaches. Classical models such as
+Support Vector Machines (SVM) [8] and modern deep learning
+models like Convolutional Neural Networks (CNNs) [9] have
+been successfully applied to machine condition monitoring and
+fault diagnosis, with CNNs demonstrating efficacy in process-
+ing vibrational spectroscopic data and eliminating the need for
+manual preprocessing. Similarly, deep transfer learning has
+been employed to improve diagnostic precision. A transfer
+learning-based framework is proposed in [10] that converts
+sensor data into time-frequency representations, allowing for
+superior classification performance across different mechanical
+components.
+One of the primary challenges in machine learning for
+fault diagnosis is the availability of sufficient labeled data.
+Generative Adversarial Networks (GANs) have been explored
+as a viable solution for augmenting limited datasets. In
+[11], it is demonstrated how GANs could synthesize high-
+fidelity training data, thereby improving model generalization.
+Additionally, hybrid approaches that integrate physics-based
+modeling with deep learning have been proposed to enhance
+decision-making processes. A physics-informed neural net-
+works is proposed in [12] that leverage domain knowledge
+to refine fault detection models. Since motor fault signals
+are inherently sequential, time-series analysis plays a crucial
+role in fault diagnosis. Recurrent Neural Networks (RNNs)
+have been widely adopted to capture temporal dependencies
+in signal measurements. The authors in [13] reviewed vari-
+ous RNN architectures, including Long Short-Term Memory
+(LSTM) networks, emphasizing their ability to model transient
+fault patterns in motor vibration and current signatures. These
+architectures have proven effective in diagnosing faults even
+in noisy environments.
+Recent advancements in Embedded AI have enabled real-
+time fault diagnosis on resource-constrained edge computing
+devices. A comprehensive review of AI integration is provided
+in [7] for embedded systems, demonstrating the feasibility
+of deploying sophisticated machine learning models in low-
+power environments. This innovation is particularly beneficial
+for industrial settings where continuous monitoring is required
+with minimal computational overhead. Attention-based archi-
+tecture has been increasingly explored to enhance the detection
+of localized signal irregularities. In [14], an attention-driven
+fault diagnosis system is explained that selectively weighed
+relevant signal segments, thereby improving classification ac-
+curacy. Zhou et al. [15] further expanded on this concept
+by integrating attention mechanisms with hybrid CNN-MLP
+models, effectively detecting sporadic and noise-obscured fault
+signatures in motor systems.
+A. Research Gap
+Although the aforementioned studies mention significant
+contributions, it is important to highlight that much of the
+existing studies focus on specific model types under con-
+trolled conditions. Usually, a narrowly selected aspect of
+motor behavior is examined, such as stator failures, or rotor
+breakage analysis. Also, studies more often utilize a binary
+classification approach to assess if the motor is healthy or
+faulty, instead of incorporating more extensive multiclass sit-
+uations. Another important need is to comprehensively model
+the noise conditions, since results derived from controlled
+laboratory settings may not always correspond with actual
+industrial environments. Finally, it can be stated that models
+that perform well frequently remain untested in embedded
+systems or constrained deployment environments, which are
+the most crucial in industrial setups.
+B. Our Contribution
+Our study addresses identified gaps by examining six multi-
+class cases covering electromagnetic and mechanical faults.
+The evaluation of the developed models is conducted within
+a comprehensive noise modeling framework that involves
+gradually increasing frequency drift, phase jitter, background
+Gaussian noise, and amplitude distortions. This approach
+discusses the progression of model performance as the elec-
+tromagnetic environment becomes increasingly complex. We
+then apply quantization and pruning to optimize Edge AI
+feasibility. Also, our work goes beyond mere classification,
+and provides approximately spherical clustering results of
+spectral and frequency features, representing the severity and
+progression of faults.
+III. METHODOLOGY
+A. Synthetic Data Generation
+This work builds upon our prior study [16], where we de-
+veloped a high-fidelity synthetic signal generation framework
+for replicating the behavior of industrial three-phase induction
+motors under multiple fault conditions. The dataset based on
+real motor data [17] models a four-pole, three-phase induction
+motor (AGM2E 112 M 4a) operating at the European standard
+of 50 Hz, with a rated voltage of 400 V and a nominal speed of
+1455 RPM. Such motors are commonly deployed in conveyor
+systems, HVAC compressors, and water treatment pumps due
+to their robustness and efficiency.
+In this study, six operational states are considered: Healthy,
+Rotor Bar Defect, Stator Winding Fault, Current Overload,
+Insufficient Current, and Mechanical Fault. Each fault type
+represents a distinct electrical or mechanical disruption, lead-
+ing to characteristic patterns in current and vibration signals.
+These effects are observable in both time and frequency
+domains [18] These fault-specific signal characteristics are
+outlined in Table I.
+To replicate these conditions synthetically, we used a hy-
+brid approach combining statistical modeling, signal trans-
+formation, and domain-specific waveform formulations, as
+detailed in [16]. The vibration data were generated using
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+TABLE I
+INDUCTION MOTOR STATES AND CORRESPONDING VIBRATION AND
+CURRENT BEHAVIOR
+State Name
+Vibration
+Behavior
+Current Behavior
+Healthy
+State
+Stable
+amplitudes
+Optimal 120 degrees between three
+phase angles with even amplitudes
+Rotor
+Bar
+Defect
+Unstable and
+elevated
+Sideband frequencies are observed
+due to broken rotor bars, distorted
+phases, and amplitude modulation
+Stator Wind-
+ing Fault
+Unstable and
+elevated
+Even harmonics are observed due
+to uneven magnetic field, distorted
+phases
+Current
+Overload
+Higher
+amplitudes
+Elevated phase amplitudes
+Insufficient
+Current
+Lower
+amplitudes
+Decreased phase amplitudes
+Mechanical
+Fault
+Unstable and
+elevated
+Slight amplitude and phase fluc-
+tuations due to torque ripple and
+uneven load transfer
+probabilistic models fitted to real-world datasets and validated
+via clustering-based behavioral analysis. For current signals,
+sinusoidal waveforms were synthesized using analytical ex-
+pressions for each phase, with specific modulations (e.g.,
+harmonic injection for stator faults or sideband effects for rotor
+bar defects) applied to emulate realistic fault conditions.
+The training dataset was generated at a 100 kHz sampling
+rate, with overlapping 1000 sample windows (10 ms) designed
+to capture transient fault signatures rather than full-cycle
+harmonics. Configurable noise sources, including phase jitter,
+frequency drift, Gaussian interference, and micro-interruptions
+were added to increase realism. Each sample contained syn-
+chronized three-phase current and three-axis vibration data
+across randomized motor state sequences. To prevent overly
+deterministic transitions, the order and sequence lengths of
+motor states were randomized at each run. This resulted
+in a multi-gigabyte training dataset that comprises 240,000
+overlapping windows with 50% healthy (120,000) samples
+and 50% faulty (120,000) samples distributed among the
+five fault classes in the proportions shown in Fig. 1. The
+validation set follows the same class distribution as the training
+data. To enable class-fair evaluation and clear confusion-
+matrix interpretation, separate balanced test datasets of 60,000
+samples (10,000 per class) were generated under both low- and
+high-noise conditions, ensuring no overlap with the training
+data. Each test sample similarly contained tri-axial vibration
+and three-phase current signals at a 100 kHz sampling rate,
+enabling unbiased benchmarking of the classification models.
+B. Feature Engineering
+To enable efficient and real-time classification, we apply a
+feature engineering pipeline that transforms the raw signals
+into compact, informative descriptors. Each synchronized cur-
+rent and vibration stream is sampled at 100 kHz and divided
+into overlapping sliding windows of 1000 samples, targeting
+transient signatures rather than complete waveform cycles.
+For every window, a total of 78 time-domain and frequency-
+domain features are computed across the three accelerometer
+Fig. 1.
+(a) Training/validation class distribution (b) Test dataset class
+distribution
+axes and three-phase current signals. Key time-domain metrics
+include root mean square (RMS), standard deviation, skew-
+ness, and kurtosis for capturing energy bursts, signal disper-
+sion, and impulsiveness. Frequency-domain attributes include
+dominant frequency, sideband amplitude strength (linked to
+rotor faults), and even-harmonic energy (indicative of stator
+anomalies). Spectral entropy is also used as a measure of
+complexity to characterize signal irregularities.
+The resulting feature matrix forms a structured, low-
+dimensional representation of the high-rate sensor data. This
+not only reduces memory and computation overhead but also
+makes the data suitable for deployment in traditional ML or
+temporal DL architectures such as LSTM, GRU, or TCN.
+As illustrated in Fig.2, this representation supports real-time
+inference by enabling near real-time feature computation and
+immediate model input.
+Fig. 2.
+System flow to obtain feature arrays before feeding them into the
+AI/ML stage.
+C. Model Evaluation under Varying Noise Levels
+To evaluate the robustness of machine learning models in
+industrial motor fault diagnosis, we examined both classical
+and time-series-based approaches across both low and high
+noise levels. The primary objective was to assess the capability
+of each architecture to handle noisy and sequential signal
+features typical of real-world industrial environments.
+We considered five model types in total. Random Forest
+(RF) was selected as the baseline classical approach, operating
+on individual feature vectors without incorporating temporal
+context. In contrast, the remaining four models—Recurrent
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+Neural Network (RNN), Long Short-Term Memory (LSTM),
+Gated Recurrent Unit (GRU), and Temporal Convolutional
+Network (TCN)—were chosen for their ability to model tem-
+poral dependencies within sliding windows of time-series data.
+LSTM and GRU models are specialized RNN variants that
+address vanishing gradient issues and are well-suited for cap-
+turing long-term dependencies in motor signal sequences [19].
+TCN offers a parallelizable alternative by leveraging causal
+convolutions and dilation [20].
+All deep learning models use a lookback window of n = 15,
+i.e., each prediction uses [xt−14, . . . , xt] (current + previous
+14 feature vectors). A summary of the models and their
+configurations is presented in Table II.
+TABLE II
+MODEL CONFIGURATION/HYPERPARAMETER SUMMARY
+Model
+Configuration Details
+LSTM / GRU / RNN
+64 hidden units, dense-head ReLU, lookback
+window n = 15, Adam optimizer, early stop-
+ping, categorical cross-entropy loss
+TCN (Low Noise)
+Kernel size = 3, Dilation = [1,2,4,8], causal
+padding, dropout = 0.2
+TCN (High Noise)
+Kernel size = 2, Dilation = [1,2,4,8,16,32],
+causal padding, dropout = 0.2
+Random Forest
+200 estimators, Gini impurity criterion, majority
+voting aggregation
+The TCN configuration differs between the low-noise and
+high-noise settings. For low-noise data, a larger kernel with
+smaller dilation was sufficient to capture localized temporal
+patterns. In contrast, high-noise conditions benefited from
+a smaller kernel with larger dilation, which expands the
+receptive field to aggregate longer-term context and improves
+robustness to transient anomalies.
+To mimic industrial signal degradation, we adopt a pro-
+gressive noise-injection framework. For mild interference,
+disturbance parameters are kept small (low AM depth α, low
+noise variance σ2, small baseline-drift slope d, infrequent/short
+dropouts via m(t), and small time-warp magnitudes in τ(t)).
+For high interference, these parameters are increased to reflect
+severe and variable operating conditions. The noisy signal y(t)
+is generated as
+y(t) = m(t)
+ 1 + α sin(2πfmt)
+
+x
+ t + τ(t)
+
++ b0 + d t + w(t),
+(1)
+where m(t) ∈{0, 1} is a dropout mask and
+τ(t) = τjitter(t) +
+Z t
+0
+γ(λ) dλ
+encodes phase jitter and frequency drift. Here α is the
+amplitude-modulation depth (dimensionless), fm is the AM
+frequency [Hz], w(t)∼N(0, σ2) is additive white noise (same
+units as x), b0 is a DC offset, and d is the baseline-drift slope
+[units/s].
+Additionally, we accounted for transient operating states
+where motors briefly shift between normal and faulty behavior.
+These transitions often manifest as short-lived deviations that
+can be misclassified by traditional algorithms. The time-series
+models were designed to mitigate this challenge by aggre-
+gating historical signal context across the lookback window,
+enabling the detection of persistent fault signatures even in
+the presence of abrupt or partial disruptions. This evaluation
+framework supports the identification of models that are not
+only accurate under clean laboratory signals but also resilient
+to the noise patterns commonly found in deployed industrial
+systems. Although our synthetic noise modeling captures
+jitter, drift, Gaussian interference, and micro-interruptions, real
+industrial environments also exhibit harmonic distortions, load
+fluctuations, and thermal effects [21]. Incorporating these in
+future work will improve realism.
+To evaluate the classification performance of our models
+across all fault categories, we employed the Macro F1-score
+as the primary metric. Unlike micro-averaged metrics that are
+influenced by class imbalance, the macro F1-score treats all
+classes equally by computing the F1-score independently for
+each class and then averaging them. This makes it particularly
+suitable for multi-class fault diagnosis tasks where each class’s
+performance is equally important. The F1-score for a single
+class is defined as the harmonic mean of its precision and
+recall as shown in (2)
+F1i = 2 · Precisioni · Recalli
+Precisioni + Recalli
+(2)
+The macro F1-score is then calculated as in Eq. (3)
+F1Macro = 1
+C
+C
+X
+i=1
+F1,i
+(3)
+where C is the total number of classes and F1i is the F1-
+score for class i. This metric ensures that each class contributes
+equally to the overall evaluation, providing a fair measure of
+model performance across all fault types.
+D. Optimization for Low-Power Constrained Environments
+To address the resource constraints often encountered in in-
+dustrial environments [22], advanced compression techniques
+for Edge AI has gained momentum [23] to allow inference
+directly on local, lower-power boards. To support real-time
+fault diagnosis in industrial environments, we applied em-
+bedded machine learning optimization techniques to reduce
+model size and inference latency. These optimizations enable
+the deployment of trained models on edge AI platforms with
+limited computational and memory resources. An example
+server-to-edge transformation diagram can be seen in Fig. 3
+The methodology focuses on two key techniques: structured
+pruning and post-training quantization. Structured pruning
+was implemented using the TensorFlow Model Optimization
+Toolkit (TFMOT), where low-importance channels/units were
+progressively removed during training via a controlled spar-
+sity schedule. After pruning, the corresponding channels/units
+were physically removed and the model was fine-tuned to
+recover any lost accuracy. The pruning operation can be
+formally described as (4):
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+Fig. 3. Model reduction and optimization for edge AI
+Wi ←
+(
+Wi,
+if ∥Wi∥2 ≥τ
+0,
+otherwise
+(4)
+Here Wi denotes the i-th group (an output channel in
+Conv1D/TCN layers or a hidden unit in Dense/RNN layers);
+groups below the threshold are pruned and the corresponding
+structures are removed.
+Following pruning, post-training quantization (PTQ) was
+applied to convert all model weights and activations from
+32-bit floating-point to 8-bit integers. TensorFlow Lite’s full
+integer quantization pipeline was used, with representative
+feature vectors provided during calibration. This process gen-
+erates optimized models suitable for deployment on integer-
+inference hardware. The optimized models were deployed and
+evaluated on an NVIDIA Jetson Nano edge device. The Jetson
+Nano features a quad-core ARM Cortex-A57 CPU and a 128-
+core Maxwell GPU, making it suitable for AI inference at the
+edge with moderate power consumption. TensorFlow Lite with
+the XNNPACK CPU delegate (INT8) and the GPU delegate
+(FP16) was used for runtime execution.
+To assess the practicality and performance of the optimized
+models on edge hardware, real-time inference testing is per-
+formed to ensure the deployed model functions reliably on
+the Jetson Nano when presented with live or buffered sensor
+inputs. This step verifies the end-to-end system integration,
+confirming that the model loads correctly, processes input
+data without errors, and generates meaningful outputs under
+real-world or simulated operating conditions. Following this,
+latency measurement is carried out to quantitatively evaluate
+the inference speed of the model. To ensure accurate tim-
+ing, inference latency was measured directly on the Jetson
+Nano using high-resolution timers within the Python runtime.
+The measurement captured the time between input feature
+ingestion and classification output, averaged across multiple
+inference cycles. All models were evaluated with pre-extracted
+sliding window features as input, reflecting realistic deploy-
+ment where raw sensor signals are pre-processed prior to
+inference. This methodology ensures that deep learning models
+originally trained on desktop platforms can be effectively
+compressed and deployed on embedded edge hardware such as
+the Jetson Nano, enabling intelligent predictive maintenance
+directly at the source of data collection.
+E. Case Severity Analysis for Decision-Making
+To augment fault classification with actionable insight,
+we integrate a two-stage pipeline that includes unsupervised
+severity estimation of the motor fault. This design enables not
+only identification of the fault type but also quantification of its
+relative impact, allowing for more informed maintenance plan-
+ning. In the first stage, the system performs supervised classifi-
+cation using the trained model to detect the fault type based on
+input feature vectors, as detailed in III-C. Once a fault is identi-
+fied, a second, unsupervised analysis is triggered to determine
+its severity. This severity estimation is based on clustering
+within a multi-dimensional feature space constructed from the
+same time-domain and frequency-domain descriptors used in
+the classification model. These include signal energy (RMS),
+variability (standard deviation), spectral peaks, crest factor,
+and harmonic indicators—features that naturally scale with
+fault intensity. Each fault type (e.g., rotor bar defect, stator
+fault) is clustered independently to account for differences in
+how severity manifests across fault categories. Fig. 4 illustrates
+the end-to-end deployment workflow of the proposed edge AI
+framework for motor fault diagnosis. Feature vectors computed
+from current and vibration streams are transmitted wirelessly
+using Bluetooth Low Energy (BLE) and MQTT protocols
+to a constrained edge device. The optimized model running
+on the device first classifies the fault type and subsequently
+performs severity clustering. Based on the output, real-time
+alerts and actionable insights can be generated for maintenance
+or monitoring dashboards.
+Fig. 4. Edge AI workflow: enabling on-device fault classification and severity
+analysis for real-time alerts.
+We employ K-Means clustering due to its low computational
+footprint and its suitability for normalized, approximately
+spherical data distributions [24]. The algorithm partitions the
+historical feature vectors of a particular fault type into three
+clusters. The clustering is performed separately for each fault
+type, using only historical samples previously labeled with
+that fault. This ensures that differences in severity progression
+across different fault modes (e.g., rotor vs. stator faults) do
+not interfere with intra-fault analysis.
+Each cluster discovered within this fault-specific feature
+space is then heuristically labeled as Low, Medium, or High
+severity, based on the average magnitude of energy-related
+features within the cluster centroid. This interpretation is data-
+driven rather than hard-coded, allowing flexible adaptation
+across deployments. The clustering is performed offline during
+model development, and the resulting cluster centroids are
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+retained for severity inference during deployment. Once a new
+instance is classified as a fault, its feature vector is assigned to
+the nearest centroid to estimate its severity. This unsupervised
+clustering approach eliminates the need for manually defined
+severity thresholds. It employs a two-tiered decision system,
+making it suitable for real-time predictive maintenance appli-
+cations on edge devices. The block diagram of the complete
+methodology for the fault diagnosis, severity analysis, and
+predictive maintenance is shown in Fig. 5.
+Fig. 5. Block diagram of the proposed methodology
+To ensure adaptability in real-world scenarios, the proposed
+framework is designed with modularity in mind, allowing
+straightforward retraining or fine-tuning on real datasets. Since
+the synthetic signals were generated to mimic key physical
+and statistical properties of real motor faults, the trained
+models serve as a strong initialization point. Transfer learning
+techniques can be applied to fine-tune the existing models
+on small amounts of labeled real-world data, significantly
+reducing the need for extensive retraining. Additionally, the
+feature extraction and severity clustering modules are fully
+data-driven, allowing them to adapt easily as the underlying
+distribution shifts due to domain-specific variations.
+IV. EXPERIMENTAL RESULTS
+The experimental evaluation was conducted to analyze
+the classification accuracy, computational efficiency, and ro-
+bustness of all five models under varying noise conditions.
+The models were benchmarked on the high-fidelity synthetic
+dataset described earlier, across two distinct scenarios: low-
+noise conditions and severely noisy industrial settings.
+A. Model Performance Under Varying Noise Levels
+Under low-noise conditions, all models exhibit strong per-
+formance, reflecting reliable classification as shown in Fig.
+6. The LSTM model achieved the highest macro F1-score of
+96%, demonstrating its ability to leverage temporal dependen-
+cies for accurate fault diagnosis. Its gated recurrent structure
+allows it to model sequential patterns and subtle variations in
+time-series signals, making it highly effective for identifying
+both abrupt and gradual fault evolution.
+Interestingly, Random Forest (RF) achieved a strong macro
+F1-score of 94%, comparable to deep learning models like
+RNN (92%), TCN (89%), and GRU (88%). This can be
+attributed to the clean signal conditions as in the absence
+of noise, the handcrafted statistical features extracted from
+the current signals are highly separable across fault classes.
+Since RF excels at handling structured, tabular features and
+can learn complex non-linear decision boundaries, it performs
+competitively when no significant temporal degradation is
+present. Furthermore, its ensemble nature helps it generalize
+well without overfitting, especially in low-noise environments.
+When subjected to severe noise conditions, including ele-
+vated jitter, transient drifts, and voltage fluctuations—the clas-
+sification performance of all models declined due to increased
+signal distortion. However, the LSTM model again demon-
+strated superior robustness, maintaining a macro F1-score of
+87%, significantly outperforming other models. In contrast,
+Random Forest exhibited a sharp decline in performance,
+dropping to macro F1-score of 70%. Since RF relies solely
+on static statistical features extracted from each window with-
+out modeling any temporal context, its discriminative power
+degrades significantly when those features become ambiguous
+or masked by noise. This highlights a key limitation of non-
+temporal models in real-world deployments, where environ-
+mental fluctuations are common. Other sequence models like
+GRU and TCN also performed moderately well, achieving
+macro F1-scores of 80% and 81% respectively as represented
+in Fig. 6
+Fig. 6. Performance of models under low-noise and severe-noise conditions
+The most pronounced performance degradation under severe
+noise was observed for mechanical faults, which became
+more difficult to distinguish due to overlapping features and
+elevated distortion. To further illustrate this, Fig. 7 presents
+the confusion matrices of the LSTM model which we chose
+for its consistently superior performance among all models
+under both low and severe noise conditions. While the LSTM
+maintains high true positive rates across most classes in clean
+conditions, severe noise introduces significant misclassifica-
+tions, particularly in rotor bar, stator winding and mechanical
+fault categories, emphasizing the challenge of robust fault
+detection in noisy environments.
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 7 =====
+
+Fig. 7. Confusion Matrix of LSTM with low noise in data (left) and with severe noise in data (right)
+B. Model Compression and Embedded Latency Analysis
+In this analysis, only the deep learning models (LSTM,
+GRU, TCN, and RNN) were subjected to compression and
+optimization for embedded deployment. Random Forest was
+excluded as it is a tree-based model, and standard compression
+techniques such as pruning and quantization are tailored
+for differentiable, tensor-based architectures. Due to its non-
+differentiable structure and limited compatibility with embed-
+ded inference toolchains, RF offers minimal benefits from such
+optimization and lacks hardware acceleration support on most
+edge devices.
+Table III shows the original and compressed model sizes
+along with inference latency measured before and after ap-
+plying quantization and pruning for embedded deployment.
+Among all models, the LSTM achieved a strong compression
+ratio (6.66×) and an embedded size of 0.0282 MB, with a
+latency of 30.8 ms. In contrast, while the TCN achieved
+the highest compression rate (7.09×), its final size (0.0604
+MB) remained the largest among all due to its initially large
+architecture. Nonetheless, TCN exhibited the lowest embedded
+latency (25.1 ms), highlighting its efficiency in real-time
+applications.
+TABLE III
+ORIGINAL AND COMPRESSED SIZES OF THE MODELS TRAINED ON NOISY
+DATA WITH INFERENCE LATENCY
+Model
+Original
+Size (MB)
+Embedded
+Size (MB)
+Original
+Latency
+(ms)
+Embedded
+Latency
+(ms)
+LSTM
+0.1879
+0.0282
+36.11
+30.8
+GRU
+0.1490
+0.0250
+35.54
+31.2
+TCN
+0.4283
+0.0604
+35.15
+25.1
+RNN
+0.0660
+0.0134
+35.12
+30.1
+Table IV further quantifies the impact of compression on
+macro F1-score and latency. TCN experienced the smallest
+drop in macro F1-score (only 0.7%) and the largest la-
+tency improvement (28.5%), owing to its parallelizable dilated
+convolutions and stable receptive field design. Despite this,
+LSTM maintained the highest overall macro F1-score post-
+compression with only a 0.8% drop, reaffirming its robustness
+and reliability for noise-resilient embedded inference tasks.
+TABLE IV
+IMPACT OF MODEL COMPRESSION ON MACRO F1-SCORE AND
+INFERENCE LATENCY (UNDER SEVERE NOISE)
+Model
+Compression
+Rate
+Change
+in
+macro
+F1
+(%)
+Change in La-
+tency (%)
+LSTM
+6.66×
+-0.8
+-14.7
+GRU
+5.96×
+-2.1
+-12.2
+TCN
+7.09×
+-0.7
+-28.5
+RNN
+4.92×
+-1.4
+-14.2
+C. Case Severity Analysis Results for Decision-Making
+After fault classification, we performed unsupervised sever-
+ity assessment using K-Means clustering on historical samples
+of each detected fault type. The clustering was conducted inde-
+pendently per fault class in a multi-dimensional feature space
+combining time-domain (e.g., RMS, kurtosis) and frequency-
+domain features (e.g., dominant frequency, harmonic energy
+ratios). Each class was partitioned into three severity levels:
+low, medium, and high. Although K-Means assumes spherical
+cluster shapes, silhouette scores exceeding 0.75 for most fault
+types suggest coherent intra-cluster similarity and sufficient
+separation. While stator winding faults showed slightly re-
+duced cohesion, the overall segmentation effectively reflected
+progressive fault behavior. K-Means is selected for its compu-
+tational efficiency. However, non-spherical clusters may occur
+in practice. Methods such as DBSCAN or Gaussian Mixture
+Models could further capture elongated or irregular severity
+distributions, which is planned to be explored in future work.
+To illustrate, Fig. 8 presents the rotor bar fault clustered in
+3D space using acceleration RMS, current standard deviation,
+and current RMS. Despite minor visual overlaps, the achieved
+silhouette score of 0.77 confirms well-formed clusters in the
+full feature space. These results support the feasibility of
+integrating severity estimation in real-time fault monitoring
+systems.
+This two-stage diagnostic pipeline fault classification fol-
+lowed by severity-level clustering, offers interpretable and
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 8 =====
+
+actionable insights. For instance, multiple motors may show
+the same fault class but differ in their severity cluster due
+to underlying signal degradation. Embedding this capability
+into edge-deployable systems can enable condition-based pri-
+oritization and early intervention in predictive maintenance
+workflows. Such severity analysis allows industrial teams to
+prioritize inspections for high-severity cases, schedule pre-
+ventive interventions for medium levels, and monitor low-
+severity instances, thereby optimizing resource allocation and
+minimizing unplanned downtime.
+Fig. 8. 3D representation of K-Means clustering for rotor bar defect based
+on selected features. Average silhouette score is 0.77.
+V. CONCLUSION
+This study presents a comprehensive and deployable frame-
+work for fault diagnosis and severity assessment in industrial
+three-phase induction motors using synthetic high-fidelity sig-
+nal modeling, robust machine learning, and embedded system
+optimization. An end-to-end framework is introduced from
+data generation and feature extraction to model training,
+evaluation under varying noise conditions, and real-time de-
+ployment on constrained edge devices.
+By simulating six critical electromagnetic and mechanical
+fault types under both low and severe industrial noise con-
+ditions, we demonstrate that sequence-based deep learning
+models, particularly LSTM, offer superior performance and
+robustness over classical approaches. To enable deployment
+in practical industrial environments, we applied structured
+pruning and post-training quantization techniques, achieving
+significant reductions in model size and inference latency
+without substantial loss in accuracy. Our experiments on the
+Jetson Nano edge platform confirm the feasibility of real-
+time classification under constrained resources. In addition
+to classification, a lightweight, unsupervised severity analysis
+stage using fault-specific clustering in the time–frequency
+feature space is also described. This augmentation enables
+more granular, interpretable insights into fault progression,
+facilitating condition-based maintenance prioritization. The
+full pipeline—covering classification, severity estimation, and
+edge deployment—offers a scalable, low-latency solution suit-
+able for modern predictive maintenance systems in smart
+manufacturing and industrial IoT settings.
+Future work will focus on incorporating hybrid signal
+sources (e.g., thermal, acoustic) and applying domain adapta-
+tion strategies and transfer learning techniques to fine-tune the
+current models on real-world data. Since the synthetic setup
+closely mimics real motor behavior, the existing models can
+be adapted with minimal retraining. It is also aimed to validate
+the framework on actual hardware setups to ensure practical
+deployment feasibility.
+REFERENCES
+[1] H. A. Nandi, H. A. Toliyat, and X. Li, “Condition monitoring and fault
+diagnosis of electrical motors—A review,” IEEE Transactions on Energy
+Conversion, vol. 20, no. 4, pp. 719–729, Dec. 2005.
+[2] V. Kavana and M. Neethi, “Fault analysis and predictive maintenance of
+induction motor using machine learning,” in Proc. ICEECCOT, 2018,
+pp. 963–966.
+[3]
+´A. Zsuga and A. Dineva, “Data-driven onboard inter-turn short circuit
+fault diagnosis for electric vehicles by using real-time simulation envi-
+ronment,” IEEE Access, vol. 11, pp. 145447–145466, 2023.
+[4] Y. Lei, B. Yang, X. Jiang, F. Jia, N. Li, and A. K. Nandi, “Applications
+of machine learning to machine fault diagnosis: A review and roadmap,”
+Mechanical Systems and Signal Processing, vol. 138, p. 106587, 2020.
+[5] C. Scharr, C. Heinze, and M. Geist, “Technical communication on engine
+fault detection with small datasets,” in Proc. ICFSP, 2023, pp. 52–56.
+[6] F. t. Zahra, Y. S. Bostanci, and M. Soyturk, “Comparative analysis of
+deep learning models for detecting jamming attacks in Wi-Fi network
+data,” in Proc. 12th IFIP/IEEE PEMWN, Berlin, Germany, 2023, pp.
+1–6.
+[7] Z. Zhang and J. Li, “A review of artificial intelligence in embedded
+systems,” Micromachines, vol. 14, no. 5, p. 897, 2023.
+[8] A. Widodo and B.-S. Yang, “Support vector machine in machine
+condition monitoring and fault diagnosis,” Mechanical Systems and
+Signal Processing, vol. 21, no. 6, pp. 2560–2574, 2007.
+[9] J. Acquarelli, T. van Laarhoven, J. Gerretzen, T. N. Tran, L. M. C.
+Buydens, and E. Marchiori, “Convolutional neural networks for vibra-
+tional spectroscopic data analysis,” Analytica Chimica Acta, vol. 954,
+pp. 22–31, 2017.
+[10] S. Shao, S. McAleer, R. Yan, and P. Baldi, “Highly accurate machine
+fault diagnosis using deep transfer learning,” IEEE Transactions on
+Industrial Informatics, vol. 15, no. 4, pp. 2446–2455, 2019.
+[11] S. Shao, P. Wang, and R. Yan, “Generative adversarial networks for
+data augmentation in machine fault diagnosis,” Computers in Industry,
+vol. 106, pp. 85–93, 2019.
+[12] S. Cuomo, V. S. Di Cola, F. Giampaolo, et al., “Scientific machine
+learning through physics-informed neural networks: Where we are and
+what’s next,” Journal of Scientific Computing, vol. 92, p. 88, 2022.
+[13] A. Sherstinsky, “Fundamentals of recurrent neural network (RNN)
+and long short-term memory (LSTM) network,” Physica D: Nonlinear
+Phenomena, vol. 404, p. 132306, Jan. 2020.
+[14] Z. Long et al., “Motor fault diagnosis using attention mechanism and
+improved adaboost driven by multi-sensor information,” Measurement,
+vol. 170, p. 108718, Nov. 2020.
+[15] Y. Zhou, Q. Shang, and C. Guan, “Three-phase asynchronous motor
+fault diagnosis using attention mechanism and hybrid CNN-MLP by
+multi-sensor information,” IEEE Access, vol. 11, pp. 98402–98414, Jan.
+2023.
+[16] A. Erciyes, F. t. Zahra, and M. Soyturk, “High-Fidelity Synthetic Data
+Generation Framework for Industrial 3-Phase Induction Motors,” in
+Proc. of the 33rd Signal Processing and Communications Applications
+Conference (SIU), Istanbul, Turkey, June 2025.
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 9 =====
+
+[17] W. Jung, S.-H. Kim, S.-H. Yun, J. Bae, and Y.-H. Park, “Vibration,
+acoustic, temperature, and motor current dataset of rotating machine
+under varying operating conditions for fault diagnosis,” Data in Brief,
+vol. 48, p. 109049, 2023
+[18] C. Pezzani, G. Bossio, and C. De Angelo, “Winding distribution effects
+on induction motor rotor fault diagnosis,” Mechatronics, vol. 24, no. 8,
+pp. 1050–1058, Oct. 2013.
+[19] T. Perumal, N. Mustapha, R. Mohamed, and F. M. Shiri, “A compre-
+hensive overview and comparative analysis on deep learning models,”
+Journal on Artificial Intelligence, vol. 6, no. 1, pp. 301–360, 2024.
+[20] Y. Cao, Y. Ding, M. Jia, and R. Tian, “A novel temporal convolutional
+network with residual self-attention mechanism for remaining useful life
+prediction of rolling bearings,” Reliability Engineering & System Safety,
+vol. 215, p. 107813, 2021.
+[21] J. M. Tabora, L. Correa dos Santos J´unior, E. Ortiz de Matos, T.
+Mota Soares, A. R. Arrifano Manito, M. E. de Lima Tostes, and
+U. Holanda Bezerra, “Exploring the effects of voltage variation and
+load on the electrical and thermal performance of permanent-magnet
+synchronous motors,” Energies, vol. 17, no. 1, p. 8, Jan. 2024, doi:
+10.3390/en17010008.
+[22] R. S. Peres, X. Jia, J. Lee, K. Sun, A. W. Colombo, and J. Barata,
+“Industrial artificial intelligence in Industry 4.0—Systematic review,
+challenges and outlook,” IEEE Access, vol. 8, pp. 220121–220139, Jan.
+2020.
+[23] Z. Zhou, X. Chen, E. Li, L. Zeng, K. Luo, and J. Zhang, “Edge
+intelligence: Paving the last mile of artificial intelligence with edge
+computing,” Proceedings of the IEEE, vol. 107, no. 8, pp. 1738–1762,
+Aug. 2019.
+[24] A. K. Jain, “Data clustering: 50 years beyond K-means,” Pattern
+Recognition Letters, vol. 31, no. 8, pp. 651–666, Sep. 2009.
+2025 14th IFIP/IEEE International Conference on Performance Evaluation and Modeling in Wired and Wireless 
+Networks (PEMWN)
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:52 UTC from IEEE Xplore.  Restrictions apply.

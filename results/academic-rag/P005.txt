@@ -1,0 +1,475 @@
+
+
+===== PAGE 1 =====
+
+979-8-33156528-2/25/$31.00 ©2025 IEEE 
+A new framework based on FOG Computing and 
+Edge AI to increase the reliability of predictive 
+maintenance of rotating machines 
+ 
+Said ECH-CHADI  
+Mathematics, Computer Science and 
+Communication Systems Laboratory,  
+National School of Applied 
+Sciences Safi,  
+Cadi AYYAD University  
+Safi, Morocco 
+s.echchadi@uca.ma 
+0000-0002-2254-192X 
+ 
+          Mohamed Azhar ZAID 
+Mathematics, Computer Science and 
+Communication Systems Laboratory,  
+National School of Applied 
+Sciences Safi,  
+Cadi AYYAD University  
+Safi, Morocco 
+zaidmohamedazhar@gmail.com  
+Youness ECH CHADI 
+Nexus Point Consulting s.a.r.l. 
+Kénitra, Morocco 
+youness.echchadi@gmail.com 
+0000-0001-9001-8981
+Abstract—In today’s industrial world, it is essential to ensure 
+efficient and safe operation of machines to ensure productivity 
+and reduce costs. Vibration analysis is one of the most effective 
+tools used for this purpose. Vibration analysis is used to monitor 
+the condition of rotating machines, detect potential problems 
+early and avoid costly breakdowns. In this article, we will 
+explore how the integration of vibration analysis with fog 
+computing and edge artificial intelligence (Edge AI) can create 
+a powerful system for real-time machine monitoring and 
+predictive maintenance. Keywords—predictive maintenance, 
+FOG computing, Edge AI, rotating machine 
+I. 
+INTRODUCTION 
+Management of resources in industrial computers demands 
+strategic decision-making. 
+Resource constraints, heterogeneity, the dynamic and 
+diversified nature of workloads, and the variability of FOG or 
+Edge computing systems have made managing resources 
+even more difficult to solve in the FOG landscape. 
+ 
+Recently, technologies based on artificial intelligence (AI) & 
+machine learning (ML) have been implemented to tackle this 
+issue. AI & ML systems that can make sequential judgments, 
+such as reinforcement learning, appear to be the most 
+promising for solving such challenges. However, these 
+algorithms provide unique issues such as high variance, 
+interpretability and online training. The dynamics of the ever-
+changing FOG/EDGE environment necessitate systems that 
+learn online and adapt to an evolving computing environment 
+[1]. 
+II. 
+MATERIALS AND METHODS 
+Integrating vibration analysis with fog computing and edge 
+AI can create a powerful system for real-time machine 
+tracking and maintenance prediction. Here’s how these 
+concepts can be integrated [2]: 
+A. Data acquisition and collection [3]: 
+• Sensors (e.g. those adapted to the context of vibration, 
+gyroscopes, accelerometers, speed sensors) are 
+attached to the machines so as to collect the maximum 
+amount of data on vibrations for greater reliability. 
+• These sensors continuously measure vibrations to have 
+a good real-time approach. 
+B. Edge Processing (Edge AI – Edge Computing) [4] :  
+• The raw vibration data is sent to nearby edge devices 
+(e.g., industrial gateways or small computers) to 
+improve communication performance. 
+• These edge devices perform initial processing and 
+analysis using embedded AI algorithms. 
+• Edge AI can perform tasks like:  
+o Filtering out noise (Kalman Filter). 
+o Extracting relevant features from the vibration 
+signals 
+o Running fast Fourier transforms (FFT) to analyse 
+frequency components in the frequential domain. 
+C. Fog Layer [5] :  
+• The fog computing layer sits between edge devices and 
+the cloud. thus, reducing network traffic, and avoiding 
+network bottlenecks between devices and the cloud. 
+• It consists of local servers or micro data centers that 
+can aggregate data from multiple edge devices. 
+• In this layer, more complex analysis can be performed, 
+such as:  
+o Comparing vibration patterns across multiple 
+machines 
+o Running more sophisticated machine learning 
+models 
+o Detecting anomalies that may indicate potential 
+failures 
+D. Cloud Integration [6]:  
+• While most processing occurs at the edge and fog 
+layers, the cloud can be used for :  
+2025 International Conference on Circuit, Systems and Communication (ICCSC) | 979-8-3315-6528-2/25/$31.00 ©2025 IEEE | DOI: 10.1109/ICCSC66714.2025.11134853
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:17 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+o Long-term data storage 
+o Training of machine learning models using 
+historical data 
+o Providing a centralized dashboard for monitoring 
+multiple sites 
+E. Real-time Evaluation and Decision-Making [7][8]:  
+• The distributed nature of this system allows for real-
+time evaluation & analysis and fast decision-making. 
+• The implementation of Edge devices can immediately 
+alert operators of critical issues. 
+• The fog layer can make decisions about scheduling 
+maintenance or adjusting machine operations. 
+F. Predictive Maintenance [9][10] :  
+• 
+By continuously analyzing vibration patterns, the 
+system can predict potential failures before they occur. 
+• 
+This allows for scheduling maintenance only when 
+needed, reducing downtime and costs. 
+G. Adaptive Learning [11][12]:  
+• 
+As the system collects more data, machine learning 
+models at both the edge and fog layers can be updated 
+to improve accuracy. 
+• 
+This creates a self-improving system that becomes 
+more effective over time. 
+The benefits sought behind this integration of various 
+techniques are: 
+• 
+Reduced latency: Processing at the edge means faster 
+response times for critical issues. 
+• 
+Bandwidth efficiency: Only relevant data and insights 
+are sent to the cloud, reducing network load. 
+• 
+Improved reliability: The system can continue 
+functioning even with intermittent cloud connectivity. 
+• 
+Scalability: Easy to add new machines or sensors to 
+the network. 
+And the challenges to be met should allow the integration 
+of industry 4.0 via the following considerations: 
+• 
+Ensuring consistent AI model performance across 
+distributed devices. 
+• 
+Managing security in a distributed system. 
+• 
+Balancing processing load between edge, fog and the 
+other cloud layers. 
+III. 
+BACKGROUND 
+The aim of our study is to create a novel automated 
+framework capable of predicting and diagnosing incipient 
+failures of rotating machinery using Edge AI. Our model has 
+as inputs vibration signals from an accelerometer-gyroscope 
+and has as outputs an estimation of the rotating machine 
+condition as well as the degree of wear and fault diagnosis of 
+the components of these machines. 
+First, the signals are gathered and analyzed to identify 
+probable fault signatures. The generated signals are then 
+analyzed to identify features associated to gearbox component 
+defects at specified frequencies. Finally, these attributes are 
+employed as inputs in pattern recognition models to assess 
+whether a failure exists, in which component, and at what 
+stage it happens. 
+ 
+Fig 1. Methodology Flowchart 
+A. Noise analysis 
+Acquired signals often contain background noise from the 
+environment. The most commonly used filters were Kalman 
+filters [13], and extended Kalman filters [14] [15], but it turned 
+out that for rotating machines TQWT techniques are more 
+effective for denoising vibration signals from bearings and 
+rotating machines [16].. 
+B. Vibration signature assessment 
+Induction machines in industry are defined by their signal 
+processing method and measured using a machine vibration 
+analysis device. ISO 2372 (108) uses the Root Mean Square 
+(RMS) velocity of the machine housing as the criterion. 
+According to NASA, the RMS velocity ranges from 10 to 
+1000 Hz. The resulting value is subject to standard limits 
+[17]. 
+C. The Fourier-based Synchrosqueezing Transform 
+The SST has two goals: to give a concentrated 
+representation of multi-component signals in the TF plane, as 
+well as a decomposition method for separating and 
+demodulating the various modes. A theoretical result, initially 
+stated in [18] in the CWT context, demonstrates its utility for 
+well-separated low-modulated multicomponent signals. This 
+section describes STFT-based synchrosqueezing (FSST) and 
+concludes the approximation result of [18] to that framework. 
+We will pay special emphasis to the differences between 
+FSST and CWT-based synchrosqueezing (WSST) [19]. 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:17 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+D. AI-based fog/edge computing [1] 
+As IoT and machine learning usage grows, cloud and edge 
+workloads become more diversified and dynamic. To 
+increase human quality of life by combining fog with AI, 
+smart resource management is necessary. Traditional cloud 
+computing platforms rely on heuristic ways to manage 
+resources, failing to account for diverse and dynamic 
+workloads (20). Many of these strategies, such as the 
+threshold-based strategy, are static heuristics set up offline 
+for specific workload scenarios. They cannot grow 
+applications dynamically based on workload patterns [21]. 
+Scaling up can significantly reduce the performance of 
+heuristic approaches. Resource contention is a significant 
+issue in fog environments, where co-located applications 
+fight for shared resources, leading to poor performance and 
+SLA violations [22]. The transition from monolithic to micro-
+services and serverless architectures has led to greater 
+complexity [23]. Dependency in micro-services can lead to 
+SLO breaches due to increased communication costs and 
+resource demands in fog computing. 
+ 
+ 
+Fig. 2: Block diagram of the processing methodology 
+IV. 
+THE ARCHITECTURE OF OUR FRAMEWORK 
+In this paper, the proposed framework is a new architecture, 
+which brings together the elements of FOG Computing and 
+also Edge Computing that are at the base of a new predictive 
+maintenance system for rotating machines, linking it with the 
+tasks required during its development. The complete lifecycle 
+of the framework is illustrated in Figure 3 and consists of 
+several steps. A data preparation process is applied on the raw 
+time-stamped vibration data in order to generate the 
+equivalent rotation patterns, which are then denoised in a 
+special sub-layer of our FOG. Then, a vibration signature 
+extraction procedure is activated, followed by an equivalent 
+failure recognition step. The final step of the process takes 
+place at the Cloud level, and which allows to store the 
+obtained results, and also to feed the training step of the 
+learning machines. 
+ 
+ 
+Fig. 3: Diagram of the components of our framework 
+ 
+V. 
+REALISATION 
+We will describe a new framework for predictive maintenance 
+of rotating machinery using vibration analysis and FOG 
+computing, based on the Jetson Nano. This framework 
+integrates edge computing with the cloud for a complete and 
+efficient solution. 
+This framework integrates edge computing with the Jetson 
+Nano and cloud analytics to provide a powerful and cost-
+effective predictive maintenance solution. 
+This framework could significantly improve the reliability of 
+rotating machinery while reducing maintenance costs. It 
+would be particularly useful in manufacturing, energy or 
+transportation industries. 
+The characteristics of our achievement are: 
+ 
+ 
+Fig. 4: Characteristics of the components of our framework 
+The following picture illustrates the setup of our framework 
+for a test on a DC motor. 
+ 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:17 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+ 
+Fig. 5: Illustration of the assembly including Nvidia Nano 
+Jetson and motor for testing framework 
+ 
+VI. 
+REALISATION 
+Here are some key points to remember: 
+• 
+The Jetson Nano enables powerful local processing, 
+reducing latency and data transmission costs. 
+• 
+Real-time analytics at the edge enable rapid detection 
+of critical anomalies. 
+• 
+The cloud provides additional storage and compute 
+capacity for deeper analytics and continuous model 
+training. 
+• 
+The architecture is adaptable to numerous types of 
+rotating machinery. 
+• 
+The system can easily scale by adding more Jetson 
+Nanos to monitor more machines. 
+This framework could significantly improve the reliability of 
+rotating machines while reducing maintenance costs. It would 
+be particularly useful in manufacturing, energy, or 
+transportation industries. 
+VII. CONCLUSION 
+The proposed framework, because of how it integrates FOG 
+Computing and Edge AI, greatly improves the reliability of 
+predictive 
+maintenance 
+for 
+rotating 
+machines. 
+The 
+methodology shows a substantial improvement to fault 
+detection accuracy and timeliness by leveraging Edge AI's 
+real-time processing and FOG nodes' proximity. 
+ 
+In particular, the distributed intelligence at the edge does 
+reduce data latency in addition to bandwidth consumption. 
+Consequently, this acumen allows faster anomaly detection. 
+Edge AI models process sensor data locally, which minimizes 
+reliance upon centralized cloud infrastructure. This increases 
+system resilience also reduces the impact of network 
+connectivity issues. Also, the framework is able to learn on 
+the device continuously and this lets predictive adaptive 
+models change with the operational traits of the machine so a 
+stronger more accurate strategy results. 
+ 
+The article presents empirical results that validate the 
+superior performance of this methodology as it can reduce 
+costly downtime to optimize maintenance schedules 
+regarding rotating machinery all across various industrial 
+sectors. 
+REFERENCES 
+ 
+[1] S.Iftikhar, S. Singh Gill,  C. Song,  M. Xu,  M. Sadegh Aslanpour, A. 
+N. Tossi, J. Du, H. Wu,  S. Ghosh, D. Chowdhury, M. Golec, M. 
+Kumar, A. M. Abdelmoniem, F. Cuadrado, B. Varghese, O. Rana, S. 
+Dustdar and S. Uhlig  “AI-based fog and edge computing: A systematic 
+review, taxonomy and future directions” Internet of Things Volume 21,  
+100674 April (2023)  https://doi.org/10.1016/j.iot.2022.100674 
+[2] T. Chu, T. Nguyen, H. Yoo and J. Wang  “A review of vibration 
+analysis and its applications” Heliyon.  10;10(5):e26282. Feb (2024) 
+https://doi.org/10.1016/j.heliyon.2024.e26282. 
+[3] A. F. Zainal Abidin, M. Huzaimy Jusoh, E. James, S. A. Al Junid and 
+A. I. Mohd Yassin “Real-Time Remote Monitoring with Data 
+Acquisition System” 2015 4th International Conference on Electronic 
+Devices, Systems and Applications  (ICEDSA), IOP Conf. Series: 
+Materials Science and Engineering 99 (2015) 012011 2015 
+doi:10.1088/1757-899X/99/1/012011. 
+[4] R. Singh and S. Singh Gill Edge AI: “A survey Internet of Things and 
+Cyber-Physical 
+System”s 
+Volume 
+3, 
+(2023), 
+Pages 
+71-92 
+https://doi.org/10.1016/j.iotcps.2023.02.004. 
+[5] C. Y. Weng, C. Li, C. Chen, C. Lee, and Y. Deng “A Lightweight 
+Anonymous Authentication and Secure Communication Scheme for 
+Fog Computing Services” October (2021) IEEE Access October (2021) 
+PP(99):1-1 DOI: 10.1109/ACCESS.2021.3123234. 
+[6] F. Firouzi, B. Farahani and A. Marinšek “The convergence and 
+interplay of edge, fog, and cloud in the AI-driven Internet of Things 
+(IoT)” ,  Information Systems Volume 107, July (2022) 101840 
+https://doi.org/10.1016/j.is.2021.101840. 
+[7] T. K. Vashishth, B. Kumar, V. Sharma, S. Chaudhary, K. K. Sharma 
+and R. Panwar  chap : “Intelligent Resource Allocation and 
+Optimization for Industrial Robotics Using AI and Blockchain” In 
+book: “AI and Blockchain Applications in Industrial Robotics”, 
+December (2023) http://dx.doi.org/10.4018/979-8-3693-0659-8.ch004  
+[8] P. K. Goswami and A. Sharma “Realtime analysis and visualization of 
+data for instant decisions: A futuristic requirement of the digital world” 
+Materials 
+Today 
+Proceedings 
+February 
+(2021) 
+http://dx.doi.org/10.1016/j.matpr.2021.02.193. 
+[9] J. Wiercioch “Hybrid predictive maintenance model – study and 
+implementation example” Production Engineering September (2024) 
+Archives 30(3):285-295 http://dx.doi.org/10.30657/pea.2024.30.28 
+[10] J. Kairo, “Machine Learning Algorithms for Predictive Maintenance 
+in Manufacturing”,  Journal of Technology and Systems July (2024) 
+6(4):66-79 http://dx.doi.org/10.47941/jts.2144  
+[11] E. G. Rincón Flores, L. Castano, S. L. Guerrero Solis, O. Olmos Lopez, 
+C. F. Rodríguez-Hernández and L. P. Aldape Valdés “Improving the 
+learning-teaching process through adaptive learning strategy”, Smart 
+Learning 
+Environments 
+June(2024)11(1) 
+http://dx.doi.org/10.1186/s40561-024-00314-9. 
+[12] F. Huang, J. Zhao “Faster Adaptive Decentralized Learning 
+Algorithms”, Forty-first International Conference on Machine 
+Learning, 
+ICML, 
+Vienna, 
+Austria, 
+July 
+2024 
+21-
+27,. https://doi.org/10.48550/arXiv.2408.09775 
+[13] M. S. Grewal and A. Andrews,  “Applications of Kalman Filtering in 
+Aerospace 1960 to the Present [Historical Perspectives]” IEEE Control 
+Systems 
+Magazine 
+June 
+(2010) 
+30(3):69 
+– 
+78 
+http://dx.doi.org/10.1109/MCS.2010.936465 
+[14] E. Blanchard, A. Sandu and C. Sandu, “Parameter Estimation Method 
+using an Extended Kalman Filter” Engineering computations, July 
+(2009)  vol 26, issue 5, 
+[15] M. N. Bandyopadhyay, N. Sharma and R. Prakash, ˝Extended Kalman 
+Filter Approach to Joint State and Parameter Estimation˝, Vol. 84, N°1, 
+Indian Revue, Nov. 2003, pp 23. 
+[16] Du, N. T., Dien, N. P., and Cuong, N. H. « Detection Fault symptoms 
+of rolling bearing based on enhancing collected transient vibration 
+signals”, in “The AUN/SEED-Net joint regional conference in 
+transportation, 
+energy, 
+and 
+mechanical 
+manufacturing 
+engineering” (Singapore: Springer Nature Singapore), (2022). 373–
+384 
+[17] K.G. Suresh and C.T. Jayadeva “Vibration signature analysis of coffee 
+beans processing Machineries”,  Material today : Proceedings, Volume 
+80, 
+Part 
+3, 
+(2023), 
+Pages 
+2432-2440 
+https://doi.org/10.1016/j.matpr.2021.06.378. 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:17 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+[18] I. Daubechies, J. Lu, and H-T. Wu, “Synchrosqueezed wavelet 
+transforms: an empirical mode decomposition-like tool,” Applied and 
+Computational Harmonic Anal-ysis, vol. 30, no. 2, (2011) pp. 243–261. 
+[19] T. Oberlin, S. Meignen and V. Perrier, “The Fourier-based 
+Synchrosqueezing Transform” Proceedings - ICASSP, IEEE 
+International Conference on Acoustics, Speech and Signal Processing 
+(April 2014) DOI: http://dx.doi.org/10.1109/ICASSP.2014.6853609 
+[20] A. Chakraborty, M. Kumar, N. Chaurasia and S. Singh Gill. “Journey 
+from cloud of things to fog of things: Survey, new trends, and research 
+directions” 
+Softw. 
+- 
+Pract. 
+Exp. 
+(2022) 
+https://doi.org/10.1002/spe.3157 
+[21] M. Sri Raghavendra, P. Chawla and S. Singh Gill. “DEEDSP: 
+Deadline-aware and energy-efficient dynamic service placement in 
+integrated Internet of Things and fog computing environments” Trans. 
+Emerg. Telecommun. Technol. (2021) https://doi.org/10.1002/ett.4368 
+[22] V. C. Pujol and S. Dustda. “Fog robotics—Understanding the research 
+challenges” IEEE Internet Comput.(2021)  pp. 10-17, vol. 25 
+https://doi.ieeecomputersociety.org/10.1109/MIC.2021.3060963 
+[23] .S. Iftikhar, M. Golec, D. Chowdhury and S. Singh Gill, Steve Uhlig. 
+“FogDLearner: A deep learning-based cardiac health diagnosis 
+framework using fog computing” ACSW '22: Proceedings of the 2022 
+Australasian Computer Science Week (2022) Pages 136 – 144 
+https://doi.org/10.1145/3511616.3513108  
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 15:39:17 UTC from IEEE Xplore.  Restrictions apply.

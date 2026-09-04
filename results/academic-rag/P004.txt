@@ -1,0 +1,804 @@
+
+
+===== PAGE 1 =====
+
+Predictive Maintenance in Electrical Machines:  
+An Edge Computing Approach 
+Javier de las Morenas, Francisco Moya-Fernández 
+ 
+ Mantis Research Group, University of Castilla-La Mancha. Almadén-Toledo, Spain  
+Email: {javier.delasmorenas, francisco.moya}@uclm.es 
+ 
+Abstract—Predictive maintenance is one of the premises of 
+the Industry 4.0. A condition monitoring and fault diagnostic 
+never seen before are possible with the new technologies 
+embracing the digitalisation. This paper presents an edge 
+computing approach for the predictive maintenance of 
+electrical machines based on motor current signature analysis 
+(MCSA), using Fast Fourier Transform (FFT) and a Support 
+Vector Machine (SVM) classifier. A broken rotor bars and 
+eccentricity fault detection are implemented on Arduino 
+platform, providing a low-cost solution affordable for small 
+and medium enterprises. The system has been tested in a lathe 
+in one of the laboratories of the Mining and Industrial School 
+of Almaden (UCLM) with satisfactory results. 
+Keywords—Condition Monitoring, Predictive Maintenance, 
+Fault Diagnosis, induction motors, edge computing 
+I. INTRODUCTION  
+Being immersed in the fourth industrial revolution, 
+Digitalisation, the use of new technologies and lines of 
+research are emerging: Internet of Things, Big Data, 
+everything Smart, Cloud Computing... all of them with the 
+intention of digitalising information.  
+The origin of this digitalisation lies in Industry 4.0 
+(Industrie 4.0) [1], German Federal Government project to 
+promote digitalization in manufacturing or networked, 
+digitized production [2], where machines and products are 
+seen as intelligent, networked components, which can 
+exchange data locally, globally and across company borders.  
+The Fourth Industrial Revolution, or Industry 4.0, uses 
+digital technologies (IoT, AI, sensors) to blend the physical 
+and virtual [3]. 
+The Industry 4.0 approach aims to [4]: 
+• Efficiently control distributed control systems 
+through a partnership of autonomous units. 
+• Blending the physical world with the virtual world; 
+where each physical element (sensors, products, raw 
+materials, 
+handling 
+and 
+transport 
+machinery, 
+operators) is represented by virtual units. This 
+requires connectivity between each virtual element 
+with the rest of the virtual and physical elements, as 
+well as a control implementation from the virtual to 
+the physical world. 
+• Decision-making, optimization and efficiency (cost-
+effectiveness, 
+high 
+performance 
+and 
+energy 
+efficiency). 
+• Creation of new business models and service-based 
+approaches to value creation. 
+The way to implement Industry 4.0, or the digitalization 
+revolution, is through Cyber-Physical Systems (CPS), or as 
+they are known in their more industrial version: Industrial 
+Cyber-Physical Systems (ICPS) [5] or Cyber-Physical 
+Production Systems (CPPS) [6], combined with the 
+widespread use of the Internet of Things, (IoT) [7]. ICPS 
+provide the necessary digital representation, smart service 
+development and interoperability interfaces required to 
+support 
+the 
+operation 
+of 
+flexible, 
+network-based 
+manufacturing environments, where embedded smart 
+devices work together, via the IoT, and centralised control is 
+transferred to a distributed smart network [8]. 
+This digitalisation is having a major impact in other areas 
+such as smart cities/buildings, smart energy systems, 
+pollution monitoring, health tracking or intelligent transport 
+systems. However, unfortunately, its adoption by industry 
+has yet to be fully realised.  
+This paper focuses on one of the premises of Industry 4.0: 
+predictive maintenance, and more specifically on predictive 
+maintenance in electrical machines. According to the 
+International Energy Agency report [9], around 50% of all 
+energy generated in developed countries is consumed by 
+electric induction motors. So, the interest in fault prediction 
+and detection on these machines has increased significantly 
+[10-12]. This paper presents an ICPS solution for the 
+predictive maintenance of an electrical machine, aiming to 
+reduce maintenance costs and equipment downtime by 
+detecting equipment faults. 
+The remaining paper is organized as follows: Section II 
+presents the commonly used techniques to perform a 
+predictive maintenance in inductive electric motors. Sections 
+III presents the parts of the ICPS system performing the 
+predictive maintenance, paying special attention to provide 
+an edge computing solution, i.e. a solution capable of 
+computing data locally. Section IV shows the experimental 
+results carried out to test the proposal. Finally, Section VI 
+rounds up the paper with the conclusions and points out some 
+future work. 
+II. STATE OF THE ART 
+The three-phase induction motor with squirrel cage rotor 
+has become widespread in industry. Its use, as with all other 
+types of motors, is exposed to various hostile environments, 
+incorrect applications, and manufacturing defects. Internal 
+defects such as short circuits, earth faults, broken rods or 
+bearing failures are unavoidable. The same applies to defects 
+caused by external agents or effects. In addition, operation in 
+aggressive environments can accelerate ageing and make it 
+more susceptible to the appearance of new faults, and the 
+gradual deterioration caused by ageing itself will result in the 
+potential for motor failure if these internal and external 
+defects are not detected and corrected early enough.  
+Induction motors are protected by devices such as relays, 
+circuit breakers, etc., but the performance of these 
+protections is limited either to protecting the motor against 
+2022 IEEE 5th International Conference on Industrial Cyber-Physical Systems (ICPS) | 978-1-6654-9770-1/22/$31.00 ©2022 IEEE | DOI: 10.1109/ICPS51978.2022.9816921
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:39 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 2 =====
+
+an external problem or to a significant level of motor 
+deterioration, when the fault is often irreversible. On the 
+other hand, the demand from users to increase the reliability 
+of electric motors is constantly growing, due to the 
+importance of many applications, advances in technology 
+and the need to obtain better operating results. In this 
+situation, the possibility of knowing when a failure is starting 
+to develop becomes essential in those applications which, 
+due to their complexity, critical operation, cost of shutdown 
+or repair, safety, do not allow the motor to fail unexpectedly. 
+Several diagnostic methods have been developed for 
+three-phase induction motors. These methods are generally 
+based on the analysis of the magnitudes available at the 
+motor terminals or of those faults that can be observed by 
+means of suitable devices, proceeding to their measurement 
+under normal operating conditions of the motor or with the 
+machine out of service.  
+A. Out-of-service Diagnostics.  
+These techniques are characterised by the fact that they 
+are carried out when the machine is not in operation, in many 
+cases requiring the motor to be switched off and even 
+partially or totally dismantled. They are usually carried out 
+during scheduled overhaul periods. Most of these methods 
+are dedicated to observations on the degree of deterioration 
+of the insulation system and on the state of the magnetic core. 
+These methods include [13]:  
+• Measurement of insulation to ground: Insulation 
+resistance, polarisation index, absorption current, 
+tangent delta capacitance, loss factor, overvoltage 
+tests.  
+• Insulation between turns: Shock wave test, insulation 
+resistance, reverse sequence impedance, electrical 
+circuit analysis, parameter estimation.  
+• Magnetic core analysis: with application of nominal 
+or reduced flux.  
+• Bearing lubricant analysis: Physical characteristics, 
+particle content.  
+B. In-service Diagnostics. 
+In-service diagnostic methods provide information on the 
+state of the machine without the need for interruptions in 
+operation. This is an important advantage, as each of them 
+usually has a series of analysis utilities, normally in the form 
+of software, which allows them to be used in predictive 
+maintenance 
+programmes, 
+making 
+their 
+application 
+extremely attractive.  
+The most important methods for diagnosing faults with 
+Condition Monitoring (CM) are [10]: 
+• Stator current analysis or motor current signature 
+analysis (MCSA) [14, 15].  
+• Vibration analysis [16, 17].  
+• Temperature measurement (thermography) [18, 19]. 
+• Partial discharges.  
+• Gas analysis.  
+• Axial dispersion flux analysis  
+• Torque and speed fluctuations.  
+• Input power analysis.  
+The first three being the most important. In this paper 
+MCSA is used as it is non-invasive, lower-cost and reliable 
+technology to develop a condition monitoring and fault 
+diagnosis in an induction motor. 
+C. MCSA in induction machines 
+The most studied faults in induction motors are bearing 
+faults, stator faults, broken rotor bars, and eccentricity faults. 
+Each of these faults have a characteristic frequency in the 
+MCSA analysis of the induction motor. In this papers 
+eccentricity and faults and broken rotor bars are covered. 
+1) Eccentricity Faults 
+Two different eccentricity faults can appear: the static 
+and the dynamic. Fig. 1 shows both.  
+Static eccentricity is the distortion of the air gap size in 
+which its minimum value remains in a fixed position. It 
+occurs basically in two ways: either due to the oval shape of 
+the stator or due to incorrect positioning of the rotor. 
+In the case of dynamic eccentricity, the point of minimum 
+air gap rotates together with the rotor and thus changes its 
+position over time. This type of eccentricity can be caused by 
+an oval shape of the rotor or by the centre of rotation of the 
+rotor being out of phase with the geometrical centre of 
+rotation.  
+When a mixed eccentricity fault happens, sidebands of 
+the fundamental frequency of the power supply appears. 
+These sideband frequencies are given by [20]: 
+ 
+𝑓𝑒𝑐𝑐= 𝑓𝑠[1 ± 𝑚(
+1−𝑠
+𝑝)] 
+() 
+Where 𝑓𝑠 is the supply frequency, 𝑠 is the slip, 𝑝 is the 
+number of pole pairs, and 𝑚=1,2,3,… This scheme 
+compared to others does not need to know the mechanical 
+characteristics of the motor. 
+2) Broken Rotor Bars 
+Broken rotor bars are one of the main ways in which a 
+motor can fail, especially in high-power motors that 
+frequently start under load. The starting transient is the one 
+that causes the most stresses in the rotor bars, as during this 
+transient the highest currents appear in these bars due to the 
+difference in speeds between the rotor and the stator field. 
+When there are broken rotor bars in a motor, the rotor 
+symmetry is destroyed which results in the appearance of a 
+rotating field that generates harmonics in the stator current 
+according to by [20]: 
+ 
+𝑓𝑏𝑟𝑏= 𝑓𝑠[𝑘(
+1−𝑠
+𝑝) ± 𝑠] 
+() 
+ 
+Fig. 1. Healthy motor (left), static ecentricity fault (centrer), and 
+dynamic eccentricity (rigth) 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:39 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 3 =====
+
+Where, due to the normal winding configuration, 𝑘=
+𝑝, 5𝑝, 7𝑝, 11𝑝, 13𝑝, …  
+As the influence of the main frequency is predominant, 
+equation (2) can be simplified as: 
+ 
+𝑓𝑏𝑟𝑏2 = 𝑓𝑠[1 −2𝑠] 
+() 
+III. PREDICTIVE MAINTENANCE IN THE ICPS ERA 
+A 
+Cyber 
+Physical 
+Systems 
+(CPS) 
+integrates 
+computational applications with physical devices, being 
+designed as a network of interacting cyber and physical 
+elements [4]. In contrast to embedded systems, where the 
+focus is on computational elements hosted in stand-alone 
+devices, CPS are mostly designed to be a larger network of 
+interacting computational and physical elements [21]. When 
+CPS are used in industrial environments emergence the 
+ICPS.  
+Under the topic covered in this paper, the ICPS will 
+comprised many components, but the related to the 
+predictive maintenance can be summarized as the following 
+two: 
+• Physical part. It includes all the sensors involved in 
+the data acquisition necessary to carry out the 
+predictive maintenance. 
+• Cyber part. It is the intelligent one, where the data 
+coming from the physical world is analysed and 
+interpreted. Here is where emerging technologies 
+such as Big Data and Artificial Intelligent are applied. 
+At this point two different approaches can be taken: Edge 
+or Fog/Cloud Computing 
+1) Fog/Cloud computing. 
+These are scenarios where the data is collected locally 
+and send it to the fog or the cloud for further processing. This 
+setup provides high computing power. Some researchers are 
+focused on test or develop new machine learning models 
+based on simulation environments such as Matlab/Simulink 
+[22], or works where datasets are modified including 
+possible failures to test the performance of different 
+identification techniques [23]. It is common that machines 
+are located at fixed position, although there are exceptions. 
+In [24] is presented the predictive maintenance of the mobile 
+machinery present in a mining complex through Bluetooth 
+Low Energy vibration sensors. 
+2) Edge computing.  
+When the cyber and the physical part are located close to 
+the electrical machine to be tested. This approach is difficult 
+to implement in industrial environments due to the 
+computing effort required to process the data, leading to the 
+necessity of have a personal computer nearby.  
+In controlled environments, as laboratories, this setup is 
+very common: data acquisition cards and equipment to 
+process the information, mainly a personal computer with 
+specialized software, where it is possible to provoke faults in 
+the electrical machine and study the consequences. In [15] is 
+used a NI DAQ to acquire the information from a current 
+sensor an test different pre-filter technics to prepare the data. 
+In [25] a NI DAQ, a current probe and a tachometer are used 
+to test an induction motor and test different machine learning 
+methods, neural network and multimodal deep learning. Ref. 
+[14] proposed a deep network-based to study the features of 
+thermograms, with the help of a thermal camera. These 
+setups are permissible in an academic environment to 
+perform tests and analyse the results to provide new 
+techniques, but in and industrial environment can be difficult 
+to implement.  
+There are few examples where the edge computing is 
+taken to its maximum expression. In [26] is proposed a 
+bearing fault detection through vibration analysis by means 
+of ultra-low power wireless sensors. The sensors acquire and 
+analyse the data and only send information regarding the 
+good/bad state of the machine to the rest of the ICPS. This 
+application is possible thanks to the use of single axis 
+accelerometers and the development of a new light weight 
+neural network classifier. 
+An edge computing solution for predictive maintenance 
+based on and ICPS architecture is presented in the following 
+sections. 
+B. ICPS Physical Part. 
+It is necessary to count with a data acquisition system in 
+order to carry out a predictive maintenance in electrical 
+machines focused on the detection of airgap eccentricities 
+and broken rotor bars by means of MCSA techniques. 
+As the faults that are going to be analysed appears at the 
+sidebands of the main frequency, 50 Hz, it is chosen a 
+sampling rate of ten times the main frequency, 500 Hz. This 
+sampling frequency broadly meets the Shannon-Nyquist 
+frequency, so problems of aliasing or faulty reconstruction 
+signals are avoided. 
+An Arduino Uno board has been chosen for the data 
+acquisition. It has 6 analog input pins. This analog-to-digital 
+converter (ADC) has a default sampling rate of 
+approximately 9600 Hz. This sampling rate is due to the 
+16MHz of the ADC clock of the Arduino’s microcontroller, 
+ATMega328P, and the prescale factor set to 128, as default. 
+If the Arduino’s environment functions are avoided, it could 
+be possible to achieve a sampling rate of 615 kHz, decreasing 
+the prescale factor to 2 and using interrupts. For the 
+application at hand is enough the default sample rate. 
+Once is defined the sampling rate, and checked the 
+chosen ADC provides it, it is time to accommodate the signal 
+of the power grid (230 VAC line to ground voltage) feeding 
+the induction motor to the analog input (0-5 VCC).  
+To measure the current consumed by the induction 
+motors it is chosen a non-invasive clamp sensor, model SCT-
+013-030 by YHDC®, installed as Fig.2 shows. SCT-013-030 
+is a current transformer with a range of 0-30 A providing an 
+output voltage from 0 to 1V. As alternate current has positive 
+and negative values it is necessary to adapt the range to the 
+positive range of Arduino. A 0,5 voltages offset has been 
+added using a voltage divider. With the aim of increasing the 
+resolution in the data acquisition, a single-supply 
+instrumentation amplifier configured with a gain of 4 is 
+included, specifically the AD623 by Analog Devices® and, 
+after that, an OP113 operational amplifier configured in 
+voltage follower, as AD623’s manufacturer recommends. 
+Therefore, the final characteristic curve of the sensor is given 
+by: 
+  
+𝑖(𝑡) =
+15
+3.5 (𝑣(𝑡) −4) 
+() 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:39 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 4 =====
+
+As the ADC of Arduino has 10 bits of resolution, it is 
+possible to reach a resolution in the measurement of 0,036 A. 
+Taking this information into account the characteristics curve 
+for the sensor attending to the readings of the ADC will be: 
+ 
+𝑖(𝑡) =
+15
+3.5 (
+5
+1023 𝐴𝐷𝐶(𝑡) −4) 
+() 
+C. ICPS Cyber Part. 
+For the cyber part of the edge computing is proposed to 
+continue using the Arduino Uno. The cyber part is in charge 
+of process the data coming from the sensors, extract the 
+specific features, classified them, and share the status of the 
+machine to the rest of the ICPS, as Fig. 3 shows. 
+1) Signal Processing. 
+Raw data coming from the sensors is a time-based signal. 
+A frequency-based signal is needed to extract the convenient 
+information. For that, it is possible to use Fast Fourier 
+Transform (FFT) [16, 27], wavelet [14] or Hilbert–Huang 
+Transform [28]. 
+FFT is the chosen method in this paper. So, the signal has 
+to be windowed: 
+ 
+𝑖𝑅
+∗(𝑡) = {𝑖𝑅
+∗(𝑡)
+𝑓𝑜𝑟 𝑡 𝜖 [0, 𝑇]
+0
+𝑂𝑡ℎ𝑒𝑟𝑤𝑖𝑠𝑒} 
+() 
+And then compute the Fourier Transform: 
+ 
+𝐼𝑅
+∗(𝜔) = ∫
+𝑖𝑅
+∗(𝑡)
+∞
+−∞
+𝑒−𝑗𝜔𝑡𝑑𝑡 
+() 
+The ArduinoFFT library is used to compute the FFT of 
+the acquired signal. 
+2) Feature Selection. 
+As stated in previous section II.C, it is necessary to 
+measure the sidebands of the main frequency to detect 
+eccentricity or broken rotor bars faults. So, the amplitude of 
+that frequencies will be the features, 𝜙, chosen for the 
+classification of the motors as healthy or faulty in the map 𝛷. 
+Therefore, each feature is computed as: 
+ 
+𝜙∗= 𝛷(𝑖𝑅
+∗(𝑡)) = |𝐼𝑅
+∗(𝜔)| 
+() 
+3) Classification. 
+The prediction methods use the features to classify the 
+motor as healthy or faulty. Prediction methods can be 
+classified as data-driven methods and model-based methods 
+[29]. Data-driven methods attempt to derive the degradation 
+processes of machinery from measurements using machine 
+learning techniques. It is common to find solutions based on 
+Artificial Neural Networks (ANN), Fuzzy Logic and Neuro-
+Fuzzy Systems (NFSs), Evolutionary Algorithms (EAs), 
+Support Vector Machine (SVM) [30], among others. 
+Model-based methods rely on establishing empirical or 
+physical models to describe the degradation processes of the 
+machine and update the model parameters according to real-
+time information from sensors.  
+The normal procedure in SVM is first to train the 
+classification model with a tagged dataset including the 
+involved classes to, then, test the model with another dataset, 
+in this case with untagged data, and analyse the performance. 
+Intuitively, an SVM is a model that represents sample 
+points in a space, sorting them into classes that characterizes 
+2 subspaces separated by a hyperplane, as is shown in Fig 4. 
+The hyperplane is defined as the vector between the 2 points 
+of the 2 classes, closest to the called support vectors. The 
+support vectors define the boundaries of the subspaces. The 
+distance between support vectors of each subspace is the 
+margin. As there are many hyperplanes able to classify the 
+samples, it is common to choose the one with the largest 
+margin. 
+New arriving samples are transformed into the 
+classification space and, depending on their location, they 
+will belong to a subspace and, therefore, can be classified 
+into one or the other class. For the case in hand as “faulty” or 
+“healthy”. 
+Although it is possible to separate non-linear regions 
+using kernel functions, the chosen hyperplane, 𝐻(𝑤, 𝑏), will 
+follow the common expression: 
+ 
+𝐻(𝑤, 𝑏) = 𝑤• 𝜙−𝑏= 0 
+() 
+Where 𝜔 is the weight vector, 𝜙 is the feature in the 
+featured map 𝛷, and b is the bias term, a point in the space.   
+ 
+Fig 2. Signal conditioning circuit 
+ 
+Fig 3. Flowchart of the cyber part 
+Dissemination
+Classification
+Feature selection
+Signal processing
+Raw data
+ 
+Fig 4. Hperplane of a SVM classifier 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:39 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 5 =====
+
+In this paper it is used the SVM adaptation proposed in 
+[27] for the case of broken rotor bar faults. Instead of train 
+the model, it is defined theoretically for a healthy and a faulty 
+motor, so, the training phase is theoretically solved, leading 
+to the following solution: 
+ 
+𝑤=
+2(𝜙ℎ−𝜙𝑓)
+||𝜙ℎ−𝜙𝑓||2 
+() 
+ 
+𝑏=
+(𝜙ℎ−𝜙𝑓)(𝜙ℎ+𝜙𝑓)
+||𝜙ℎ−𝜙𝑓||2
+ 
+() 
+Where 𝜙ℎ denotes the feature value of a healthy motor, 
+and 𝜙𝑓 the value for a faulty one. Both features have to be 
+computed theoretically according to the characteristics of 
+the electrical motor. 
+4) Dissemination. 
+Once the system has estimated the status of the machine, 
+this information will be share with the rest of the ICPS 
+controlling the system. Depending on the scenario will be 
+useful to use LAN or Wireless communications to 
+disseminate the information. One feasible solution having 
+and Arduino Uno is to include a communication shield, but, 
+in order to do not interfere in the normal operation of the 
+microcontroller would be better to use a UART-LAN/WIFI 
+interface module that executes all the communication 
+protocol, and let Arduino only to send the information 
+through the USART port. 
+IV. EXPERIMENTAL RESULTS 
+The proposed fault detection method based on Arduino 
+Boards has been tested on one of the lathes of the Mechanical 
+Engineering Laboratory at the Mining and Industrial School 
+of Almadén (UCLM-Spain), specifically a Pinacho A.75 
+(Fig. 5) equipped with a three phases electrical motor AEG 
+AM 100 LZ 4 with the characteristics shown in Table I. 
+According to the information presented in Table I, it is 
+possible to calculate the slip, 𝑠, by: 
+ 
+𝑛𝑠=
+60 ∙ 𝑓
+𝑝
+=
+60 ∙ 50
+2
+= 1500𝑟𝑝𝑚 
+() 
+ 
+𝑠=
+𝑛𝑠 − 𝑛 
+𝑛𝑠
+=
+(1500 − 1420) 𝑟𝑝𝑚  
+1500 𝑟𝑝𝑚
+= 0.053 
+() 
+With this information and using equations (1) and (3) it 
+is possible to determine the sidebands around the main 
+frequency that will advise of: 
+• a broken bar (3): 44.667 𝐻𝑧. 
+• an eccentricity fault (1): 26.333 𝐻𝑧, 73.667 𝐻𝑧, 
+121 𝐻𝑧, and 168,333𝐻𝑧.  
+First, a commercial power analyser, CIR-e3 by 
+Circutor®, was connected in the power supply of the 
+machine to perform a first check of the amplitude of the 
+featured frequencies. Unfortunately, this device only 
+provides information related to the common harmonics, 
+neither sidebands nor graphical results are presented to have 
+an idea of the state of the machine. The voltage wave presents 
+harmonics of 3rd, 5th and 11th order, related to frequencies of 
+150 Hz, 250 Hz and 550 Hz, respectively. So, apart from the 
+subjective opinion of the operator of the lathe, guessing about 
+the perfect condition of it, there is no more extra information. 
+When using ArduinoFFT library it is necessary to define 
+the sampling frequency and the number of samples. It is 
+necessary to reach a good frequency resolution, that states 
+how far are two consecutive frequencies in the spectrum. The 
+frequency resolution is calculated by: 
+ 
+𝑅𝑒𝑠𝑓=
+𝑓𝑠𝑎𝑚𝑝𝑙𝑖𝑛𝑔  
+𝑠𝑎𝑚𝑝𝑙𝑒𝑠 
+() 
+There are two options to improve the resolution: use a 
+smaller 𝑓𝑠𝑎𝑚𝑝𝑙𝑖𝑛𝑔 or increase the number of samples. The 
+first one is restricted by the Shannon-Nyquist frequency. The 
+second one is restricted by the resources of Arduino board. 
+So, for a 500 Hz 𝑓𝑠𝑎𝑚𝑝𝑙𝑖𝑛𝑔 and 128 samples (restricted by the 
+2K of RAM in Arduino Uno) the frequency resolution is 
+about 3.9 Hz/division; 3.9 Hz from bin to bin. This value is 
+worse than the required, as it does not allow us to collect 
+enough useful information between slots. For the case of an 
+Arduino Mega (8K of RAM) is possible to reach 512 samples 
+and a frequency resolution of 0.97 Hz/division. A second 
+configuration (120 Hz and 512 samples) for Arduino Mega 
+can improve the frequency resolution to 0.23 Hz/division. 
+These last configurations have been used in the test.  
+The amplitude of the featured frequencies are defined as 
+the chosen features, 𝜙, for the classifier to estimate if there is 
+a broken bar in the motor or an eccentricity fault.  
+The hyperplane of the classifier has been defined from 
+𝜙ℎ= 0.2 and 𝜙𝑓= 0.4 as 𝐻(𝑤, 𝑏) = −10 • 𝜙+ 3 = 0 
+leading to classifying 𝜙 as healthy when 𝐻> 0 and faulty 
+when 𝐻< 0.  
+After testing with the two-hardware configuration for the 
+data collection, and locally computing the FFT in Arduino, 
+the spectrums shown in Fig. 6 where achieved. Taking each 
+of the features and using the SVM classifier leads to affirm 
+that the motor of the lathe is healthy as there are no pikes at 
+the featured frequencies. This information can be then share 
+with the rest of the components of the system. 
+ 
+Fig 5. Pinacho A.75 tested 
+TABLE I.  
+CHARACTERISTICS OF THE ELECTRICAL MOTOR TESTED 
+Description 
+Value 
+Power 
+4 kW 
+Frequency 
+50 Hz 
+Voltage 
+220 / 380 V 
+Current 
+11.8 / 6.8 A 
+Number of revolutions 
+1420 rpm 
+Number of poles 
+4 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:39 UTC from IEEE Xplore.  Restrictions apply.
+
+
+===== PAGE 6 =====
+
+V. CONCLUSIONS 
+Predictive maintenance, under the Industry 4.0 umbrella, 
+brings many benefits for companies. In this paper a 
+predictive maintenance system over edge computing is 
+proposed. This predictive system has been conceived as an 
+ICPS being part of another ICPS bigger. The physical and the 
+cyber part has been defined and build over the Arduino 
+platform, specifically the Arduino Mega board.  
+The system develops well known MCSA maintenance 
+techniques for electrical motors in the edge, without the 
+necessity of further analysis in the cloud. Two failures 
+detections have been deployed: eccentricities and broken 
+rotor bars.  
+The proposed solution is affordable for small and 
+medium enterprises, allowing them to become part of the 
+new Digitalisation paradigm and take advance of its benefits. 
+Future work is related to include more complex 
+classifiers, based on information coming from different 
+sensors and not only detect the fault, but to work on 
+prognosis.  
+REFERENCES 
+1. 
+The Federal Ministry for Economic Affairs of Germany. Industrie 
+4.0. 
+ 
+[cited 
+09-08-21; 
+Available 
+from: 
+https://www.bmwi.de/Redaktion/EN/Dossier/industrie-40.html. 
+2. 
+Orth, M. Industry 4.0 – explained in simple terms. 2018  [cited 09-
+08-21; 
+Available 
+from: 
+https://www.deutschland.de/en/topic/business/what-industry-40-
+means-and-what-benefits-it-brings. 
+3. 
+Zhou, K., L. Taigang, and Z. Lifeng. Industry 4.0: Towards future 
+industrial opportunities and challenges. in 2015 12th International 
+Conference on Fuzzy Systems and Knowledge Discovery. 2015. 
+4. 
+Kagermann, H., W. Wahlster, and J. Helbig, Securing the future of 
+German 
+manufacturing 
+industry: 
+Recommendations 
+for 
+implementing the strategic initiative INDUSTRIE 4.0. Technical 
+Report, ACATECH German National Academy of Science and 
+Engineering, 2013. 4(0). 
+5. 
+Karnouskos, S., et al., Industrial Agents as a Key Enabler for 
+Realizing Industrial Cyber-Physical Systems: Multiagent Systems 
+Entering Industry 4.0. IEEE Industrial Electronics Magazine, 2020. 
+14(3): p. 18-32. 
+6. 
+Monostori, L., Cyber-physical production systems: Roots, 
+expectations and R&D challenges. Procedia CIRP, 2014. 17: p. 9-
+13. 
+7. 
+Wollschlaeger, M., T. Sauter, and J. Jasperneite, The Future of 
+Industrial Communication: Automation Networks in the Era of the 
+Internet of Things and Industry 4.0. IEEE Industrial Electronics 
+Magazine, 2017. 11(1): p. 17-27. 
+8. 
+Borangiu, T., et al., Digital transformation of manufacturing. 
+Industry of the Future with Cyber-Physical Production Systems. Sci. 
+Technol, 2020. 23: p. 3-37. 
+9. 
+Waide, P. and C.U. Brunner, Energy-Efficiency Policy Opportunities 
+for Electric Motor-Driven Systems. IEA Energy Papers, 2011. 
+2011/07. 
+10. 
+Frosini, L., Novel Diagnostic Techniques for Rotating Electrical 
+Machines—A Review. Energies, 2020. 13(19): p. 5066. 
+11. 
+Liu, Z., et al., A Review of Modeling and Diagnostic Techniques for 
+Eccentricity Fault in Electric Machines. Energies, 2021. 14(14): p. 
+4296. 
+12. 
+Choudhary, A., et al., Condition Monitoring and Fault Diagnosis of 
+Induction Motors: A Review. Archives of Computational Methods in 
+Engineering, 2019. 26(4): p. 1221-1238. 
+13. 
+Duque, Ó. and M. Pérez, Motores de Inducción. Técnicas de 
+Mantenimiento Predictivo. 2005: @becedario. 
+14. 
+Khechekhouche, A., et al., Experimental diagnosis of inter-turns 
+stator fault and unbalanced voltage supply in induction motor using 
+MCSA and DWER. Periodicals of Engineering and Natural Sciences 
+(PEN), 2020. 8(3): p. 1202-1216. 
+15. 
+Kompella, K.C.D., et al., Robustification of fault detection algorithm 
+in a three-phase induction motor using MCSA for various single and 
+multiple faults. IET Electric Power Applications, 2021. 15(5): p. 
+593-615. 
+16. 
+Glowacz, A., et al., Detection of deterioration of three-phase 
+induction motor using vibration signals. Measurement Science 
+Review, 2019. 19(6): p. 241-249. 
+17. 
+Sudhakar, I., S. AdiNarayana, and M. AnilPrakash, Condition 
+Monitoring of a 3-Ø Induction Motor by Vibration Spectrum 
+anaylsis using Fft Analyser- A Case Study. Materials Today: 
+Proceedings, 2017. 4(2, Part A): p. 1099-1105. 
+18. 
+Choudhary, A., D. Goyal, and S.S. Letha, Infrared Thermography-
+Based Fault Diagnosis of Induction Motor Bearings Using Machine 
+Learning. IEEE Sensors Journal, 2021. 21(2): p. 1727-1734. 
+19. 
+Khanjani, M. and M. Ezoji, Electrical fault detection in three-phase 
+induction motor using deep network-based features of thermograms. 
+Measurement, 2021. 173: p. 108622. 
+20. 
+Benbouzid, M.E.H., A review of induction motors signature analysis 
+as a medium for faults detection. IEEE Transactions on Industrial 
+Electronics, 2000. 47(5): p. 984-993. 
+21. 
+Barbosa, J., et al. Cross benefits from cyber-physical systems and 
+intelligent products for future smart industries. in 2016 IEEE 14th 
+International Conference on Industrial Informatics (INDIN). 2016. 
+22. 
+Dekhandji, F.Z., S.E. Halledj, and O. Zaboub, Predictive 
+Maintenance Applied to Three phase Induction Motors. Algerian 
+Journal of Signals and Systems, 2019. 4(2): p. 71-88. 
+23. 
+Jove, E., et al., An intelligent system for harmonic distortions 
+detection 
+in 
+wind 
+generator 
+power 
+electronic 
+devices. 
+Neurocomputing, 2021. 456: p. 609-621. 
+24. 
+Aqueveque, P., et al., Data-Driven Condition Monitoring of Mining 
+Mobile Machinery in Non-Stationary Operations Using Wireless 
+Accelerometer Sensor Modules. IEEE Access, 2021. 9: p. 17365-
+17381. 
+25. 
+Fu, P., et al., Dynamic Routing-based Multimodal Neural Network 
+for Multi-sensory Fault Diagnosis of Induction Motor. Journal of 
+Manufacturing Systems, 2020. 55: p. 264-272. 
+26. 
+Markiewicz, M., et al., Predictive Maintenance of Induction Motors 
+Using Ultra-Low Power Wireless Sensors and Compressed 
+Recurrent Neural Networks. IEEE Access, 2019. 7: p. 178891-
+178902. 
+27. 
+Mustafa, M.O., et al., Detecting broken rotor bars in induction 
+motors with model-based support vector classifiers. Control 
+Engineering Practice, 2016. 52: p. 15-23. 
+28. 
+Antonino-Daviu, J., Electrical Monitoring under Transient 
+Conditions: A New Paradigm in Electric Motors Predictive 
+Maintenance. Applied Sciences, 2020. 10(17): p. 6137. 
+29. 
+Lei, Y., N. Li, and J. Lin, A New Method Based on Stochastic 
+Process Models for Machine Remaining Useful Life Prediction. 
+IEEE Transactions on Instrumentation and Measurement, 2016. 
+65(12): p. 2671-2684. 
+30. 
+Zhang, W., et al., Comprehensive Overview on Computational 
+Intelligence Techniques for Machinery Condition Monitoring and 
+Fault Diagnosis. Chinese Journal of Mechanical Engineering, 2017. 
+30(4): p. 782-795. 
+ 
+ 
+Fig 6. FFT results with Fs=120 Hz (up) and Fs=500 Hz (down) 
+Authorized licensed use limited to: FUNDACAO UNIVERSIDADE DO RIO GRANDE. Downloaded on June 26,2026 at 16:00:39 UTC from IEEE Xplore.  Restrictions apply.

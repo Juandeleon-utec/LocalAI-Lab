@@ -1,0 +1,1116 @@
+
+
+===== PAGE 1 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+Available online 12 May 2023
+0045-7906/© 2023 Elsevier Ltd. All rights reserved.
+Artificial intelligence of things based approach for anomaly 
+detection in rotating machines☆ 
+Tauheed Mian a, Anurag Choudhary b, S. Fatima a,*, B.K. Panigrahi c 
+a Centre for Automotive Research and Tribology (CART), Indian Institute of Technology Delhi, India 
+b School of Interdisciplinary Research (SIRe), Indian Institute of Technology Delhi, India 
+c Department of Electrical Engineering, Indian Institute of Technology Delhi, India   
+A R T I C L E I N F O  
+Keywords: 
+Internet of things 
+Fault detection 
+Edge computing 
+Remote monitoring 
+Machine learning 
+A B S T R A C T  
+In the present era of Industry 4.0, Artificial Intelligence (AI) and Internet of Things (IoT) are 
+revitalizing the predictive maintenance systems for industrial rotating machines through real- 
+time approaches. In this work, an Artificial Intelligence of Things (AIoT) based framework is 
+developed and implemented for anomaly detection in rotating machines through vibration 
+monitoring. Signals are captured using a low-cost MPU6050 accelerometer with Raspberry Pi 4B 
+as an edge device. The edge-centric mechanism is based on Support Vector Machine (SVM) for 
+effective implementation on the edge device. A dedicated web-based platform is designed to 
+communicate with the edge device for real-time decisions. The developed framework is validated 
+on three rotating machines, including gear test rig, bearing test rig, and induction motor. The 
+results demonstrate the robustness of the proposed method for anomaly detection on different 
+machines. Also, the developed framework has the capability to remotely monitor and control the 
+machines in real-time.   
+1. Introduction 
+Rapid automation in manufacturing industries involves a complex machinery loop system that demands an appropriate and real- 
+time feedback system for effective maintenance [1]. Anomaly detection or fault detection in this regard become the most viable 
+practice requiring real-time decision-making as the failure of machines could lead to catastrophic loss. The rapid development in 
+information and internet-based technologies has become a boon for developing intelligent and real-time solutions for the predictive 
+maintenance of rotating machines with remote monitoring [2]. The anomaly detection task has been practiced with a model-based 
+approach for many years. In the model-based approach, a mathematical model and physical laws are used to simulate the physical 
+properties and characteristics of the system to be monitored, such as mass, stiffness, and damping matrices [3]. However, these 
+methods heavily rely on the knowledge of the machine’s internal structure and other factors, such as loading and its nature. It involves 
+complex mathematical expressions, and a bunch of such complex expressions could be tedious to handle for actual industrial systems. 
+Moreover, this approach is inadequate for updating real-time detection with newly observed data. In the fault detection process, 
+statistical methods found their place in recent decades with the strong support of probabilistic models [4]. However, the different 
+stochastic processes involved in these methods further burden the computational process. 
+☆This paper was recommended for publication by Associate Editor: Dr. Hai Wang. 
+* Corresponding author. 
+E-mail address: fatima@iitd.ac.in (S. Fatima).  
+Contents lists available at ScienceDirect 
+Computers and Electrical Engineering 
+journal homepage: www.elsevier.com/locate/compeleceng 
+https://doi.org/10.1016/j.compeleceng.2023.108760 
+Received 12 October 2022; Received in revised form 4 May 2023; Accepted 8 May 2023
+
+
+===== PAGE 2 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+2
+The recent adoption of methodology in fault detection is data-driven approaches involving signal processing and AI [5]. 
+Data-driven approaches in the Industrial Internet of Things (IIoT) assisted system are preferred over model-based and statistical ap­
+proaches. These approaches provide enhanced interoperability through ontologies to provide high-level reasoning-based inquiry re­
+sponses to non-expert users [6]. Among these, AI-based methods achieved universality for the fault detection task and other 
+engineering applications. These methods of anomaly detection majorly involve data acquisition, feature extraction, and then classi­
+fication through various AI-based methods, including Machine Learning (ML) and Deep Learning (DL) [7]. These methods have 
+achieved excellent results in the tasks related to anomaly detection. Furthermore, DL-based algorithms are getting much attention with 
+the rapid leveraging of computational power. ML-based methods, however, find effective implementation on edge devices with proper 
+feature extraction due to their low consumption of computational power. However, the implementation of these algorithms on edge 
+devices, along with the provision of remote monitoring to form a cost-effective fault detection system, is challenging. In the proposed 
+work, an AIoT-based solution has been developed for the real-time detection of anomalies in different rotating machines by imple­
+menting the machine learning model on an economical edge device and providing remote monitoring and control. The effectiveness of 
+the proposed idea is validated through experiments on three different rotating machines. 
+The remaining parts of the paper have the following sections: Section 2 elaborates on the related work, Section 3 describes the 
+proposed AIoT-based methodology, Section 4 explains hardware and data acquisition, Section 5 explains the obtained results and 
+related discussion, Section 6 contains managerial and social implication, followed by Section 7 having the conclusion. 
+2. Related work 
+The above-discussed practices heavily rely on expert knowledge and primarily involve in-house monitoring [8]. Further, in harsh 
+working conditions, such practices are quite challenging and need a system that can remotely work with significant reliability and 
+robustness. In such a scenario, IoT establishes its presence for monitoring and real-time anomaly detection of the machines. The IoT 
+communicates assertive information through wireless sensors and transmission technologies such as Wi-Fi, Bluetooth, ZigBee, WiMax, 
+etc. The IoT provides innumerable advantages to humanity by creating an ecosystem providing smart work without the bounds of place 
+and time [9]. IoT for condition-based maintenance becomes crucial to make the maintenance system smart enough to handle a large 
+amount of data effectively and efficiently [10]. The advancement of wireless technology has made real-time data access simple by 
+integrating hardware and software architecture. Researchers have done tasks to collect the data through different embedded devices 
+with various sensors, followed by a flow of this data to the cloud. Four sensors were used for condition monitoring of a three-phase 
+induction motor, and SVM with cloud computing was proposed. The applicability of reduced features for sending to the cloud was 
+also demonstrated [11]. An Arduino-based microcontroller was used to collect and transfer the data through Wi-Fi to monitor a wind 
+turbine prototype using heterogeneous sensors. Three ML methodologies were used for analysis using the local machine [12]. Another 
+research work demonstrated the study related to abnormal conditions in the motor, including motor-load, uncoupling, and 
+misalignment using speed and rotor position information. IEC61784–2 module-based real-time ethernet network was defined, and the 
+process field network protocol that belongs to the application layer was used for information gathering. The accuracy obtained was 
+quite appreciable, in the range of 87.5 %–100 % [13]. 
+The industrial system structure is usually complex and involves multiple rotating machines generating massive data. The flow of 
+this data to the cloud and its handling creates many issues involving its compression, security, etc. [14]. Recently, the integration of AI 
+with IoT has been getting much attention for designing industrial systems that are intelligent and smart. In such a system, data 
+handling is done at the edge, and the decision is sent to the cloud with further control. Such a system can be enumerated as an 
+AIoT-enabled system that more intelligently examines and counter external promotion [15]. In the case of cloud-centric IoT, it is 
+infeasible to process large amounts of data because of the destructive impact of the volume in the cloud [16]. Although the cloud center 
+is usually equipped with massive computational capacity, such a system is ill-suited in the context of time-criticality, and applications 
+require privacy-sensitiveness due to the enormous burden on the network’s bandwidth. In continuous monitoring of the rotating 
+machines, a large amount of data is generated and needs to be stored for processing and analysis. So, sending this data to the cloud and 
+processing that, and then making a decision could be tedious and involve the risk of triggering the fault in the meantime. 
+Further, other challenges include in herent latency limitations related to network communication and the chances to disclose 
+sensitive and critical information in data offloading from the cloud [17]. This critical issue can be adequately resolved through the 
+integrated application of edge computing, AI, and IoT. Edge is about processing data at a faster rate and in a massive volume close to 
+the generation point, providing action-driven solutions in real-time. The data is acquired through edge devices that might include some 
+microcontrollers enabled with embedded sensors, single-board computers, etc. This involves data acquisition using Micro Electro 
+Mechanical System (MEMS) based low-cost sensors, data preprocessing, and feature extraction to get meaningful patterns. The data 
+storage at the edge ensures protection from the threat of cyber-attacks, a light access burden, and a lesser transmission delay. Further, 
+this enables the user to analyze the data in case of the unavailability of the internet on the user side. Finally, the classification and 
+detection of anomalies can be done through the edge devices and sending the real-time decision to the cloud, and subsequent actions 
+can be made to avoid significant losses [18]. In the present work, edge-computing powered AIoT-based architecture is implemented for 
+the fault detection of three rotating machines. The system is designed to make decisions at the edge, and its mutual communication 
+with the web-based platform for remote monitoring. The following are the main contributions of this work.  
+(1) A dedicated AIoT-based framework is designed and deployed for the real-time anomaly detection of rotating machines.  
+(2) Validating the developed system on three rotating machines, including a gear test rig, bearing test rig, and induction motor.  
+(3) Real-time anomaly detection and health monitoring through the developed AIoT-based system. 
+T. Mian et al.
+
+
+===== PAGE 3 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+3
+3. Proposed methodology 
+The proposed methodology is based on the machine learning implementation on edge device and subsequent communication and 
+control of different machines through a dedicated web-based AIoT platform. The complete flow diagram of the AIoT-based meth­
+odology is shown in Fig. 1. 
+A total of four prevalent classification models are initially trained and tested at the local machine, and their performance is 
+evaluated. The training is done through the extracted features from the vibration data. Then, the substantially performing classifi­
+cation model is deployed on the edge device for the real-time fault detection system. 
+3.1. Feature extraction and classifier training 
+For the training of different classifiers, nine statistical features are extracted, including mean, Root Mean Square (RMS), minimum 
+value, maximum value, standard deviation, kurtosis, skewness, peak-to-peak value, and energy. These features are used for real-time 
+anomaly detection and health monitoring of different rotating machines. Details of these features are given in Table 1. 
+The extraction of features involves a sliding window-based strategy. The expression for the number of extracted windows from the 
+acquired vibration signal is given here: 
+p = ⌊∅⌋+ f(∅)
+(1) 
+Here, ∅=
+W−s
+(1−α).s , ⌊∅⌋ denotes its floor value, W denotes the length of signal, s is window size, and αis the overlapping parameter. 
+Here 
+f(∅) =
+{
+1
+if ⌊∅⌋= ∅
+2
+if ⌊∅⌋< ∅< ⌊∅+ 1⌋
+(2) 
+The total number of data points (i.e. length of the signal) in the signal is 40,000, an overlap of 75% is taken i.e. α = 0.75, and 
+window size is taken as 28, which gives a total of 5710 windows. Features are extracted from each window resulting in 5710 values for 
+each feature. Here, nine features are taken, so the final feature set becomes 5710 × 9. After extracting these features, they are 
+normalized from −1 to 1 to avoid the knock-on effect and better facilitation of learning. 
+Four classification models are then used for training and testing, including Gaussian Naïve Bayes (NB), k-Nearest neighbor (k-NN), 
+Recurrent Neural Network (RNN), and SVM. NB is a prevalent supervised ML model considering the probabilistic approach. It operates 
+under the assumption of naïve independence between feature vector elements. The probability distribution of the classes under 
+consideration is computed. Mathematically it is given as: 
+λk = argmax
+k∈1,...,K
+P(λk)
+∏
+n
+j=1
+p
+(
+xj
+/
+λk
+)
+(3) 
+Here P(λk) is the prior probability of λk class with p(xj/λk) is its likelihood, n is the number of elements in the feature vector, and K is 
+the number of classes. NB is supposed to work well on high-dimensional data. More details related to NB can be found in the article 
+Fig. 1. Working methodology of AIoT-based anomaly detection of rotating machines.  
+T. Mian et al.
+
+
+===== PAGE 4 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+4
+[19]. Another prevalently used non-parametric supervised classifier is k-NN. In the present work, weighted k-NN is used with an 
+improvement in the traditional k-NN method with the significant advantage that the recognition accuracy is less affected by the 
+neighborhood size, i.e., k. More details of weighted k-NN can be found in the article [20]. Over the last decade, leveraged compu­
+tational power has attracted researchers to use DL models for various engineering applications. Among the available DL models, RNN is 
+supposed to work excellently on time series data. RNNs constitute a powerful class of computational models capable of learning 
+arbitrary dynamics. It combines knowledge from memories with current information to make a prediction. The significant distinction 
+between RNN and traditional neural networks lies as in RNN, neurons use the role of the preceding neuron. If the input feature vector is 
+xn and ψn as the actual output, then a hidden state hln is produced and is given as: 
+hln=σh(Wxhxn + Whhhi + bh)
+(4) 
+Here, Wxh is utilized for the linear transformation of input and is known as kernel weight matrix, Whh is known as the recurrent 
+kernel weight matrix, and is used for the recurrent state (hi) linear transformation. σh is termed as Rectified Linear Unit (ReLU). A fully 
+connected or dense layer is then followed for the prediction or classification of the output and is given as: ̂
+ψ n = σψ(Whνhln + bν)
+(5) 
+Here, σψ could be a softmax or sigmoid activation function. In the present case, the softmax activation function is used. Whν is used 
+for the linear transformation of the hidden state i.e., hln and bv is termed as a bias for the output layer. 
+Recently, SVM has gained much popularity among researchers for various engineering applications. This is because SVM has 
+numerous advantages, such as it is memory efficient and supposed to be effective in high dimensional space. SVM works on the 
+principle of the hyperplane, and finding an optimized hyperplane is effective in classifying the data correctly between different classes. 
+SVM operates on convex optimization, which is effective as it is assured of optimality in the output, resulting in a global minimum and 
+not the local minimum. SVM is also less affected by outliers, which is more critical when dealing with data related to fault detection 
+with low-cost sensors. Mathematically the expression of hyperplane is given as: 
+y(x) = θTϕ(x) + b
+(6) 
+Here, θ is termed as an orthogonal vector and ϕ is the nonlinearity function or kernel in another term. With the help of a kernel, data 
+can be efficiently made separable using the higher dimensional space. The feature vector closest to the hyperplane (support vectors) 
+influences the final classification result. The final classification is obtained through Lagrangian optimization algorithms and kernel and 
+is given as: 
+f(x) = sign
+( ∑
+N
+i=1
+αiyiϕ(x, xi) + b
+)
+(7) 
+Here, α is termed as Lagrangian multiplier and ϕ(x, xi) is a kernel function incorporated for high dimensional mapping. A radial 
+basis function kernel is utilized for the current study and is given as: 
+ϕ(x, xi) = exp
+(
+−
+‖x −xi||2
+2σ2
+)
+(8) 
+Here, ||x −
+xi||2 is termed as squared Euclidean distance and σ is a free parameter. Other important parameters for SVM training 
+included the box constraint value, which is 1 in the present case. For all four classification algorithms, 20% of the data is used for 
+testing purposes, i.e., 1142 samples of each class. In the case of RNN, 50 epochs are considered with a learning rate of 0.001, and the 
+ReLu activation function is used. ’Adam’ optimizer is used in the training of the RNN model. 
+The performance of the above-discussed classification algorithms is also evaluated in terms of six measures, including precision, 
+recall, F1 score, specificity, Mathew Correlation Coefficient (MCC), and kappa value. These measures are calculated from various 
+values extracted from the confusion matrix X. These values include True Positive (TPX), False Positive (FPX), True Negative (TNX), and 
+False Negative (FNX). The F1-score is frequently applied among these parameters to quantify the classifier’s performance. Specificity is 
+computed as the number of correctly detected faults divided by the total number of faults that occurred. The MCC is a statistical rate 
+Table 1 
+Mathematical expressions of extracted features.  
+Feature 
+Expression 
+Feature 
+Expression 
+Mean (xmean) 
+1
+N
+∑N
+k=1(xk)
+RMS (xrms) ̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅
+1
+N (
+∑N
+k=1(xk)2)
+√
+Minimum value 
+min(xk) 
+Maximum value 
+max(xk) 
+Standard deviation (xσ) ̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅
+1
+N (
+∑N
+k=1(xk −xmean)2)
+√
+Kurtosis 
+∑N
+k=1(xk −xmean)4
+N.(xσ)4 
+Skewness 
+∑N
+k=1(xk −xmean)3
+N.(xσ)3 
+Peak-to-peak value 
+max(xk)-min(xk) 
+Energy ̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅
+∑N
+k=1|xk|2
+√
+T. Mian et al.
+
+
+===== PAGE 5 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+5
+that is highly trusted because it yields a high score under the condition that predictions produce fair results in all the used classes, as 
+evaluated in the confusion matrix. Cohen’s kappa statistic is used to measure interrater reliability or interobserver agreement. These 
+agreements are denoted as Po (observed agreement) and Pe (expected agreement). It is an efficient parameter for describing the 
+complete picture of a multi-class classification problem. The mathematical expressions of these performance measures are given in 
+Table 2. 
+3.2. Development of AIoT platform 
+The AIoT platform is developed using a web development framework that eliminates the involvement of any third-party software. 
+The data is stored using the database close to the edge server to predict different fault conditions. This end-edge-cloud collaborative 
+approach lightens the data transmission burden. The interface development involves real-time data monitoring with the simultaneous 
+values of nine statistical features (or health indicators) discussed earlier. The decision is perceived based on real-time testing through 
+the deployed classification model, and the platform can be accessed from any part of the globe with the web address of the platform 
+through proper login. Data acquisition continuously occurs with the simultaneous extraction of features and detection of the machine’s 
+health. The real-time decision the deployed model predicts is reflected on the platform’s Graphical User Interface (GUI). The embedded 
+edge device is coded to have the capability to turn off the machine whenever a faulty condition gets predicted and produce related 
+status on the platform, as shown in Fig. 2. 
+Although only real-time data is tested, the complete data history is simultaneously stored in the database at the edge. This data 
+storage at the edge ensures protection from the threat of cyber security, a light access burden, and a lesser transmission delay. Further, 
+this enables the user to analyze the data in case of the unavailability of the internet on the user side. Once the necessary repair or 
+change of component occurs, an update is sent to the user at a remote place, and the machine can resume operation after proper 
+verification. 
+4. Hardware and data acquisition 
+For data acquisition and real-time anomaly detection, Raspberry Pi 4B is used as an edge device. Several factors make it a preferred 
+choice, including affordability, reasonable performance, small size, low consumption of power, and support compatibility. Technical 
+specifications of it include a 64-bit quad-core processor with Broadcom BCM2711, quad-core Cortex-A72 (ARM v8), 4 GB RAM, and a 
+dual-band 2.4/5.0 GHz wireless network. Furthermore, the MPU6050 accelerometer is used for the acquisition of vibration data. The 
+leading factors in adopting this MEMS-based accelerometer include its significantly lesser cost, low power consumption, and 
+compatibility with digital interfacing. The operating voltage range of MPU6050 is 2.3–3.4 V, with a maximum consumption of 3.9 mA. 
+It has a vibration measuring range from ±2 g to ±16 g with a precise calibration tolerance of 3%. Here, ±4 g is selected as per the 
+application related to rotating machines. MPU6050 is based on I2C interfacing, and the operating temperature range is −40 to 85 ◦C. A 
+robust adhesive Beeswax (Procured from Bruel & Kjaer) with a skinny layer is used to mount the MPU6050, ensuring firm contact with 
+the measuring surface. The proposed AIoT-based methodology is applied to the three different experimental setups of rotating ma­
+chines at the laboratory level, including the gear test rig, bearing test rig, and induction motor. A relay module is used to trip the 
+machine “ON” or “OFF” from a remote place. 
+4.1. Gear test rig (GTR) 
+As an essential component, gear is used in each industry for the alteration of mechanical speed in a reduced or increased form. It has 
+a wide application, including aircraft, windmills, and large ships. Experimentation is done on a gear test rig run by a 3-phase, 440 V, 1 
+HP induction motor used as a prime mover and a single-stage bevel gearbox coupled with a flexible coupling. Variable Frequency Drive 
+(VFD) is used to control the speed of the prime mover. A total of 20 teeth in the input gear that is coupled with the prime mover and 
+gear ratio is 1.5:1. Here, binary conditions are considered, including healthy gear labeled as GHL and faulty gear labeled as GFG. In 
+case of faulty gear, one of its teeth is worn out. The complete experimental setup for gear fault detection is shown in Fig. 3. 
+4.2. Bearing test rig (BTR) 
+The bearing test rig consists of proprietary bearing support that allows for the simulation of a variety of test scenarios under various 
+conditions. Two more plummer block housings hold the bearing drive shaft, which is connected to a 220 V, 2 HP DC motor. This 
+bearing test setup uses an SKF bearing (BB1B420205), and the complete setup of the bearing test rig is shown in Fig. 4. The inner and 
+outer diameters of the bearing are 25, and 52 mm, respectively, and the pitch diameter is 37.9 mm. Here, a multi-class classification 
+Table 2 
+Mathematical expressions of performance measures.  
+Precision(P) =
+TPX
+TPX+FPX 
+Recall(R) =
+TPX
+TPX+FNX 
+F1 −
+Score = 2PR
+P + R 
+Specificity =
+TNX
+TNX+FPX  
+MCC =
+(TPX.TNX) −
+(FPX.FNX)̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅
+(TPX+FPX)(TPX+FNX)(TNX+FPX)(TNX+FNX)
+√
+KappaValue =Po −Pe
+1 −Pe   
+T. Mian et al.
+
+
+===== PAGE 6 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+6
+problem is considered. A total of three conditions of the bearing are considered, including one healthy, inner race fault, and ball fault 
+labeled as BHL, BIR, and BBF, respectively. BIR fault is created by electric discharge machining, making a through hole of 2 mm. BBF 
+fault is created by making a 1 mm rub on one of the balls using a surface grinder. 
+4.3. Induction motor (IM) 
+An induction motor is preferred for the prime mover in most industries and is used to rotate small to large machines. The setup to 
+experimentally simulate various induction motor faults is shown in Fig. 5. The motor specification is 3 phase, 440 V, 1 HP, and a VFD is 
+used to control the motor’s speed. An input voltage of single-phase of 50/60 Hz and 115/220 VAC is applied to give power to the VFD 
+that controls the motor speed. Apart from a healthy motor (labeled as MHL), two faulty motors are considered, one has a fault in the 
+bearing, and the other has a rotor misaligned and is labeled as MBR and MML, respectively. The MBR fault is generated by creating an 
+outer and an inner race defect of a 1 mm groove on the bearing. Similarly, to create the MML fault, two jack bolts are adjusted to create 
+an offset. 
+Fig. 2. AIoT-based platform.  
+T. Mian et al.
+
+
+===== PAGE 7 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+7
+4.4. Data acquisition 
+For the acquisition of data, experimentation is done on all three machines at three different speeds, including 1140 rpm (19 Hz), 
+1380 rpm (23 Hz), and 1740 rpm (29 Hz). These speeds are selected to inhibit any overlap with the supply frequency, i.e., 50 Hz. MPU 
+Fig. 3. Experimental setup for gear fault detection.  
+Fig. 4. Experimental setup for bearing fault detection.  
+Fig. 5. Experimental setup for induction motor fault detection.  
+T. Mian et al.
+
+
+===== PAGE 8 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+8
+6050 accelerometer is used to acquire vibration data in the radial direction. The radial direction mounting is done as most fault-related 
+information can be captured by adequately placing the transducer in this direction. The accelerometer is calibrated before the data 
+acquisition to ensure reliability in the measurement. Raspberry Pi and the relay module are firmly attached to a wooden board to 
+ensure proper hardware placement and avoid any hindrance in data acquisition. Initially, the data for the healthy condition is captured 
+in each case, followed by the faulty conditions. The data is acquired for 240 s in all conditions described earlier. The complete dataset 
+for each condition is 40,000 data points of uniaxial vibration in the radial direction. Further, before starting the experiments, a pilot 
+study is conducted to ensure the proper working of the hardware setup. The following are some assumptions that are made during the 
+real-time conduction of experiments.  
+(1) There is no residual misalignment and unbalance in the bearing test rig during experimentation.  
+(2) The support bearings housings are rigid, enduring the radial and axial load.  
+(3) The pinion and gear meshing is assumed to be proper when capturing the data from the gear test rig.  
+(4) The prime mover for the bearing and gear test rig is in healthy condition.  
+(5) The effect of minor load fluctuations is neglected while capturing the data on misalignment and bearing faults in the induction 
+motor.  
+(6) The internet connection is stable, and the AIoT platform has proper communication with the edge device. 
+5. Results and discussion 
+The methodology is validated on three rotating machines described in Section 3, i.e., GTR, BTR, and IM. The best-performing 
+classification model is deployed on the edge device for real-time and remote-level detection among the four classification models. 
+Other factors for the deployment are the amount of computational burden on the edge device and the offloading of real-time detection 
+decisions on the AIoT-platform. This section follows the description and explanation of classifiers’ performance in terms of classifi­
+cation accuracy for each machine. After that, the detailed results of the best-performing classifier are explained in terms of confusion 
+matrices and respective six performance measures, as described earlier. Also, the feature visualization is given for a better under­
+standing and unique insight into the functional capability towards fault detection. Further, the results related to overall system per­
+formance in real-time through a developed AIoT-based system are presented in the subsequent part. The classification results for the 
+three rotating machines are as follows. 
+5.1. Classification results for the GTR dataset 
+In the case of gear fault detection, a binary classification problem is considered. In industries, worn-out gear teeth are a major 
+problem. The visualization of the extracted features is provided in Fig. 6 at 19 Hz, 23 Hz, and 29 Hz. It can be observed that most of the 
+features have a clear margin among the two classes in all the three-speed conditions that help the classifier to make a clear decision 
+about the gear conditions. 
+The classification accuracy of all four classifiers is given in Table 3. The performance of the four considered classifiers is found to be 
+Fig. 6. Feature visualization for the GTR dataset (a) 19 Hz (b) 23 Hz (c) 29 Hz.  
+T. Mian et al.
+
+
+===== PAGE 9 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+9
+perfect i.e., they can distinguish the gear conditions with an accuracy of 100 %. However, the detailed results of the SVM are only 
+considered here. The results in terms of confusion matrices are given in Table 4. Also, the six performance measures are provided in 
+Table 5. It can be observed that all have a value of 1, as the distinction between the two classes is perfect in all speed conditions. 
+5.2. Classification results for the BTR dataset 
+In fault detection of bearing, a multi-class classification problem is considered. A total of three conditions are investigated, 
+including healthy, inner race fault, and ball fault. The feature visualization at all the three-speed conditions is shown in Fig. 7. It is 
+observed that most of the features have a significant margin in the three conditions. However, some features have a narrow margin in 
+BHL and BIR conditions. In such cases, classifiers must work in higher dimensions to distinguish between the different classes, and SVM 
+is considered efficient in such situations. 
+Table 6 shows the classification accuracies of different classifiers at different speed conditions. SVM performed best, with the 
+highest accuracy of 99.3 % at 19 Hz. Another important observation is that the accuracy decreases as the speed increases. However, the 
+accuracy is above 90% at all the speed conditions in the case of SVM, which can be considered substantial when dealing with MEMS- 
+based economical sensors. 
+The detailed results for bearing dataset in terms of confusion matrix using SVM are given in Table 7. The table shows a slight 
+confusion between BHL and BIR conditions at 19 Hz and 23 Hz, but confusion gets shifted between BIR and BBF at 29 Hz. The reason 
+for this is that at a lower speed, intermittent vibrations are generated due to ball defect, but at a higher speed, its consistent contact 
+with the inner and outer race produces continuous vibrations. Further, the performance measures at all three-speed conditions are 
+given in Table 8. It can be observed that precision, recall, F1-score, specificity, and MCC have a value of more than 0.9 at 19 Hz and 23 
+Hz. At 29 Hz speed, only MCC and kappa values are less than 0.9, which shows a slightly weak closeness in the classified instances 
+matched with the actual fault condition of the bearing. 
+5.3. Classification results for the IM dataset 
+As described earlier, induction motors are considered a prime source of mechanical energy transfer to rotating machines, and the 
+timely detection of anomalies in these machines is an urgent need. In the present case, a multi-class classification problem is considered 
+for induction motors, including MHL, MBR, and MML, as described in Section 4. The feature visualization of induction motor data in 
+Fig. 8 reveals the margin clarity in a significantly powerful way, with some having weak overlap in the case of healthy and misaligned 
+conditions. However, in the case of misaligned conditions, the scattering is more in range compared to healthy conditions. In Table 9, 
+the performance comparison shows that SVM has more, or the same performance compared to other classification models. 
+The confusion matrices based on the results obtained through SVM are given in Table 10. Here, it is observed that the misclassi­
+fication is significantly less at 19 Hz and 23 Hz, but at 29 Hz, the classifier is confused between healthy and misaligned conditions. This 
+could be due to the mitigation of the misalignment with the dominance of vibration due to other components. Table 11 shows the 
+results of performance measures, and it can be observed that at 19 Hz and 23 Hz, all have values more than 0.9. However, at 29 Hz, the 
+value for all measures got a dip, but still, it is more than 0.9, except for the kappa value, which has a value lower than 0.9. 
+5.4. AIoT-based monitoring and real-time anomaly detection 
+The results from the classification part reveal that among the four classification models, the performance of SVM and RNN is best 
+for multi-class classification. However, for binary classification, i.e., in the case of the gear dataset, all classifiers provided 100 % 
+accuracy. In the case of model deployment to the edge device and real-time fault detection to the AIoT platform, SVM seems to be a 
+preferred choice as it can work well with less computational burden. However, RNN can also be deployed, but the computational 
+burden will be higher in that case. So, based on the results and its inherent advantages, SVM is deployed to the edge device for anomaly 
+detection. For real-time detection of different fault conditions at the AIoT platform, data acquisition is started through the Raspberry 
+Pi, and random tests are performed on the three rotating machines. The feature extraction and processing are done the same way as 
+during the training and testing. The observations of health indicators are also simultaneously done and matched with the previously 
+calculated values. In the case of GTR for three speeds, all conditions are predicted and updated correctly on the AIoT platform through 
+Wi-Fi, with an average elapsed time of 0.39 s. Further, in the case of multi-class fault detection on BTR and IM, 27 random tests are 
+done at all three speeds and repeated three times on each condition, as given in Table 12. These random tests are done as there is some 
+misclassification in the case of 23 Hz and 29 Hz speeds. It is observed that at 19 Hz, the detection is accurate in all the conditions of BTR 
+and IM, with an average elapsed time of 0.65 s and 0.59 s, respectively. 
+However, in the case of BTR, at 23 Hz, one condition, and at 29 Hz, two conditions are wrongly detected, as given in Table 12. 
+Table 3 
+Performance evaluation of various classifiers for the GTR dataset.  
+Speed 
+NB 
+k-NN 
+RNN 
+SVM 
+19 Hz 
+100 
+100 
+100 
+100 
+23 Hz 
+100 
+100 
+100 
+100 
+29 Hz 
+100 
+100 
+100 
+100  
+T. Mian et al.
+
+
+===== PAGE 10 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+10
+Table 4 
+Confusion matrices of the GTR dataset based on SVM.  
+True Class 
+Predicted Class  
+19 Hz 
+23 Hz 
+29 Hz  
+GHL 
+GFG 
+GHL 
+GFG 
+GHL 
+GFG 
+GHL 
+1142 
+0 
+1142 
+0 
+1142 
+0 
+GFG 
+0 
+1142 
+0 
+1142 
+0 
+1142  
+Table 5 
+Performance measures for the GTR dataset based on SVM.  
+Speed 
+Precision 
+Recall 
+F1- Score 
+Specificity 
+MCC 
+Kappa value 
+19 Hz 
+1.00 
+1.00 
+1.00 
+1.00 
+1.00 
+1.00 
+23 Hz 
+1.00 
+1.00 
+1.00 
+1.00 
+1.00 
+1.00 
+29 Hz 
+1.00 
+1.00 
+1.00 
+1.00 
+1.00 
+1.00  
+Fig. 7. Feature visualization for the BTR dataset (a) 19 Hz (b) 23 Hz (c) 29 Hz.  
+Table 6 
+Performance evaluation of various classifiers for the BTR dataset.  
+Speed 
+NB 
+k-NN 
+RNN 
+SVM 
+19 Hz 
+97.63 
+99.03 
+99.12 
+99.33 
+23 Hz 
+93.54 
+95.32 
+96.44 
+96.62 
+29 Hz 
+88.91 
+88.71 
+90.11 
+91.02  
+Table 7 
+Confusion matrices of the BTR dataset based on SVM.  
+True Class 
+Predicted Class  
+19 Hz 
+23 Hz 
+29 Hz  
+BHL 
+BIR 
+BBF 
+BHL 
+BIR 
+BBF 
+BHL 
+BIR 
+BBF 
+BHL 
+1134 
+8 
+0 
+1120 
+22 
+0 
+1136 
+6 
+0 
+BIR 
+5 
+1134 
+3 
+53 
+1079 
+10 
+8 
+1001 
+133 
+BBF 
+0 
+9 
+1133 
+1 
+31 
+1110 
+9 
+151 
+982  
+T. Mian et al.
+
+
+===== PAGE 11 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+11
+Table 8 
+Performance measures for the BTR dataset based on SVM.  
+Speed 
+Precision 
+Recall 
+F1- Score 
+Specificity 
+MCC 
+Kappa value 
+19 Hz 
+0.9927 
+0.9927 
+0.9927 
+0.9964 
+0.9891 
+0.9836 
+23 Hz 
+0.9661 
+0.9658 
+0.9659 
+0.9829 
+0.9489 
+0.9232 
+29 Hz 
+0.9101 
+0.9104 
+0.9102 
+0.9552 
+0.8655 
+0.7984  
+Fig. 8. Feature visualization for IM dataset (a) 19 Hz (b) 23 Hz (c) 29 Hz.  
+Table 9 
+Performance evaluation of various classifiers for the IM dataset.  
+Speed 
+NB 
+k-NN 
+RNN 
+SVM 
+19 Hz 
+99.03 
+99.36 
+99.85 
+99.92 
+23 Hz 
+99.12 
+99.19 
+99.92 
+99.86 
+29 Hz 
+91.95 
+91.37 
+93.58 
+93.64  
+Table 10 
+Confusion matrices of the IM dataset based on SVM.  
+True Class 
+Predicted Class  
+19 Hz 
+23 Hz 
+29 Hz  
+MHL 
+MBR 
+MML 
+MHL 
+MBR 
+MML 
+MHL 
+MBR 
+MML 
+MHL 
+1142 
+0 
+0 
+1140 
+0 
+2 
+1043 
+0 
+99 
+MBR 
+0 
+1141 
+1 
+0 
+1142 
+0 
+0 
+1133 
+9 
+MML 
+2 
+0 
+1140 
+4 
+0 
+1138 
+89 
+5 
+1048  
+Table 11 
+Performance measures for the IM dataset based on SVM.  
+Speed 
+Precision 
+Recall 
+F1- Score 
+Specificity 
+MCC 
+Kappa value 
+19 Hz 
+0.9991 
+0.9991 
+0.9991 
+0.9996 
+0.9987 
+0.9980 
+23 Hz 
+0.9982 
+0.9982 
+0.9982 
+0.9991 
+0.9974 
+0.9961 
+29 Hz 
+0.9412 
+0.9410 
+0.9411 
+0.9705 
+0.9116 
+0.8573  
+T. Mian et al.
+
+
+===== PAGE 12 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+12
+Similarly, in the case of IM, two conditions at 29 Hz are wrongly detected, as provided in Table 12. This shortcoming, i.e., slight error- 
+prone detection for multi-class conditions at higher speed, could be due to the increased vibrations and the severity pattern of faults 
+going close in the case of multi-class problems. In general, these results signify that the proposed system can make real-time and 
+accurate detection of different fault conditions in the rotating machines. 
+5.5. Comparison of the proposed method with related work 
+In the literature, significantly less work has been reported on the integrated approach using edge computing, AI, and the IoT. Some 
+researchers have done work on edge computing-based fault detection of rotating machines. Some of them used the method of data 
+visualization on some cloud platforms. This section compares the proposed work with the latest reported work based on fault con­
+dition, used modality, classifier, maximum accuracy, and whether the AIoT-based approach has been adopted or not, and it is provided 
+in Table 13. Tran et al. presented an intelligent method for the online monitoring of induction motor faults along with a correction 
+scheme [21]. A 1-dimensional Convolutional Neural Network (CNN) was used for the detection of faults, and a maximum accuracy of 
+99.84 % was achieved. An edge computing-based solution was presented by Langarica et al. for different single-phase motor faults 
+using a CMS2000 condition monitoring system. CNN was used for the detection of faults, and an accuracy of 95.18 % was achieved 
+[22]. Tritschler et al. presented a strategy to diagnose bearing faults in Computer Numerical Controlled (CNC) machines using a 
+microcontroller and a single-board computer. Frequency spectrums of different fault conditions were sent to the cloud through a 
+message queuing telemetry transport broker [23]. 
+Soother et al. presented an edge-based strategy for the binary classification of bearing faults using different algorithms, including 
+Long Short-Term Memory (LSTM) network, Random Forest (RF), and SVM [24]. For the data visualization Thingspeak platform was 
+used. The maximum accuracy achieved for the classification was 90 %. Wang et al. proposed a data reduction method for detecting 
+bearing faults in a permanent magnet synchronous motor using vibration data and leakage flux. STM32F407 microcontroller was used 
+for the data acquisition of different faults [25]. 
+The proposed AIoT-based approach involves the integration of edge computing, AI, and IoT. The data is acquired and stored on the 
+edge device with simultaneous processing and real-time fault detection through the deployed SVM model. The results on the three 
+machines signify the robustness and reliability of the presented method for real-time anomaly detection along with remote monitoring 
+and control. 
+6. Managerial and social implication 
+Rotating machines are integral to any moving equipment, including farm machinery, earthmovers used in mines, automotive, and 
+wind turbines. Bearing and gears are the most crucial components in any rotating machine. Further, induction motors are widely used 
+Table 12 
+Real-time anomaly detection results on the AIoT platform for BTR and IM.  
+S. No 
+Speed (Hz) 
+Bearing conditions 
+Induction motor conditions   
+Actual condition 
+Predicted condition 
+Actual condition 
+Predicted condition 
+1  
+BHL 
+BHL 
+MHL 
+MHL 
+2  
+BHL 
+BHL 
+MHL 
+MHL 
+3  
+BHL 
+BHL 
+MHL 
+MHL 
+4  
+BIR 
+BIR 
+MBR 
+MBR 
+5 
+19 
+BIR 
+BIR 
+MBR 
+MBR 
+6  
+BIR 
+BIR 
+MBR 
+MBR 
+7  
+BBF 
+BBF 
+MML 
+MML 
+8  
+BBF 
+BBF 
+MML 
+MML 
+9  
+BBF 
+BBF 
+MML 
+MML 
+10  
+BHL 
+BIR 
+MHL 
+MHL 
+11  
+BHL 
+BHL 
+MHL 
+MHL 
+12  
+BHL 
+BHL 
+MHL 
+MHL 
+13  
+BIR 
+BIR 
+MBR 
+MBR 
+14 
+23 
+BIR 
+BIR 
+MBR 
+MBR 
+15  
+BIR 
+BIR 
+MBR 
+MBR 
+16  
+BBF 
+BBF 
+MML 
+MML 
+17  
+BBF 
+BBF 
+MML 
+MML 
+18  
+BBF 
+BBF 
+MML 
+MML 
+19  
+BHL 
+BHL 
+MHL 
+MHL 
+20  
+BHL 
+BHL 
+MHL 
+MML 
+21  
+BHL 
+BHL 
+MHL 
+MHL 
+22  
+BIR 
+BHL 
+MBR 
+MBR 
+23 
+29 
+BIR 
+BBF 
+MBR 
+MBR 
+24  
+BIR 
+BIR 
+MBR 
+MBR 
+25  
+BBF 
+BIR 
+MML 
+MML 
+26  
+BBF 
+BBF 
+MML 
+MML 
+27  
+BBF 
+BBF 
+MML 
+MHL  
+T. Mian et al.
+
+
+===== PAGE 13 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+13
+as a prime movers in rotating machines. The loss due to different faults in these components can cause the unwanted failure of the 
+complete system and sometimes vital loss. For example, in coal mines, faults in rotating machine components cause sudden break­
+downs and may even lead to unfortunate accidents. Machine-related failures account for numerous severe accidents in the mining 
+industry. 
+Similarly, the bearing and gears are essential components of a wind turbine. It is quite challenging to detect any faults in an early 
+stage due to the lack of practical availability of an effective and intelligent detection system that utilizes an integrated approach, 
+including edge computing, AI, and IoT. In such scenarios, AIoT-based fault detection and remote monitoring could be a relevant 
+solution for the timely detection of faults and taking necessary actions to avoid major breakdowns. The suggested AIoT-based approach 
+can be effectively utilized for the detection of faults in different rotating machine components, including bearings, gears, and induction 
+motors. The developed system is capable of real-time and remote monitoring of faults that helps minimize the loss by timely scheduling 
+the maintenance. Moreover, the implementation of the suggested approach can be extended to applications related to agricultural 
+machinery, electric vehicle motors, food processing machinery, and power plants. 
+7. Conclusion and future scope 
+Integrating AI and the IoT is very effective for real-time remote monitoring and decision-making, ensuring effective and timely 
+predictive maintenance in rotating machines. An AIoT-based approach is proposed and implemented for real-time anomaly detection 
+in different rotating machines, including gear test rig, bearing test rig, and induction motor. One binary classification problem related 
+to gear faults is considered, and two multi-class classification problems are related to the bearing test rig and induction motor, 
+respectively. The validation is presented at three different speed conditions. Four different classification models are tested, and SVM is 
+finally adopted for deployment on the edge device based on its inherent advantage in terms of accuracy and less computational 
+complexity. Substantially good classification results are obtained in the case of the three machines with 100 % accuracy in the binary 
+classification of gear, and in the case of a multi-class problem of bearing, the accuracy is found to be in the range of 91.02 % - 99.33 %. 
+This range for the multi-class classification of the induction motor is 93.64 % - 99.92 %. Further, the rotating machines’ real-time 
+anomaly detection and control are successfully demonstrated with the developed AIoT-based system. As future work, the next 
+phase of the study will include an enhanced design with more controlling parameters for real-time remote monitoring and control of 
+different rotating machines. 
+Declaration of Competing Interest 
+The authors have no potential conflict of interest for this work. 
+Data availability 
+Data will be made available on request. 
+Acknowledgments 
+The authors are thankful to the Education Ministry of the Indian Government for the support of this work. 
+References 
+[1] Polenghi A, Roda I, Macchi M, Pozzetti A. A methodology to boost data-driven decision-making process for a modern maintenance practice. Prod Plan Control 
+2021:1–17. https://doi.org/10.1080/09537287.2021.2010823. 
+Table 13 
+Comparison of the proposed method with related work.  
+Reference 
+(Year) 
+Considered faults 
+Modality 
+Classifier(s) 
+Maximum classification 
+accuracy 
+AIoT-based monitoring 
+and control 
+[21] 
+(2023) 
+Induction motor faults 
+Vibration 
+1D-CNN 
+99.84% 
+No 
+[22] 
+(2019) 
+Motor faults 
+Vibration 
+CNN 
+95.18% 
+No 
+[23] 
+(2021) 
+Bearing faults 
+Vibration 
+– 
+– 
+No 
+[24] 
+(2022) 
+Bearing faults 
+Vibration 
+LSTM, RF, SVM 
+90% 
+No 
+[25] 
+(2021) 
+Bearing faults in PMSM motor 
+Vibration and 
+flux 
+– 
+– 
+No 
+Proposed 
+work 
+Gear faults, bearing faults, and 
+induction motor faults 
+Vibration 
+NB, k-NN, RNN, and 
+SVM 
+Binary-100% 
+Multi-class - 99.92%  
+Yes  
+T. Mian et al.
+
+
+===== PAGE 14 =====
+
+Computers and Electrical Engineering 109 (2023) 108760
+14
+[2] Chi Y, Dong Y, Wang J, Yu FR, Leung VC. Knowledge-based fault diagnosis in industrial internet of things: a survey. IEEE Internet Things J 2022. https://doi. 
+org/10.1109/JIOT.2022.3163606. 
+[3] Kumar P, Tiwari R. Finite element modelling, analysis and identification using novel trial misalignment approach in an unbalanced and misaligned flexible rotor 
+system levitated by active magnetic bearings. Mech Syst Signal Process 2021;152:107454. https://doi.org/10.1016/j.ymssp.2020.107454. 
+[4] Lei Y, Li N, Lin J. A new method based on stochastic process models for machine remaining useful life prediction. IEEE Trans Instrum Meas 2016;65(12): 
+2671–84. https://doi.org/10.1109/TIM.2016.2601004. 
+[5] Sharma DK, Brahmachari S, Singhal K, Gupta D. Data driven predictive maintenance applications for industrial systems with temporal convolutional networks. 
+Comput Ind Eng 2022;169:108213. https://doi.org/10.1016/j.cie.2022.108213. 
+[6] Li H, Hu G, Li J, Zhou M. Intelligent fault diagnosis for large-scale rotating machines using binarized deep neural networks and random forests. IEEE Trans 
+Autom Sci Eng 2021;19(2):1109–19. https://doi.org/10.1109/TASE.2020.3048056. 
+[7] Abid A, Khan MT, Iqbal J. A review on fault detection and diagnosis techniques: basics and beyond. Artif Intell Rev 2021;54(5):3639–64. https://doi.org/ 
+10.1007/s10462-020-09934-2. 
+[8] Mishra RK, Choudhary A, Mohanty AR, Fatima S. An intelligent bearing fault diagnosis based on hybrid signal processing and Henry gas solubility optimization. 
+Proc Inst Mech Eng Part C J Mech Eng Sci 2022. https://doi.org/10.1177/09544062221101737. 09544062221101737. 
+[9] Yadav N, Pande S, Khamparia A, Gupta D. Intrusion detection system on IoT with 5G network using deep learning. Wirel Commun Mob Comput 2022. https:// 
+doi.org/10.1155/2022/9304689. 2022. 
+[10] Huang M, Liu Z, Tao Y. Mechanical fault diagnosis and prediction in IoT based on multi-source sensing data fusion. Simul Modell Pr Theory 2020;102:101981. 
+https://doi.org/10.1016/j.simpat.2019.101981. 
+[11] Zhang X, Rane KP, Kakaravada I, Shabaz M. Research on vibration monitoring and fault diagnosis of rotating machinery based on internet of things technology. 
+Nonlinear Eng 2021;10(1):245–54. https://doi.org/10.1515/nleng-2021-0019. 
+[12] Selvaraj Y, Selvaraj C. Proactive maintenance of small wind turbines using IoT and machine learning models. Int J Green Energy 2021:1–12. https://doi.org/ 
+10.1080/15435075.2021.1930004. 
+[13] Dias AL, Turcato AC, Sestito GS, Brandao D, Nicoletti R. A cloud-based condition monitoring system for fault detection in rotating machines using PROFINET 
+process data. Comput Ind 2021;126:103394. https://doi.org/10.1016/j.compind.2021.103394. 
+[14] Stergiou C, Psannis KE, Gupta BB, Ishibashi Y. Security, privacy & efficiency of sustainable cloud computing for big data & IoT. Sustain Comput Inform Syst 
+2018;19:174–84. https://doi.org/10.1016/j.suscom.2018.06.003. 
+[15] Chang Z, Liu S, Xiong X, Cai Z, Tu G. A survey of recent advances in edge-computing-powered artificial intelligence of things. IEEE Internet Things J 2021. 
+https://doi.org/10.1109/JIOT.2021.3088875. 
+[16] Qian G, Lu S, Pan D, Tang H, Liu Y, Wang Q. Edge computing: a promising framework for real-time fault diagnosis and dynamic control of rotating machines 
+using multi-sensor data. IEEE Sens J 2019;19(11):4211–20. https://doi.org/10.1109/JSEN.2019.2899396. 
+[17] Deng S, Zhao H, Fang W, Yin J, Dustdar S, Zomaya AY. Edge intelligence: the confluence of edge computing and artificial intelligence. IEEE Internet Things J 
+2020;7(8):7457–69. https://doi.org/10.1109/JIOT.2020.2984887. 
+[18] Jarwar MA, Khowaja SA, Dev K, Adhikari M, Hakak S. NEAT: a resilient deep representational learning for fault detection using acoustic signals in IIoT 
+environment. IEEE Internet Things J 2021. https://doi.org/10.1109/JIOT.2021.3109668. 
+[19] Harzevili NS, Alizadeh SH. Mixture of latent multinomial naive Bayes classifier. Appl Soft Comput 2018;69:516–27. https://doi.org/10.1016/j. 
+asoc.2018.04.020. 
+[20] Wang Q, Wang S, Wei B, Chen W, Zhang Y. Weighted K-NN classification method of bearings fault diagnosis with multi-dimensional sensitive features. IEEE 
+Access 2021;9:45428–40. https://doi.org/10.1109/ACCESS.2021.3066489. 
+[21] Tran MQ, Amer M, Abdelaziz AY, Dai HJ, Liu MK, Elsisi M. Robust fault recognition and correction scheme for induction motors using an effective IoT with deep 
+learning approach. Measurement 2023;207:112398. https://doi.org/10.1016/j.measurement.2022.112398. 
+[22] Langarica S, Rüffelmacher C, Nú˜nez F. An industrial internet application for real-time fault diagnosis in industrial motors. IEEE Trans Autom Sci Eng 2019;17 
+(1):284–95. https://doi.org/10.1109/TASE.2019.2913628. 
+[23] Tritschler N, Dugenske A, Kurfess T. An automated edge computing-based condition health monitoring system: with an application on rolling element bearings. 
+J Manuf Sci Eng 2021;143(7). https://doi.org/10.1115/1.4049845. 
+[24] Soother DK, Ujjan SM, Dev K, Khowaja SA, Bhatti NA, Hussain T. Towards soft real-time fault diagnosis for edge devices in industrial IoT using deep domain 
+adaptation training strategy. J Parallel Distrib Comput 2022;160:90–9. https://doi.org/10.1016/j.jpdc.2021.10.005. 
+[25] Wang X, Lu S, Huang W, Wang Q, Zhang S, Xia M. Efficient data reduction at the edge of industrial Internet of Things for PMSM bearing fault diagnosis. IEEE 
+Trans Instrum Meas 2021;70:1–12. https://doi.org/10.1109/TIM.2021.3051668. 
+Tauheed Mian is presently pursuing Ph.D. from the center for Automotive Research and Tribology (CART), Indian Institute of Technology Delhi, India. He has various 
+research papers on fault diagnosis and condition monitoring of rotating machines. His-research interests include fault diagnosis of rotating machines, applied artificial 
+intelligence, manufacturing systems, and electrical vehicle diagnostics. 
+Anurag Choudhary is a Ph.D. student at the School of Interdisciplinary Research (SIRe), Indian Institute of Technology Delhi, India. He has published more than 15 
+research papers in various reputed journals. His-research interests are fault diagnosis, vibration monitoring, infrared thermography, electric vehicles, and machine 
+learning. 
+S. Fatima is an Associate Professor at the center for Automotive Research and Tribology (CART), Indian Institute of Technology Delhi, India. She has published 30+
+papers in various reputed journals. Her research interests include machinery health monitoring, NVH, machinery and industrial noise control, and automotive health 
+monitoring. 
+B. K. Panigrahi is a professor in the Department of Electrical Engineering, Indian Institute of Technology Delhi, India. He has 200+ research papers to his credit in 
+various reputed journals. His-research interests include soft computing, signal processing, power quality, renewable energy systems, cybersecurity of power systems, 
+and the Internet of Things. 
+T. Mian et al.

@@ -1,0 +1,1831 @@
+
+
+===== PAGE 1 =====
+
+Received 27 April 2026, accepted 11 May 2026, date of publication 19 May 2026, date of current version 26 May 2026.
+Digital Object Identifier 10.1109/ACCESS.2026.3694523
+A Lightweight Heterogeneous Neural Network
+Architecture for Multiscale Feature
+Extraction in Bearing Fault Diagnosis
+HUYNH-ANH-HUY NGUYEN
+1 AND CHEOL HONG KIM
+2
+1Department of Computer Science and Engineering, Soongsil University, Seoul 06978, South Korea
+2School of Computer Science and Engineering, Soongsil University, Seoul 06978, South Korea
+Corresponding author: Cheol Hong Kim (cheolhong@ssu.ac.kr)
+This work was supported by the National Research Foundation of Korea (NRF) Grant through Korean Government
+[Ministry of Science and ICT (MSIT)] under Grant RS-2024-00453676.
+ABSTRACT Bearings are critical components in rotating machinery, and efficient fault detection is essential
+for maintaining motor reliability and operational integrity. This study proposes a novel neural network
+architecture for efficient bearing fault diagnosis that simultaneously captures local and global feature repre-
+sentations from log-Mel spectrograms derived from wideband acoustic emission signals. The framework
+combines a multiscale convolutional neural network with a Mamba-based selective state space model
+to improve the discrimination of complex fault patterns while preserving low computational complexity.
+To support context-aware learning, an adaptive feature fusion strategy is adopted to dynamically integrate
+features from preceding layers. The proposed framework is further implemented on an embedded platform
+to evaluate its suitability for edge computing. Experimental results demonstrate that the method achieves
+superior accuracy and efficiency across multiple fault types and rotational speeds, outperforming existing
+classification approaches. These results support the development of fully automated bearing condition
+monitoring systems and underscore the potential of in-sensor computing.
+INDEX TERMS Acoustic emission, convolutional neural networks, condition monitoring, deep learning,
+digital signal processing, feature fusion, fault diagnosis, multiscale extraction, rotating machines, state space
+model, spectrogram.
+I. INTRODUCTION
+Bearings are pivotal components in mechanical systems,
+responsible for supporting loads and facilitating smooth rota-
+tional motion with minimal friction [1]. However, they are
+inherently susceptible to faults that can trigger catastrophic
+failures, unplanned production stoppages, and hazardous
+operating conditions [2]. Consequently, the demand for accu-
+rate bearing fault detection has intensified to mitigate opera-
+tional risks and prevent severe failures. Increasing industrial
+complexity and system scale have exposed the limitations
+of manual inspection methods, which are typically labor-
+intensive, subjective, and inconsistent. In response, auto-
+mated diagnostic approaches that integrate sensor-based data
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Guillermo Valencia-Palomo
+.
+acquisition with advanced signal processing and machine
+learning techniques have gained widespread attention for
+their improved reliability and efficiency [3].
+In the field of structural health monitoring, acoustic emis-
+sion (AE) signals have emerged as a powerful diagnostic
+modality due to their nonintrusive nature and ability to reveal
+characteristic fault signatures, particularly in environments
+where vibration signals are masked by noise or interfer-
+ence. AE signals are inherently nonstationary and consist of
+high-frequency transient bursts associated with microstruc-
+tural damage events. Liu et al. demonstrated that AE-based
+methods outperform vibration-based measurements under
+identical fault conditions at elevated rotational speeds [4].
+Similarly, Cornel et al. reported that AE systems can detect
+pitting damage approximately 4% earlier than vibration-
+based approaches [5]. Despite these advantages, the complex
+VOLUME 14, 2026
+ 2026 The Authors. This work is licensed under a Creative Commons Attribution 4.0 License.
+For more information, see https://creativecommons.org/licenses/by/4.0/
+77717
+
+
+===== PAGE 2 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+and dynamic spectral characteristics of AE signals require
+advanced analytical methods capable of capturing transient
+behavior and evolving frequency content.
+Classical spectral analysis is ill-suited for nonstationary
+signal processing because it neglects temporal variations.
+Although the Fourier transform is widely used to map signals
+from the time domain to the frequency domain, it exhibits
+fundamental limitations when applied to complex AE signals
+that are critical for accurate fault identification. To address
+these shortcomings, time–frequency analysis techniques have
+been developed to provide joint time and frequency res-
+olution. Among these, the short-time Fourier transform
+(STFT) applies finite-length windows to approximate local
+stationarity, generating spectrograms that describe the tem-
+poral evolution of frequency components [6]. For example,
+Liu et al. employed STFT to produce two-dimensional
+(2-D) representations from raw signals for subsequent analy-
+sis [7]. Building on this approach, wavelet transforms offer
+multi-resolution analysis, enabling simultaneous detection
+of short-duration, high-frequency events and long-duration,
+low-frequency trends. Similarly, empirical mode decom-
+position (EMD) and the Hilbert–Huang transform (HHT)
+adaptively decompose signals into intrinsic mode functions,
+capturing nonlinear and nonstationary characteristics with-
+out predefined basis functions. Li et al. proposed a fast
+and adaptive EMD framework that efficiently isolates salient
+fault-related features while maintaining low computational
+cost [8]. Further developments, such as variational mode
+decomposition (VMD), improve decomposition accuracy and
+noise robustness, enhancing reliability in practical diagnostic
+settings [9]. Jian et al. applied VMD to process motor-bearing
+fault signals and optimized its parameters using the secretary
+bird optimization algorithm, resulting in improved robustness
+and decomposition precision [10].
+Over the past decade, deep learning has driven sig-
+nificant advances in machinery fault diagnosis. Convolu-
+tional neural networks (CNNs), in particular, have proven
+effective for high-accuracy bearing fault classification
+by autonomously extracting discriminative features from
+visual and time–frequency representations of sensor data.
+Rajabioun et al. trained a CNN on 2-D signal images
+from multiple sources and achieved a strong diagnostic per-
+formance [11]. Hoang and Kang proposed a CNN-based
+framework with information fusion for motor-current sig-
+nals and validated its effectiveness using empirical testing
+of real bearing fault data [12]. Wang et al. introduced a
+damage dynamics CNN to enhance interpretability while
+maintaining high classification accuracy [13]. Nevertheless,
+conventional single-scale CNNs are limited by fixed recep-
+tive fields, restricting their ability to capture hierarchical and
+scale-varying fault characteristics, particularly under noisy
+conditions.
+To overcome these limitations, multiscale CNN architec-
+tures have been increasingly adopted. By employing convo-
+lutional kernels of different sizes across parallel branches,
+multiscale CNNs can simultaneously extract fine-grained
+local features and broader contextual information. Atrous
+convolution is another common strategy that expands the
+receptive field without increasing parameter count, improv-
+ing robustness and representation quality under severe noise
+contamination. Yin et al. proposed a multiscale graph convo-
+lutional network to capture latent relationships in vibration
+signals across scales [14]. Shi et al. developed an enhanced
+lightweight multiscale CNN for rolling-bearing fault diag-
+nosis, demonstrating improved feature discrimination and
+strong anti-noise performance [15]. Integrating attention
+mechanisms with multiscale frameworks further enhances
+generalization by enabling dynamic emphasis on informa-
+tive features while suppressing irrelevant responses. For
+example, Shen and Zhang combined a multiscale CNN
+with an attention mechanism to exploit inter-channel inter-
+actions and capture localized dependencies [16]. Li et al.
+proposed an adaptive multiscale fully convolutional network
+using large-kernel convolutions and stacked residual adap-
+tive blocks, achieving superior diagnosis performance under
+noisy conditions [17]. Hu et al. incorporated multiple atten-
+tion mechanisms into a multiscale CNN to improve learning
+of critical fault features [18], while Zhao et al. integrated a
+multiscale CNN with bidirectional long short-term memory
+and attention mechanisms to achieve strong fault diagno-
+sis performance across operating conditions [19]. Sun et al.
+proposed WFFNet, a novel neural network architecture that
+integrates convolutional operations, squeeze-and-excitation
+(SE) attention mechanism, and a weighted feature fusion
+strategy to enhance the network’s ability to capture com-
+plex patterns, thereby improving feature learning capacity
+and overall performance [20]. Xu et al. developed TFDDP,
+an advanced architecture that leverages an encoder designed
+with multiple attention mechanisms in conjunction with
+residual network structures, thereby offering a more robust
+solution even with limited labeled samples [21].
+Although these approaches have achieved notable success
+in local feature extraction, they remain limited in model-
+ing long-range dependencies and global relationships. This
+shortcoming has motivated the development of hybrid archi-
+tectures that combine complementary modeling paradigms.
+In particular, frameworks that integrate CNNs for local fea-
+ture extraction with transformer-based models for long-range
+dependency modeling have gained traction. Wang et al.
+combined CNNs with transformers to achieve accurate and
+robust bearing-fault diagnosis [22]. Chen et al. proposed a
+cross-space multiscale CNN-transformer framework, demon-
+strating its ability to capture both spatial and temporal fea-
+tures [23]. Fang et al. designed a multiscale time–frequency
+CNN–transformer with attention mechanisms for practi-
+cal fault diagnosis applications [24]. Han et al. introduced
+MT-ConvFormer, a hybrid CNN-transformer framework for
+multitask fault diagnosis [25]. Zhang et al. combined an
+adaptive multiscale CNN with self-attention to address
+the limitations of single-scale representations in noisy
+77718
+VOLUME 14, 2026
+
+
+===== PAGE 3 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+environments [26]. He et al. introduced TFDDCF, a hybrid
+deep learning framework that integrates enhanced CNNs with
+a transformer, ultimately boosting the model’s ability to learn
+complex structures and deliver superior performance [27].
+Advancing from representation learning on transformed
+fault signals to architectures that integrate discriminative
+power with contextual awareness represents a promising tra-
+jectory in fault diagnosis research. Li et al. proposed the
+wavelet capsule network under conditions of incomplete
+data, enhancing model transparency and interpretability in
+diagnosis decision-making [28]. Huang et al. introduced a
+deep adversarial capsule network to incorporate multidomain
+generalization into compound fault diagnosis, addressing the
+challenge of absent labeled data under new or extreme work-
+ing conditions [29]. Wang et al. developed a dynamic collab-
+orative adversarial domain adaptation network that improves
+fault diagnosis in rotating machinery when labeled data for
+new tasks is limited [30]. Wang et al. proposed an adaptive
+fused domain-cycling variational generative adversarial net-
+work to mitigate the limitations imposed by data scarcity [31].
+Wu et al. introduced a conditional distribution-guided adver-
+sarial transfer learning network to resolve the complexities
+of multisource domains utilization in fault diagnosis [32].
+Xu et al. proposed a time-frequency fully connected graph
+neural network, which leverages temporal-spectral correla-
+tions to improve the accuracy of multisource fault diag-
+nosis [33]. Huang et al. developed an Exofeature-aware
+transformer to enable long-horizon state-of-health prediction
+for batteries, achieving superior performance compared to
+CNN and Crossformer approaches [34].
+Despite these advances, most existing fault diagnosis meth-
+ods rely on computationally intensive hardware and incur
+substantial resource consumption, limiting their practical-
+ity for real-world deployment, particularly on embedded
+platforms with strict power constraints. Data preprocess-
+ing pipelines often impose significant computational over-
+head, and transformer-based models, while powerful, remain
+resource-demanding and complex.
+To address these challenges, we propose a lightweight
+heterogeneous neural network architecture that integrates
+a multiscale CNN with a Mamba-based selective state
+space model (M-SSSM) operating in parallel. By leverag-
+ing the complementary strengths of these components, the
+proposed framework achieves improved diagnostic accu-
+racy while maintaining computational efficiency. The mul-
+tiscale CNN captures discriminative local features across
+multiple scales, while the M-SSSM extracts global contex-
+tual information and long-range dependencies. The outputs
+from both branches are dynamically combined through
+an adaptive feature fusion strategy to balance local and
+global representations. In addition, AE signals are prepro-
+cessed using STFT and transformed into log-Mel spectro-
+grams for dimensionality reduction before being fed into
+the network. The resulting framework is well-suited for
+deployment on embedded systems under practical operating
+conditions.
+The main contributions of this work are as follows.
+1) We demonstrate that the proposed method consistently
+achieves high classification accuracy and strong robust-
+ness under noisy operating conditions.
+2) We employ an efficient time–frequency analysis
+pipeline that converts nonstationary AE signals into
+2-D representations using STFT and log-Mel mapping,
+yielding perceptually meaningful features with sub-
+stantial dimensionality reduction.
+3) We design a multiscale CNN architecture that captures
+diverse short-range dependencies with lower memory
+usage and computational complexity than conventional
+backbone CNN models.
+4) We propose a heterogeneous architecture that com-
+bines a multiscale CNN with a customized M-SSSM
+to jointly extract local and global features, achiev-
+ing accuracy and efficiency relative to existing hybrid
+approaches while remaining suitable for resource-
+constrained devices.
+5) We validate the proposed framework through imple-
+mentation on an embedded system under real-world
+operating conditions.
+The remainder of this paper is organized as fol-
+lows. Section II outlines the theoretical foundation of the
+study. Section III describes the proposed method in detail.
+Section IV presents the experimental setup and evaluation
+results. Finally, Section V concludes the paper and discusses
+directions for future research.
+II. PRELIMINARIES
+This section introduces the essential background and key con-
+cepts that underpin this study, providing a clear and consistent
+foundation for understanding the proposed methodology and
+the experimental analyses presented later.
+A. SHORT-TIME FOURIER TRANSFORM
+Unlike the classical Fourier transform, which provides a
+global frequency representation of a signal, the STFT enables
+localized spectral analysis by applying the Fourier transform
+to short, overlapping segments of a nonstationary signal [35].
+This property makes the STFT particularly suitable for
+applications such as speech processing, biomedical signal
+analysis, and audio classification. In practice, analog signals
+are typically sampled, yielding a discrete-time representation.
+Mathematically, the discrete STFT process is defined as:
+rraw
+a
+[m] = rraw [m + aH] w [m]
+(1)
+S [k, a] = 1
+M
+K
+X
+m=1
+rraw
+a
+[m] e−j2πmk
+K
+(2)
+where rraw is the analysis signal, w is the sliding window
+function, a ∈{0, 1, . . . , N −1} is the frame index, N ∈
+N is the number of frames, H ∈N denotes the hop size,
+m ∈{1, 2, . . . , M} represents the discrete time positions at
+which the sliding window is applied, M ∈N is the window
+length, k ∈{1, 2, . . . , K} is the frequency-bin index, and
+VOLUME 14, 2026
+77719
+
+
+===== PAGE 4 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+K ∈N is the total number of discrete Fourier transform
+(DFT) points. Each value S[k, a] represents the complex
+amplitude at frequency bin k and time frame a, forming an
+individual element of the resulting STFT matrix.
+B. CONVOLUTIONAL NEURAL NETWORK
+CNNs are a class of feedforward neural networks that employ
+convolutional operations to automatically extract spatially
+localized features from input data [36]. This architectural
+paradigm has demonstrated strong performance in computer
+vision tasks, including image classification, object detection,
+and semantic segmentation [37]. Beyond vision, CNNs have
+also been successfully applied to natural language processing,
+speech recognition, and audio signal analysis [38], highlight-
+ing their versatility as a general-purpose feature learning
+framework.
+Let X(l−1) ∈RUl−1×Vl−1×Gl−1 be a 3-D input tensor to
+the l-th convolutional layer, where Ul−1, Vl−1, and Gl−1
+represent the height, width, and number of channels, respec-
+tively. The layer comprises a set of Gl learnable kernels
+W (l,c) ∈RK(l)
+h ×K(l)
+w ×Gl−1, where K (l)
+h
+and K (l)
+w
+denote the
+height and width of the kernel, and c ∈{1, 2, . . . , Gl} indexes
+the individual filter. The pre-activation feature map Z(l,c) at
+spatial position (i, j) using stride (s(l)
+h , s(l)
+w ) with corresponding
+bias b(l,c) ∈R, is given by:
+Z(l,c)
+i,j
+=
+K(l)
+h −1
+X
+u=0
+K(l)
+w −1
+X
+v=0
+Gl−1
+X
+r=1
+W (l,c)
+u,v,rX(l−1)
+is(l)
+h +u,js(l)
+w +v,r + b(l,c)
+(3)
+To improve optimization and stabilize training, batch normal-
+ization is commonly applied to each convolutional channel.
+For a given channel c in layer l, batch normalization is defined
+as:
+ˆZ(l,c,n)
+i,j
+= γ (l,c) Z(l,c,n)
+i,j
+−µ(l,c)
+p
+(σ (l,c))2 + ε
++ β(l,c)
+(4)
+where n indexes the mini-batch examples, γ (l,c) and β(l,c) are
+learnable parameters, ε > 0 is a small constant for numerical
+stability, µ(l,c) and (σ (l,c))2 are the batch mean and variance,
+respectively:
+µ(l,c) =
+1
+
+n
+Z(l,c,n)
+i,j
+o
+X
+(i,j,n)
+Z(l,c,n)
+i,j
+(5)
+(σ (l,c))2 =
+1
+
+n
+Z(l,c,n)
+i,j
+o
+X
+(i,j,n)
+
+Z(l,c,n)
+i,j
+−µ(l,c)2
+(6)
+An activation function 8 (·) is then applied to introduce
+nonlinearity into the network:
+Y (l,c,n)
+i,j
+= 8
+
+ˆZ(l,c,n)
+i,j
+
+(7)
+In layer l, pooling operations 9 (·) are applied independently
+for each n and c to reduce the spatial resolution of feature
+maps while preserving the most salient information. Assum-
+ing a pooling window of size Ph × Pw and stride (th, tw), the
+pooling region at position (u, v) corresponds to the set:
+R(l)
+u,v =
+n
+Y (l,c,n)
+i,j
+|i ∈{uth, . . . , uth + Ph −1} ,
+j ∈{vtw, . . . , vtw + Pw −1}
+o
+(8)
+The pooled output is then computed as:
+P(l,c,n)
+u,v
+= 9
+
+R(l)
+u,v
+
+(9)
+After several convolutional layers, the resulting feature maps
+are flattened into a 1-D vector and passed to a fully connected
+(FC) layer for higher-level representation learning:
+h(n)
+out = vec
+
+P(l,n)
+(10)
+o(n) = 8
+
+h(n)
+outW T
+fc + bfc
+
+(11)
+where Wfc, bfc, and o(n) denote the weight, bias, and output
+of the FC layer, respectively.
+C. STATE SPACE MODEL
+State space models (SSMs) provide a general mathematical
+framework for describing the evolution of dynamic systems
+through latent states and observable outputs [39]. In this for-
+mulation, a system is characterized by a set of state variables
+that encapsulate the information required to predict future
+behavior. Classically, an SSM is defined by two equations:
+a process equation that governs state evolution and an obser-
+vation equation that maps latent states to measured outputs:
+˙h(t) = Ah(t) + Bx(t)
+(12)
+y(t) = Ch(t)
+(13)
+where x(t) and y(t) represent the system input and out-
+put, respectively, h(t) is the state vector, A describes the
+autonomous state dynamics, B maps the input to the state,
+and C relates the state to the observation.
+When the input is a discrete sequence rather than a contin-
+uous time signal x(t), the SSM must be discretized using a
+step size 1 that specifies the input resolution:
+hq = ¯Ahq−1 + ¯Bxq
+(14)
+yq = Chq
+(15)
+¯A = exp (1A)
+(16)
+¯B = (1A)−1 (exp (1A) −I) · 1B
+(17)
+where ¯A and ¯B are discrete-time approximations of matrix
+A and B, respectively, using the zero-order hold (ZOH) dis-
+cretization rule [40]. Eqs. (14) and (15) define the SSM in a
+recurrent form.
+Modern machine learning frameworks often reinterpret
+SSMs as sequence-to-sequence convolutional operators.
+Given the sequential nature of the data, the SSM can be
+computed via a global 1-D convolution:
+¯K =
+ C ¯B, C ¯A¯B, . . . , C ¯Aq ¯B, . . .
+
+(18)
+y = x ∗¯K
+(19)
+77720
+VOLUME 14, 2026
+
+
+===== PAGE 5 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 1. Proposed bearing fault diagnosis framework: Two main stages include signal processing and fault classification through a
+heterogeneous network. The raw AE signals are transformed into 2-D representations using time–frequency analysis and subsequently
+fed into a hybrid neural network to accurately and efficiently classify diverse fault types.
+where ¯K denotes a structured convolutional kernel.
+During training, the model typically operates in convolu-
+tional mode, which allows for efficient parallel computation
+when the entire input sequence is available. During inference,
+however, the model switches to a recurrent mode, enabling
+efficient autoregressive processing by consuming one input
+element at a time.
+III. PROPOSED METHOD
+In this section, we present a comprehensive examination
+of the proposed methodology for bearing fault diagnosis,
+as illustrated in Fig. 1. The framework is organized into
+two primary stages, including signal processing and fault
+classification using a heterogeneous neural network.
+Stage 1: Raw signals are collected using an AE sensor
+mounted on the bearing housing. These signals are trans-
+formed into 2-D spectrograms for feature extraction in the
+next stage.
+Stage 2: The generated spectrograms are used as inputs
+to a heterogeneous neural network architecture designed to
+extract both local and global discriminative features. The
+architecture integrates a multiscale CNN with a customized
+M-SSSM. Outputs from the two branches are dynamically
+fused to balance the contributions of local and global rep-
+resentations. The fused features are then forwarded to the
+classification module, which serves as the decision-making
+component of the proposed framework.
+A. TIME-FREQUENCY ANALYSIS
+After acquisition via the AE sensor, the signals are segmented
+and transformed into 2-D representations using Eqs. (1)
+and (2), with a Blackman window length of 1024, a hop size
+of 256, and 4096 DFT points. The resulting STFT matrices
+are converted into power spectrograms as follows:
+˜S[k, a] =
+
+
+2
+M
+P
+m=1
+w[m]
+M
+|S[k, a]|
+
+
+2
+(20)
+To reduce dimensionality, the spectrograms are mapped to
+the Mel scale using Mel filters. The Mel scale converts linear
+frequency f to a perceptual frequency nmel as follows:
+nmel(f ) = 2595 log10
+
+1 +
+f
+700
+
+(21)
+with the inverse mapping given by:
+f (nmel) = 700(10nmel/2595 −1)
+(22)
+Each Mel filter Fnmel [k] is defined as a triangular weight-
+ing function over the frequency bins:
+Fnmel[k] =
+
+
+
+k −knmel−1
+knmel −knmel−1
+,
+knmel−1 ≤k ≤knmel
+knmel+1 −k
+knmel+1 −knmel
+,
+knmel ≤k ≤knmel+1
+0,
+otherwise
+(23)
+The Mel spectrograms are generated by applying 128 Mel
+filters to the power spectrograms:
+˜X[nmel, a] =
+K
+X
+k=1
+Fnmel[k]˜S[k, a]
+(24)
+VOLUME 14, 2026
+77721
+
+
+===== PAGE 6 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 2. Overall signal processing pipeline: the acquired signal is first
+segmented into smaller frames, after which each frame is transformed
+into a power spectrogram using the STFT. The final spectrogram is
+generated by applying Mel filters and logarithmic compression.
+FIGURE 3. The multiscale feature extraction process integrates
+information captured at different receptive fields. The final output retains
+only the most salient and discriminative feature.
+TABLE 1. Configuration of the proposed multiscale CNN.
+To improve numerical stability for the subsequent model
+processing, logarithmic compression is applied:
+X[nmel, a] = 20 log10
+
+˜X[nmel, a] + 10−6
+(25)
+The final log-Mel spectrograms are then converted into
+single-channel grayscale representations and resized to 32 ×
+32 for efficient downstream processing. This resizing simpli-
+fies data preparation while preserving essential information.
+The overall data preprocessing stage is illustrated in Fig. 2.
+B. MULTISCALE CONVOLUTIONAL NEURAL NETWORK
+Our multiscale CNN architecture is designed to capture local
+features from generated spectrograms at multiple spatial reso-
+lutions. By employing convolutional kernels of varying sizes,
+the network simultaneously extracts fine-grained details and
+broader contextual patterns inherent in the spectrogram,
+as shown in Fig. 3.
+In the first convolutional layer, three kernel sizes (5 × 5,
+3×3, and 1×1) are used in parallel. The 5×5 kernels provide a
+larger receptive field, the 3×3 kernels focus on intermediate-
+scale features, and the 1 × 1 kernels perform pointwise
+operations across pixel intensities. Each convolutional layer
+is followed by batch normalization (BN), as defined in
+Eq. (4), and a rectified linear unit (ReLU) activation function:
+Y (l,c,n)
+i,j
+= 8
+
+ˆZ(l,c,n)
+i,j
+
+=
+ˆZ(l,c,n)
+i,j
++
+ ˆZ(l,c,n)
+i,j
+
+2
+(26)
+where 8 (·) denotes the activation function, and ˆZ(l,c,n)
+i,j
+represents the pre-activation feature map, both defined in
+Section II.
+Feature maps generated by the first layer are concatenated
+along the channel dimension, merging outputs from different
+kernel scales into a unified representation. As a result, the
+output dimensionality increases, with the total number of
+channels equal to the sum of channels produced by each
+kernel branch.
+The second convolutional layer continues hierarchical fea-
+ture extraction by refining and extending representations
+from the previous layer. It applies two kernel sizes (3×3 and
+1 × 1) in parallel and concatenates their outputs along the
+channel dimension to enrich the feature space.
+Following concatenation, a pointwise operation is applied
+to the aggregated feature maps to reduce dimensionality.
+This operation compresses the channel dimension, empha-
+sizing salient features while suppressing redundancy, thereby
+maintaining computational efficiency without sacrificing dis-
+criminative capability.
+The reduced feature map is then flattened into a 1-D vector
+suitable for dense processing. The flattened vector is passed
+through two FC layers, each with 256 neurons. To improve
+generalization and mitigate overfitting, a dropout layer is
+inserted between the FC layers, randomly deactivating a
+subset of neurons during training. The detailed architectural
+parameters of the proposed multiscale CNN are summarized
+in Table 1.
+C. MAMBA-BASED SELECTIVE STATE SPACE MODEL
+Recent developments have shown that SSMs provided
+an
+efficient
+alternative
+to
+attention
+mechanisms
+for
+77722
+VOLUME 14, 2026
+
+
+===== PAGE 7 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 4. M-SSSM process. (a) Each row of an input image is interpreted as a token, where D denotes the feature dimension and L corresponds to the
+sequence length. The M-SSSM architecture is composed of 24 stacked residual blocks and a multilayer perceptron. (b) The selective SSM has a selection
+mechanism in which the selective scan algorithm dynamically filters irrelevant information by adapting transition pathways through matrices B and C.
+(c) Each residual block contains core operations: Root mean square layer normalization (RMSNorm), 1-D convolutional kernels, sigmoid linear unit
+activation functions, selective SSM blocks, and linear projection operations. (d) The Global Norm computes the mean over the sequence axis L,
+producing one D-dimensional vector per sample, where Bin represents the total number of samples (batch size). The resulting vectors are subsequently
+passed into a feedforward layer, which refines condensed global features and enhances their discriminative capacity.
+sequence-modeling tasks [40]. By incorporating selective
+gating mechanisms (Fig. 4b), selective SSMs dynamically
+regulate state transitions according to input relevance, thereby
+enhancing contextual awareness [41]. In computer vision,
+M-SSSMs have demonstrated remarkable performance, high-
+lighting their suitability for global feature extraction and
+complex visual recognition tasks [42], [43], [44].
+In this study, we integrate a multiscale CNN with a cus-
+tomized M-SSSM to capture both local and global fault
+feature relationships. As illustrated in Fig. 4b, the selective
+scan mechanism in M-SSSM dynamically generates input-
+dependent parameters from the AE features, enabling adap-
+tive state updating and output projection at each timestep.
+This design allows the model to selectively retain informa-
+tive fault transients while suppressing lengthy background
+intervals. This approach provides a more suitable inductive
+bias than fixed state models or dense self-attention. Conse-
+quently, the M-SSSM can simultaneously achieve efficient
+long-sequence modeling and enhanced sensitivity to weak
+transient fault signatures. In the M-SSSM branch, the spectro-
+gram is not directly flattened into a 1-D sequence of pixels.
+Instead, each row of the spectrogram is treated as a token,
+where each token represents the temporal evolution of a
+specific frequency band. The sequence is then constructed
+along the frequency dimension, enabling the model to cap-
+ture dependencies across different frequency components.
+VOLUME 14, 2026
+77723
+
+
+===== PAGE 8 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+Since each token retains its internal temporal structure, this
+representation preserves essential time-frequency informa-
+tion while allowing efficient sequence modeling. This design
+is particularly suitable for AE signals, where fault-induced
+energy is distributed across multiple frequency bands. Within
+the M-SSSM architecture, 24 residual blocks are stacked
+sequentially for a favorable trade-off between performance
+and energy consumption (Fig. 4a). Each block receives
+sequence tokens as inputs, refines the representations, and
+forwards the enhanced features to the subsequent block.
+Given a batch of single-channel input images Xin
+∈
+RBin×1×Uin×Vin, where Bin is the number of batches, Uin and
+Vin represent the height and width, respectively, each image
+row is treated as a token in a 1-D sequence. The spatial grid
+is reshaped into a sequence of row vectors, yielding x ∈
+RBin×L×D, where L (equals to Uin) is the sequence length, and
+D (equals to Vin) is the token dimension. Within each residual
+block, root mean square layer normalization (RMSNorm) is
+applied across the feature dimension for each token. For a
+token vector x(n,is) ∈RD at batch index n and sequence index
+is, the RMSNorm is defined as:
+⌢x
+(n,is) = γ
+x(n,is)
+s
+1
+D
+DP
+d=1
+
+x(n,is)
+d
+2
++ ε
+(27)
+where γ ∈RD is a learnable scale parameter, and ε = 10−5 is
+a small constant introduced for numerical stability. Stacking
+all tokens yields:
+⌢x = RMSNorm (x) ∈RBin×L×D
+(28)
+The normalized representation
+⌢x is then projected using an
+expansion factor of E = 2 into two parallel embeddings
+z, ˜x ∈RBin×L×ED, with z is a gating tensor, and ˜x is forwarded
+to the sequence processing branch.
+To capture bidirectional contextual information along the
+row sequence, two parallel branches operate on ˜x. The first
+branch processes the sequence in its original order using 1-D
+convolutional kernels of size four, followed by a sigmoid
+linear unit (SiLU) nonlinearity:
+x(1)
+out = SiLU (Conv1D (˜x)) ∈RBin×L×ED
+(29)
+Here, x(1)
+out is the post-activation output that is passed through
+the SSM, where a selective scan algorithm dynamically
+adapts state transitions to preserve relevant information:
+⌢y
+(1) = SSM
+
+x(1)
+out
+
+∈RBin×L×ED
+(30)
+where
+⌢y
+(1) denotes the SSM output. The output of the
+reverse-direction branch is then computed as:
+˜xrev = flip (˜x, dim = L) ∈RBin×L×ED
+(31)
+zrev = flip (z, dim = L) ∈RBin×L×ED
+(32)
+where ˜xrev, zrev are the flipped input to the second branch and
+the flipped gating tensor, respectively. Similarly, the output
+of the second branch is obtained as:
+⌢y
+(2) = SSM
+ SiLU
+ Conv1D
+ ˜xrev
+∈RBin×L×ED
+(33)
+The outputs of the forward and reverse branches are gated
+using z and zrev, respectively, and aggregated as follows:
+⌢y =
+⌢y
+(1) ⊙SiLU (z) + flip
+
+⌢y
+(2) ⊙SiLU (zrev) , dim = L
+
+2
+(34)
+The aggregated output
+⌢y
+∈
+RBin×L×ED is subsequently
+linearly projected back to the original feature dimension
+˜y ∈RBin×L×D and combined with the residual input x ∈
+RBin×L×D to form the block output y ∈RBin×L×D, which is
+propagated to the next residual block. The core operations of
+each residual block are illustrated in Fig. 4c.
+After processing through all residual blocks, global nor-
+malization is applied along the sequence dimension to
+produce the final sequence output yout ∈RBin×D:
+y(n,d)
+out
+= 1
+L
+L
+X
+is=1
+y(n,d)
+is
+(35)
+As shown in Fig. 4d, the resulting tensor is passed through a
+linear layer with 256 units to generate feature representations
+suitable for the subsequent fusion stage:
+⌢v = norm
+
+youtW T
+0 + b0
+
+∈RBin×Dout
+(36)
+where W0 ∈RDout×D, b0 ∈RDout are learnable parameters
+of the linear layer, respectively, and norm (·) is the Euclidean
+normalization.
+D. ADAPTIVE FEATURE FUSION
+Static fusion strategies fail to account for the varying impor-
+tance of features extracted by different branches. To address
+this limitation, adaptive feature fusion introduces a learn-
+able weighting mechanism that selectively integrates local
+and global representations into a unified feature space,
+dynamically balancing fine-grained sensitivity with global
+contextual awareness.
+Let
+⌢o ∈RBin×Dout be the normalized local features from
+the multiscale CNN branch, and
+⌢v ∈RBin×Dout be the nor-
+malized global features extracted from the M-SSSM branch.
+An adaptive fusion gate is:
+α = ψ
+
+ϕ
+h
+⌢o ∥
+⌢v
+i
+W T
+1 + b1
+
+W T
+2 + b2
+
+∈(0, 1)Bin×Dout
+(37)
+where ϕ (·) is the ReLU function, ψ (·) is the sigmoid func-
+tion,
+h
+o ∥
+⌢v
+i
+denotes feature concatenation, W1 ∈RQ×2Dout,
+W2 ∈RDout×Q, b1 ∈RQ, b2 ∈RDout are learnable param-
+eters, Dout = 256 is the output vector dimension to match
+the output dimension of the multiscale CNN branch, and
+Q = 128 is the hidden layer dimension.
+77724
+VOLUME 14, 2026
+
+
+===== PAGE 9 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 5. Adaptive feature fusion. Features from different branches are
+concatenated and then injected into a learnable network to produce
+gating vectors. These gates learn to balance outputs from branches,
+thereby improving the fusion method.
+Subsequently, the two feature streams are combined
+through the gating vector:
+⌢u = α ⊙
+⌢o + (1 −α) ⊙
+⌢v
+(38)
+where
+⌢u ∈RBin×Dout is the fused representation. Fig. 5
+illustrates the adaptive fusion method used in this study.
+E. CLASSIFIER AND LOSS FUNCTION
+The fused output
+⌢u is subsequently processed through an
+FC transformation and a classifier to produce a probability
+distribution over fault classes:
+⌢p = ξ
+
+ϕ
+
+⌢uW T
+fcn + bfcn
+
+W T
+cls + bcls
+
+∈(0, 1)Bin×Dcls
+(39)
+where ξ (·) is the softmax function, Wfcn ∈RDfcn×Dout and
+bfcn ∈RDfcn are learnable parameters of the FC layer, Wcls ∈
+RDcls×Dfcn and bcls ∈RDcls are learnable parameters of the
+classifier, Dfcn = 256 is the FC output dimension, and Dcls =
+8 is the output dimension of the classifier.
+Model training is performed using the standard cross-
+entropy loss, which measures the discrepancy between
+predicted class probabilities and ground-truth labels gn ∈
+{0, 1, . . . , Dcls −1}:
+JCE = −1
+Bin
+Bin
+X
+n=1
+log
+⌢p(n,gn)
+(40)
+Minimizing JCE encourages the model to assign high proba-
+bility to the correct class for each input sample.
+IV. EXPERIMENTS AND EVALUATION
+To validate the proposed method, this section presents the
+experimental design and evaluation methodology. Compar-
+ative analyses conducted under diverse conditions are used to
+assess the robustness and efficiency of the proposed approach
+across multiple performance scenarios.
+A. EXPERIMENTAL SETUP
+1) TESTBED AND PROCESSING SYSTEMS
+Following prior studies [45], [46], the experimental setup
+comprised two shafts, one located at the driven end and the
+other at the non-driven end, connected through a gearbox
+with a damping ratio of 1.52:1. Both shafts were mounted
+TABLE 2. Detailed bearing specification for the experimental testbed.
+on a dedicated testbed and supported by cylindrical roller
+bearings (FAG NJ206-E-TVP2), whose specifications are
+summarized in Table 2. As illustrated in Fig. 6, the non-driven
+shaft was coupled to an adjustable blade via a pulley to
+enable controlled load variation. The rotational speed of the
+three-phase induction motor was regulated using a variable-
+speed controller. To reduce shock transmission and ensure
+stable operation, the motor and driven shaft were connected
+through a flexible coupling.
+A wideband AE sensor was mounted on the non-drive-
+end bearing to capture high-frequency signal responses. The
+AE signals were acquired through a PCI-2 acquisition board
+configured with a decimated sampling rate of 250 kHz
+(the signals were downsampled by a factor of 4 using the
+decimate() function in MATLAB, which applies a built-in
+anti-aliasing filter). The PAC WSα sensor employed in this
+study provides an effective operating frequency range of
+100-900 kHz, exhibits directional variation within ±1.5 dB,
+offers a peak sensitivity of -62 dB, and has a resonant fre-
+quency centered at 650 kHz.
+All experiments were conducted using a high-performance
+workstation equipped with an AMD Ryzen 9 5950X proces-
+sor (16 cores), 128 GB of system memory, and an NVIDIA
+GeForce RTX 3090 graphics processing unit (GPU). The
+experimental workflow integrated MATLAB and PyTorch
+at different stages. MATLAB was used for raw signal pre-
+processing and spectrogram generation, while PyTorch was
+employed for model implementation and training.
+2) DATASET DESCRIPTION
+To simulate bearing defects, cracks of varying dimensions
+were introduced using precision diamond cutting at different
+positions, resulting in distinct fault types as shown in Fig. 7:
+inner fault (BCI), outer fault (BCO), roller fault (BCR), inner-
+outer fault (BCIO), inner-roller fault (BCIR), outer-roller
+fault (BCOR), and inner-outer-roller fault (BCIOR). The con-
+structed dataset included three crack sizes (3 mm, 6 mm,
+12 mm) distributed across seven single-fault and compound-
+fault scenarios, and one healthy condition (BNC). Each case
+was evaluated at six rotational speeds (250 RPM, 300 RPM,
+350 RPM, 400 RPM, 450 RPM, and 500 RPM) to ensure
+sufficient operational variability.
+The recorded AE signals were segmented into 0.05-s inter-
+vals to generate individual samples (Fig. 8). It is important
+to note that segmentation was performed independently for
+each AE signal, and no segment overlaps with segments from
+VOLUME 14, 2026
+77725
+
+
+===== PAGE 10 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 6. Experimental testbed and schematic representation. (a) Physical testbed configuration enabling precise monitoring and analysis of bearing
+faults under controlled mechanical and operational conditions. (b) Diagram of testbed, highlighting the motor-gearbox assembly and measurement
+instruments (AE sensor and displacement transducer) that facilitate signal acquisition across diverse operating scenarios.
+FIGURE 7. Bearing fault types. (a) Outer fault (BCO). (b) Inner fault (BCI). (c) Roller fault (BCR). (d) Inner-outer fault (BCIO). (e) Outer-roller fault (BCOR).
+(f) Inner-roller fault (BCIR). (g) Inner-outer-roller fault (BCIOR).
+FIGURE 8. Segmented AE signals for various crack dimensions (3 mm, 6 mm, and 12 mm) and different bearing fault types at a rotational speed
+of 500 RPM.
+different signal recordings. Each segment underwent signal
+processing to generate a corresponding spectrogram (Fig. 9).
+All transformations were performed independently for each
+segment without any global normalization or dataset-level
+statistical operations, ensuring that no information was
+shared across samples. For model development, the dataset
+was partitioned to support robust training, validation, and
+testing under diverse operating conditions. The training set
+comprises 13,200 samples, collected at rotational speeds
+of 300, 400, and 500 RPM. The validation set included
+3,300 samples from the same fault categories but recorded
+at intermediate speeds of 250, 350, and 450 RPM to support
+unbiased model tuning. The testing set consisted of 6,600
+samples, also obtained at 250, 350, and 450 RPM, and served
+77726
+VOLUME 14, 2026
+
+
+===== PAGE 11 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 9. Representative log-Mel spectrograms of different bearing fault
+conditions with a 6 mm crack size, recorded at six rotational speeds
+(250 RPM, 300 RPM, 350 RPM, 400 RPM, 450 RPM, and 500 RPM).
+as an independent benchmark for evaluating generalization
+performance.
+3) TRAINING SETTINGS
+Model training employed the AdamW optimizer, with hyper-
+parameters set to β1 = 0.9, β2 = 0.999, a weight decay of
+1 × 10−4, ε = 1 × 10−8. The learning rate was initialized at
+5×10−4 controlled using a learning-rate scheduling strategy.
+Specifically, a warm-up phase of 1000 steps was applied,
+followed by polynomial decay with a power factor of 0.2 until
+reaching a minimum learning rate of 1 × 10−7. Training was
+performed with a batch size of 256 for 30 epochs, providing
+sufficient iterations for learning discriminative features while
+mitigating overfitting.
+B. EXPERIMENTAL EVALUATION
+1) EVALUATION METRICS
+To comprehensively evaluate classification performance
+across all fault classes, multiple standard metrics were
+employed. Overall accuracy was used to measure the propor-
+tion of correctly classified samples:
+Accuracy =
+TP + TN
+TP + FP + FN + TN
+(41)
+where TP, TN, FP, and FN denote the numbers of true
+positives, true negatives, false positives, and false negatives,
+respectively. The true positive rate (TPR), also referred to
+as recall, quantifies the proportion of correctly identified
+samples among all samples belonging to a given class:
+TPR =
+TP
+TP + FN
+(42)
+FIGURE 10. Normalized confusion matrix for the proposed method on the
+testing set.
+FIGURE 11. Feature space visualization using t-SNE for the proposed
+method on the testing set.
+Precision also serves as a robust metric for evaluating the
+reliability of model performance:
+Precision =
+TP
+TP + FP
+(43)
+The F1 score, defined as the harmonic mean of Precision
+and TPR, provides a balanced assessment of classification
+performance:
+F1 =
+2TP
+2TP + FP + FN
+(44)
+The area under the curve (AUC) is a standard metric for multi-
+class classification and is derived from the receiver operating
+characteristic (ROC) curve, which plots the TPR against the
+false positive rate (FPR) across varying decision thresholds:
+FPR =
+FP
+FP + TN
+(45)
+AUC =
+Z 1
+0
+TPR(FPR)d(FPR)
+(46)
+VOLUME 14, 2026
+77727
+
+
+===== PAGE 12 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+This integral captures the overall ability of the classifier to
+discriminate between classes. A higher AUC value indicates
+better classification performance, with a value of 1.0 rep-
+resenting perfect discrimination and 0.5 corresponding to
+random guessing.
+2) CLASSIFICATION PERFORMANCE
+To assess the effectiveness of the proposed method, we ana-
+lyze its classification behavior using the normalized con-
+fusion matrix and a t-SNE visualization of the penultimate
+features.
+The normalized confusion matrix (Fig. 10) shows per-
+class recall. Most classes were classified almost perfectly,
+with TPRs exceeding 0.94 for all but one fault class (BCI).
+The healthy condition (BNC) was never confused with any
+fault class, which is particularly desirable in fault diagnosis
+applications.
+To further examine the learned feature structure, t-SNE
+was applied to the penultimate features and visualized in 2-D
+(Fig. 11). Each class formed one or compact clusters that were
+clearly separated from those of other classes. This cluster-
+ing behavior indicates that the learned representations were
+highly discriminative prior to the final linear classification
+layer.
+The proposed architecture achieved an average testing
+accuracy of 97.41% and near-perfect recognition across
+most classes, including the BNC condition. The penultimate
+features formed class-specific manifolds with meaningful
+internal structure, demonstrating that the model learned a
+robust and interpretable representation of the data.
+3) ABLATION STUDY
+To rigorously evaluate the contribution of individual compo-
+nents within the proposed architecture, a series of ablation
+experiments was conducted. Key modules were systemati-
+cally isolated to assess their impact on overall performance.
+Specifically, the M-SSSM was replaced with a vision trans-
+former (ViT) to evaluate alternative global feature extraction
+strategies. To examine the role of the multiscale CNN, the
+M-SSSM was removed entirely. The proposed model was
+also benchmarked against lightweight CNN architectures
+commonly used in embedded systems. Finally, the standalone
+performance of the M-SSSM was evaluated to assess its
+independent efficacy.
+As shown in Fig. 12, ResNet18 exhibited the fastest con-
+vergence, with training loss decreasing sharply within the
+first ∼150–200 steps and training accuracy approaching
+1.0 early in training. The proposed multiscale CNN, multi-
+scale CNN–ViT, and the proposed hybrid model converged
+at comparable rates, whereas MobileNetV2 and the M-SSSM
+converged more slowly. In terms of validation metrics, the
+proposed multiscale CNN and hybrid model outperformed
+MobileNetV2 and M-SSSM while demonstrating stronger
+generalization capability than ResNet18.
+To confirm consistency, all experiments were repeated
+multiple times. Table 3 compares the validation accuracy
+and efficiency of the evaluated architectures. The proposed
+hybrid model with adaptive fusion achieved the highest
+mean accuracy (97.34% ± 0.44) and the highest maxi-
+mum validation accuracy (98.09%), outperforming all other
+models at a reasonable computational cost. In contrast,
+MobileNetV2 and the M-SSSM yielded substantially lower
+mean accuracies, while ResNet18 achieved a comparable
+mean accuracy to the proposed multiscale CNN but with
+significantly higher complexity. From an efficiency per-
+spective, the proposed models provided a favorable balance
+between accuracy and computational demand. The multi-
+scale CNN achieved high accuracy while reducing parameter
+count by 50% relative to MobileNetV2 and 96.9% relative
+to ResNet18, offering a compact architecture that outper-
+forms established lightweight baselines. Notably, ResNet18
+was the most computationally demanding model and pro-
+vided no accuracy advantage over the tailored multiscale
+design. These results highlight the importance of multiscale
+representations, which deliver superior performance with
+lower computational overhead. This advantage is particularly
+evident in the analysis of AE signals, where repetitive degra-
+dation patterns manifest across varying characteristic widths.
+By effectively capturing these multi-resolution features, the
+proposed approach demonstrates superior adaptability com-
+pared to baseline CNNs, which are primarily optimized
+for general-purpose tasks and lack the specialized capacity
+to model such scale-dependent signal variations. Moreover,
+adaptive fusion consistently outperformed static fusion in
+both mean and maximum accuracy with nearly identical com-
+puting cost, highlighting the value of data-dependent feature
+weighting. The rationale is that adaptive fusion dynamically
+modulates the contribution of each branch according to the
+input characteristics, selectively emphasizing the most infor-
+mative representation while suppressing less reliable features.
+The proposed hybrid model was also markedly more efficient
+than the multiscale CNN + ViT, despite the growing popular-
+ity of CNN–transformer hybrids. This advantage arises from
+inherent design differences, whereas ViT depends on com-
+putationally intensive self-attention mechanisms and requires
+the input image to be partitioned into numerous smaller
+patches for processing, the M-SSSM architecture operates
+directly on the image without such preprocessing overhead.
+Increasing the number of stacked layers in M-SSSM
+from 16 to 24 and 32 generally leads to higher GPU power
+consumption (Fig. 13). The 16-layer configuration operates
+mostly in the range of approximately 190–220 W, with sev-
+eral sudden drops near 100 W. In contrast, the 24-layer and
+especially the 32-layer models sustain higher average power
+levels, frequently exceeding 220 W and occasionally reaching
+peaks near 275–280 W. This trend indicates that deeper M-
+SSSM branches impose heavier computational workloads,
+resulting in higher GPU utilization and greater energy
+demand. The 32-layer model exhibits the highest and most
+sustained power draw, suggesting near-continuous execution
+pressure on the GPU resources. The streaming multiproces-
+sor (SM) clock speed results provide further insight into
+77728
+VOLUME 14, 2026
+
+
+===== PAGE 13 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 12. Ablation experiments are carried out to investigate the impact of different architectural elements on overall performance. The comparative
+settings include: (1) replacing the M-SSSM with a ViT, (2) removing the M-SSSM, (3) replacing the proposed model with baseline CNN architectures
+commonly used in embedded systems, and (4) removing the multiscale CNN in the hybrid model. The graphs show the comparative results of various
+evaluation metrics throughout the training and validation processes.
+TABLE 3. Results of ablation study on diagnostic accuracy and computational efficiency.
+computational efficiency (Fig. 14). The 32-layer model main-
+tains a highly stable clock frequency close to the maximum
+operating range (around 1900 MHz) throughout the exper-
+iment, with only minor fluctuations. This implies that the
+workload is sufficiently dense and regular to keep the GPU
+fully engaged, allowing boost clocks to remain stable. The
+24-layer model also exhibits similar behavior but with occa-
+sional moderate drops, indicating transient underutilization
+VOLUME 14, 2026
+77729
+
+
+===== PAGE 14 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 13. Comparison of GPU power usage of different stacked layers
+in the M-SSSM.
+FIGURE 14. Comparison of the SM clock speed of different stacked layers
+in the M-SSSM.
+TABLE 4. Ablation study on different numbers of stacked residual blocks
+in the proposed model.
+or memory stalls. In comparison, the 16-layer model experi-
+ences frequent and severe clock throttling events, with several
+drops below 1500 MHz and one instance below 900 MHz.
+Such instability suggests intermittent idle periods, reduced
+parallel workload saturation, or kernel launch inefficiencies
+when the M-SSSM branch is too shallow.
+From an architectural perspective, these results suggest that
+increasing the number of stacked residual blocks improves
+hardware occupancy and computational continuity. A shallow
+M-SSSM branch may not generate a sufficient sequential
+modelling workload to fully exploit the GPU’s parallel
+resources, causing clock oscillations and lower average
+power draw. Conversely, deeper configurations provide a
+more sustained workload, enabling more consistent SM uti-
+lization. However, this improvement comes at the cost of
+increased energy consumption. While the 32-layer config-
+uration appears computationally efficient from a hardware
+utilization standpoint, it also consumes the most power.
+Therefore, selecting the optimal depth should consider both
+predictive accuracy and hardware efficiency. Table 4 shows
+that the accuracy gains from 32 layers are marginal relative
+to those of 24 layers. Accordingly, the 24-layer configuration
+represents a more favorable trade-off between performance
+and energy consumption.
+The efficiency of different time–frequency analysis meth-
+ods was further evaluated by measuring the processing time
+required for a single segmented AE signal. The continuous
+wavelet transform (CWT) [47] is implemented in MATLAB,
+which automatically selects the number of scales according
+to the signal length and sampling frequency. While this pro-
+vides a practical and commonly used configuration, it should
+be noted that the computational cost of CWT is sensitive
+to the number of scales. Therefore, the reported runtime
+reflects this default setting rather than an exhaustive opti-
+mization of parameters. The HHT [48] is also performed in
+MATLAB with adaptive EMD, in that the number of intrinsic
+mode functions (IMFs) and the stopping criteria are deter-
+mined based on the signal characteristics using the default
+MATLAB settings. The Wigner–Ville distribution (WVD)
+[49] is implemented using the default function in MATLAB,
+whereas the S-transform [50] is based on an open-source
+project [51]. Fig. 15 summarizes the comparative runtimes of
+five time–frequency techniques. The WVD and S-transform
+exhibited the highest computational cost. The HHT required
+moderate processing time due to the overhead associated with
+EMD and instantaneous frequency estimation. The CWT
+was faster when appropriately parameterized. This compar-
+ison shows that the STFT exhibits a lower computational
+cost compared to the other techniques under the current
+implementation settings. In contrast, the computational cost
+of CWT and HHT is highly dependent on parameter con-
+figurations, such as the number of scales and IMFs, lead-
+ing to a trade-off between time-frequency resolution and
+efficiency.
+FIGURE 15. Comparison of various time-frequency analysis techniques
+applied to one segmented AE signal. The processing time of each method
+is scaled by using logarithmic normalization. The results show that STFT is
+the most efficient approach under the settings of this study, while
+S-Transform and WVD require huge computational complexity.
+77730
+VOLUME 14, 2026
+
+
+===== PAGE 15 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 16. ROC curves illustrating classification performance of the proposed hybrid architecture under varying SNR conditions: (a) 0 dB,
+(b) 5 dB, (c) 10 dB, (d) 15 dB. Each curve highlights the impact of increasing SNR on detection accuracy and robustness. The proposed model
+achieves reliable discrimination between positive and negative instances at SNR levels of 10 dB and 15 dB.
+4) PERFORMANCE IN NOISY CONDITIONS
+To further assess robustness, the proposed bearing fault
+diagnosis method was evaluated under noisy conditions rep-
+resentative of industrial environments. The entire dataset was
+artificially contaminated with additive white Gaussian noise
+at signal-to-noise ratios (SNRs) of 0, 5, 10, and 15 dB. The
+experimental design enabled systematic evaluation of model
+resilience under increasing signal distortion. The SNR is
+defined as:
+SNRdB = 10 log10
+Psignal
+Pnoise
+
+(47)
+where Psignal denotes the power of the original signal and
+Pnoise is the power of the added noise. Fig. 16 presents
+ROC curves under progressively cleaner signal conditions.
+As noise decreases, discrimination improves across all
+classes. At 0 dB (Fig. 16a), performance was modest, with
+notable inter-class variability and several classes exhibiting
+AUC values in the range of 0.89–0.93, indicating that severe
+noise obscured class-specific features and reduced sensitiv-
+ity at low FPRs. At 5 dB (Fig. 16b), average AUC values
+increased to 0.98, with most classes achieving values between
+0.96 and 0.99, demonstrating that moderate noise reduction
+substantially improved separability. At 10 dB (Fig. 16c),
+VOLUME 14, 2026
+77731
+
+
+===== PAGE 16 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+performance approached saturation (micro-/macro-AUC =
+0.99/0.99), with two classes reaching perfect discrimination
+and the remaining classes tightly clustered between 0.97 and
+0.99. At 15 dB (Fig. 16d), near-ceiling performance per-
+sisted, indicating minimal residual impact of noise. These
+results indicate that noise mitigation was critical at very low
+SNRs, while at typical operating SNRs above 10 dB, the
+proposed model consistently delivered robust classification
+performance.
+We extend our framework to incorporate composite noise,
+which more accurately reflects the complexity of dis-
+turbances encountered in industrial environments. Unlike
+isolated noise models, composite noise captures the simul-
+taneous presence of multiple stochastic processes, thereby
+offering a more representative approximation of real-world
+conditions. Specifically, the composite noise considered in
+this study comprises Gaussian, uniform, and impulse noise,
+each corresponding to distinct phenomena observed in man-
+ufacturing and signal acquisition systems. Gaussian noise is
+employed to represent the ubiquitous thermal fluctuations
+and electronic interference that arise in sensors. Uniform
+noise is introduced to simulate quantization effects inherent
+in digital signal acquisition. Impulse noise captures transient,
+high-amplitude disturbances such as mechanical shocks,
+electrical spikes, and intermittent interference in industrial
+environments. The composite noise used in this study is
+mathematically represented as:
+rnoise = rraw + N
+ 
+0, Psignal
+10
+SNRdB
+10
+!
++ U
+
+−
+p
+3 · Pnoise,
+p
+3 · Pnoise
+
++ Bernoulli (p) · N
+
+0, Pnoise
+p
+
+(48)
+where rraw is the raw AE signals, rnoise is the contaminated
+AE signals, N represents Gaussian noise, U denotes uniform
+distribution, and p is the Bernoulli success probability.
+Uniform noise is generated as a zero-mean random process
+with an amplitude range [−√3 · Pnoise, √3 · Pnoise], ensuring
+that the expected noise power equals Pnoise. Impulse noise
+is generated using a Bernoulli-Gaussian model. A Bernoulli
+mask with p = 0.005 selects corrupted samples, and the
+selected samples are replaced by Gaussian noise scaled by
+√Pnoise/p, ensuring constant expected noise power.
+The proposed method demonstrates consistent robustness
+across increasing SNR levels, with classification accuracy
+improving monotonically for all noise types as the noise
+level decreases (Fig. 17). This indicates that the extracted
+representations become progressively more discriminative as
+signal corruption decreases. Impulse noise yields the highest
+accuracy at all tested SNR levels, achieving approximately
+86.67%, 90.08%, 94.38%, and 95.55% at 0, 5, 10, and 15 dB,
+respectively. This suggests that the model is comparatively
+resilient to sparse impulsive disturbances. Because impulse
+noise affects only a small subset of samples, much of the
+original signal structure remains intact. In addition, transient
+AE fault signatures are inherently impulsive in nature, which
+may make the model less sensitive to sparse spike-like cor-
+ruption than to dense stochastic noise. Fig. 17 also shows that
+Gaussian noise produces intermediate performance. Com-
+pared with impulse noise, Gaussian noise perturbs all samples
+continuously, which can blur weak fault-related patterns in
+both the time and time-frequency domains. However, the
+steady improvement with SNR indicates that the proposed
+framework retains good robustness to additive white Gaus-
+sian noise. Composite noise represents the most challenging
+condition, yielding the lowest accuracy across all SNR levels.
+This is expected because composite noise combines mul-
+tiple degradation mechanisms simultaneously, causing both
+distributed contamination and occasional high-amplitude dis-
+turbances. Such mixed corruption more severely distorts
+diagnostic features and reduces class separability.
+FIGURE 17. Testing accuracy under different noise conditions (composite,
+Gaussian, and impulse noise) across SNR levels ranging from 0 to 15 dB.
+Overall, the results verify that the proposed method
+maintains strong diagnostic capability under harsh noisy
+environments, particularly under impulse and Gaussian noise,
+while composite noise remains the most demanding scenario.
+These findings also highlight the importance of evaluat-
+ing bearing fault diagnosis systems under heterogeneous
+noise conditions, rather than relying solely on Gaussian
+assumptions.
+5) EDGE DEPLOYMENT
+To evaluate real-world applicability, the proposed model
+was deployed on an embedded platform, specifically the
+NVIDIA Jetson Nano, which features a quad-core ARM
+Cortex-A57 processor, 4 GB of LPDDR4 memory, and a
+128-core NVIDIA Maxwell GPU. During inference, per-
+formance was assessed by recording maximum power con-
+sumption and peak GPU shared-memory utilization. Fig. 18
+compares resource usage across input resolutions of 128 ×
+128, 64 × 64, and 32 × 32 for ResNet18, multiscale
+CNN + ViT, and the proposed model.
+77732
+VOLUME 14, 2026
+
+
+===== PAGE 17 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+FIGURE 18. Performance comparison on edge device across varying input resolutions. The proposed model consistently demonstrates superior efficiency,
+achieving the lowest power consumption and memory utilization when compared with both the recent hybrid CNN+ViT approach and the widely adopted
+baseline ResNet18.
+The proposed model consistently exhibited the lowest
+power consumption across all resolutions, decreasing from
+6.8 W at 128 × 128 to 5.4 W at 64 × 64 and 4.9 W at
+32 × 32. The largest gains occurred at the highest resolution,
+where peak power was reduced by 1.3 W (∼16%) relative
+to ResNet18 and by 1.1 W (∼14%) relative to multiscale
+CNN + ViT. At 32 × 32 resolution, the proposed model and
+multiscale CNN + ViT showed comparable power consump-
+tion, reflecting the relatively low overhead of ViT at small
+input sizes. These results show that the M-SSSM is more
+efficient compared to ViT when processing larger input sizes
+or longer sequences, thanks to the selective scan mechanism.
+In contrast, ResNet18 maintained higher power consumption,
+indicating poorer scalability at low resolutions.
+Peak GPU shared-memory utilization followed a similar
+trend. The proposed model consistently used the least mem-
+ory across all resolutions, with the largest relative savings
+observed at 128 × 128 (−4.9%) compared with ResNet18.
+These advantages persisted as resolution decreased. Overall,
+the results demonstrated that the proposed architecture offers
+the most favorable resource profile, achieving minimal power
+draw and memory usage across all evaluated input resolu-
+tions. These characteristics make it particularly well-suited
+for edge deployments subject to strict energy and memory
+constraints.
+V. CONCLUSION
+In this study, we proposed a novel lightweight heterogeneous
+architecture for efficient bearing-fault diagnosis. By inte-
+grating the proposed multiscale CNN with a customized
+M-SSSM, the framework outperforms recent CNN–ViT
+hybrid approaches and conventional CNN baselines in both
+diagnostic accuracy and computational efficiency under
+practical operating conditions. In addition, the results
+demonstrate that the STFT-based time–frequency analysis
+employed in this work is well-suited for resource-constrained
+environments.
+Despite these contributions, several limitations warrant
+further investigation. First, the current evaluation is based on
+a relatively constrained dataset, which may not fully capture
+the operating conditions encountered in large-scale industrial
+environments. Expanding the dataset in both size and diver-
+sity will be essential to validate the generalizability of the
+proposed approach. Second, the experiments were conducted
+on a single device configuration, leaving open questions
+regarding device generalization, that is, whether the model
+maintains comparable performance across different sensor
+types, acquisition hardware, and computational platforms.
+Moreover, the signal processing and inference stages are
+currently implemented as separate modules rather than within
+a unified, end-to-end pipeline, which may limit optimization
+opportunities. The evaluation also does not include explicit
+measurements of inference latency, a critical consideration
+for real-time industrial applications. Addressing these limi-
+tations, through larger and more diverse datasets, systematic
+cross-device and cross-platform validation, and integrated
+pipeline optimization, will further enhance the robustness and
+practical applicability of the proposed approach in large-scale
+industrial deployments.
+REFERENCES
+[1] J. Xu, R. Chen, H. Hong, X. Yuan, and C. Zhang, ‘‘Static characteristics of
+high-temperature superconductor and hydrodynamic fluid-film compound
+bearing for rocket engine,’’ IEEE Trans. Appl. Supercond., vol. 25, no. 6,
+pp. 1–8, Dec. 2015, doi: 10.1109/TASC.2015.2477375.
+[2] B. Sun, Z. Sheng, P. Song, H. Sun, F. Wang, X. Sun, and J. Liu, ‘‘State-
+of-the-art detection and diagnosis methods for rolling bearing defects: A
+comprehensive review,’’ Appl. Sci., vol. 15, no. 2, p. 1001, Jan. 2025, doi:
+10.3390/app15021001.
+VOLUME 14, 2026
+77733
+
+
+===== PAGE 18 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+[3] W. Zhang, D. Yang, and H. Wang, ‘‘Data-driven methods for predictive
+maintenance of industrial equipment: A survey,’’ IEEE Syst. J., vol. 13,
+no. 3, pp. 2213–2227, Sep. 2019, doi: 10.1109/JSYST.2019.2905565.
+[4] X. Liu, X. Wu, and C. Liu, ‘‘A comparison of acoustic emis-
+sion and vibration on bearing fault detection,’’ in Proc. Int. Conf.
+Transp., Mech., Electr. Eng. (TMEE), Dec. 2011, pp. 922–926, doi:
+10.1109/TMEE.2011.6199353.
+[5] D. Cornel, F. Gutiérrez Guzmán, G. Jacobs, and S. Neumann, ‘‘Condition
+monitoring of roller bearings using acoustic emission,’’ Wind Energy Sci.,
+vol. 6, no. 2, pp. 367–376, Mar. 2021, doi: 10.5194/wes-6-367-2021.
+[6] H. Zhivomirov, ‘‘On the development of STFT-analysis and ISTFT-
+synthesis routines and their practical implementation,’’ TEM J., vol. 8,
+no. 1, pp. 56–64, Feb. 2019, doi: 10.18421/tem81-07.
+[7] B. Liu, C. Yan, Y. Liu, Z. Wang, Y. Huang, and L. Wu, ‘‘Multiscale residual
+antinoise network via interpretable dynamic recalibration mechanism for
+rolling bearing fault diagnosis with few samples,’’ IEEE Sensors J., vol. 23,
+no. 24, pp. 31425–31439, Dec. 2023, doi: 10.1109/JSEN.2023.3328007.
+[8] Y. Li, J. Zhou, H. Li, G. Meng, and J. Bian, ‘‘A fast and adaptive empirical
+mode decomposition method and its application in rolling bearing fault
+diagnosis,’’ IEEE Sensors J., vol. 23, no. 1, pp. 567–576, Jan. 2023, doi:
+10.1109/JSEN.2022.3223980.
+[9] K. Dragomiretskiy and D. Zosso, ‘‘Variational mode decomposition,’’
+IEEE Trans. Signal Process., vol. 62, no. 3, pp. 531–544, Feb. 1, 2014,
+doi: 10.1109/TSP.2013.2288675.
+[10] Y. Jian, Z. Zeying, and G. Yunguang, ‘‘Research on fault diagnosis of
+motor bearings based on SBOA-VMD-TCN,’’ IEEE Access, vol. 13,
+pp. 174815–174830, 2025, doi: 10.1109/ACCESS.2025.3608063.
+[11] R. Rajabioun, M. Afshar, M. Mete, Ö. Atan, and B. Akin, ‘‘Distributed
+bearing fault classification of induction motors using 2-D deep learn-
+ing model,’’ IEEE J. Emerg. Sel. Topics Ind. Electron., vol. 5, no. 1,
+pp. 115–125, Jan. 2024, doi: 10.1109/JESTIE.2023.3323253.
+[12] D. T. Hoang and H. J. Kang, ‘‘A motor current signal-based bear-
+ing fault diagnosis using deep learning and information fusion,’’ IEEE
+Trans. Instrum. Meas., vol. 69, no. 6, pp. 3325–3333, Jun. 2020, doi:
+10.1109/TIM.2019.2933119.
+[13] H. Wang, Z. Cao, Y. Zhou, Z. Fan, Y. Liu, and X. Liu, ‘‘An inter-
+pretable intelligent bearing fault diagnosis method using damage dynamics
+response,’’ IEEE Sensors J., vol. 25, no. 16, pp. 31185–31195, Aug. 2025,
+doi: 10.1109/JSEN.2025.3586231.
+[14] P. Yin, J. Nie, X. Liang, S. Yu, C. Wang, W. Nie, and X. Ding, ‘‘A mul-
+tiscale graph convolutional neural network framework for fault diagnosis
+of rolling bearing,’’ IEEE Trans. Instrum. Meas., vol. 72, pp. 1–13, 2023,
+doi: 10.1109/TIM.2023.3291768.
+[15] Y. Shi, A. Deng, M. Deng, J. Zhu, Y. Liu, and Q. Cheng, ‘‘Enhanced
+lightweight multiscale convolutional neural network for rolling bearing
+fault diagnosis,’’ IEEE Access, vol. 8, pp. 217723–217734, 2020, doi:
+10.1109/ACCESS.2020.3041735.
+[16] Q. Shen and Z. Zhang, ‘‘Fault diagnosis method for bearing based
+on
+attention
+mechanism
+and
+multi-scale
+convolutional
+neural
+network,’’
+IEEE
+Access,
+vol.
+12,
+pp. 12940–12952,
+2024,
+doi:
+10.1109/ACCESS.2024.3357113.
+[17] F. Li, L. Wang, D. Wang, J. Wu, and H. Zhao, ‘‘An adaptive multi-
+scale fully convolutional network for bearing fault diagnosis under noisy
+environments,’’ Measurement, vol. 216, Jul. 2023, Art. no. 112993, doi:
+10.1016/j.measurement.2023.112993.
+[18] B. Hu, J. Liu, and Y. Xu, ‘‘A novel multi-scale convolutional neural
+network incorporating multiple attention mechanisms for bearing fault
+diagnosis,’’ Measurement, vol. 242, Jan. 2025, Art. no. 115927, doi:
+10.1016/j.measurement.2024.115927.
+[19] Z. Dengfeng, T. Chaoyang, F. Zhijun, Z. Yudong, H. Junjian, and H. Wen-
+bin, ‘‘Multi scale convolutional neural network combining BiLSTM and
+attention mechanism for bearing fault diagnosis under multiple working
+conditions,’’ Sci. Rep., vol. 15, no. 1, Apr. 2025, doi: 10.1038/s41598-025-
+96137-w.
+[20] H. Sun, D. He, J. Ma, Z. Jin, J. Wu, and Y. Xu, ‘‘Failure analysis and
+few-shot fault diagnosis for bogie bearings using digital twin model and
+regularized dynamic prototype network,’’ Eng. Failure Anal., vol. 191,
+Jun. 2026, Art. no. 110761, doi: 10.1016/j.engfailanal.2026.110761.
+[21] Y. Xu, D. He, H. Sun, Z. Jin, and M. Zhao, ‘‘Self-supervised
+learning for train bearing fault diagnosis based on time–frequency
+dual domain prediction,’’ Struct. Health Monitor., Jan. 2026, doi:
+10.1177/14759217251405584.
+[22] Y. Wang, H. Jiang, B. Tong, and S. Song, ‘‘Rolling bearing fault diagnosis
+via meta-BOHB optimized CNN–transformer model and time-frequency
+domain analysis,’’ Sensors, vol. 25, no. 22, p. 6920, Nov. 2025, doi:
+10.3390/s25226920.
+[23] Q. Chen, F. Zhang, Y. Wang, Q. Yu, G. Lang, and L. Zeng, ‘‘Bearing
+fault diagnosis based on efficient cross space multiscale CNN transformer
+parallelism,’’ Sci. Rep., vol. 15, no. 1, Apr. 2025, doi: 10.1038/s41598-025-
+95895-x.
+[24] B. Fang, Y. Hu, G. Zheng, X. Zhang, and L. Xie, ‘‘Multiscale time-
+frequency CNN-transformer model for bearing fault diagnosis: A com-
+prehensive feature extraction approach,’’ Eng. Failure Anal., vol. 184,
+Feb. 2026, Art. no. 110312, doi: 10.1016/j.engfailanal.2025.110312.
+[25] Y. Han, F. Zhang, Z. Li, Q. Wang, C. Li, P. Lai, T. Li, F. Teng, and
+Z. Jin, ‘‘MT-ConvFormer: A multitask bearing fault diagnosis method
+using a combination of CNN and transformer,’’ IEEE Trans. Instrum.
+Meas., vol. 74, pp. 1–16, 2025, doi: 10.1109/TIM.2024.3502821.
+[26] L. Zhang, J. Wang, Q. Xiao, Y. Luo, Z. Wang, C. Wang, and J. Liu,
+‘‘A bearing fault diagnosis method with implementation of multiscale
+time–frequency feature fusion and bidirectional information interaction,’’
+IEEE Sensors J., vol. 25, no. 13, pp. 23740–23756, Jul. 2025, doi:
+10.1109/JSEN.2025.3568401.
+[27] D. He, Y. Xu, H. Sun, Z. Jin, and M. Zhao, ‘‘Self-supervised learning
+for vehicle bearing fault diagnosis based on time–frequency dual-domain
+contrast and fusion,’’ Nonlinear Dyn., vol. 113, no. 14, pp. 17385–17412,
+Jul. 2025, doi: 10.1007/s11071-025-11101-7.
+[28] W. Li, H. Lan, J. Chen, K. Feng, and R. Huang, ‘‘WavCapsNet: An
+interpretable intelligent compound fault diagnosis method by backward
+tracking,’’ IEEE Trans. Instrum. Meas., vol. 72, pp. 1–11, 2023, doi:
+10.1109/TIM.2023.3282664.
+[29] R. Huang, J. Li, Y. Liao, J. Chen, Z. Wang, and W. Li, ‘‘Deep adversar-
+ial capsule network for compound fault diagnosis of machinery toward
+multidomain generalization task,’’ IEEE Trans. Instrum. Meas., vol. 70,
+pp. 1–11, 2021, doi: 10.1109/TIM.2020.3042300.
+[30] X. Wang, H. Jiang, M. Mu, and Y. Dong, ‘‘A dynamic collaborative adver-
+sarial domain adaptation network for unsupervised rotating machinery
+fault diagnosis,’’ Rel. Eng. Syst. Saf., vol. 255, Mar. 2025, Art. no. 110662,
+doi: 10.1016/j.ress.2024.110662.
+[31] X. Wang, H. Jiang, T. Zeng, and Y. Dong, ‘‘An adaptive fused
+domain-cycling variational generative adversarial network for machine
+fault diagnosis under data scarcity,’’ Inf. Fusion, vol. 126, Feb. 2026,
+Art. no. 103616, doi: 10.1016/j.inffus.2025.103616.
+[32] Z. Wu, H. Jiang, S. Liu, Y. Liu, and W. Yang, ‘‘Conditional distribution-
+guided adversarial transfer learning network with multi-source domains for
+rolling bearing fault diagnosis,’’ Adv. Eng. Informat., vol. 56, Apr. 2023,
+Art. no. 101993, doi: 10.1016/j.aei.2023.101993.
+[33] Y. Xu, S. Li, Z. Li, K. Wu, R. Huang, B. Sun, and J. C. Ji, ‘‘Time–
+frequency fully-connected graph neural network: An effective multiscale
+spatiotemporal dependency learning method for multisource machine fault
+diagnosis,’’ Adv. Eng. Informat., vol. 69, Jan. 2026, Art. no. 104023, doi:
+10.1016/j.aei.2025.104023.
+[34] R. Huang, Y. Chen, and C. Liu, ‘‘Revealing state-feature dependencies in
+dynamic degradation: An exofeature-aware transformer for battery state-
+of-health prediction,’’ IEEE Trans. Consum. Electron., vol. 72, no. 1,
+pp. 719–730, Feb. 2026, doi: 10.1109/TCE.2025.3631954.
+[35] J. Allen, ‘‘Short term spectral analysis, synthesis, and modification
+by discrete Fourier transform,’’ IEEE Trans. Acoust., Speech, Sig-
+nal Process., vol. ASSP-25, no. 3, pp. 235–238, Jun. 1977, doi:
+10.1109/TASSP.1977.1162950.
+[36] Y. Lecun, L. Bottou, Y. Bengio, and P. Haffner, ‘‘Gradient-based learn-
+ing applied to document recognition,’’ Proc. IEEE, vol. 86, no. 11,
+pp. 2278–2324, Nov. 1998, doi: 10.1109/5.726791.
+[37] J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, ‘‘You only look once:
+Unified, real-time object detection,’’ in Proc. IEEE Conf. Comput. Vis.
+Pattern Recognit. (CVPR), Las Vegas, NV, USA, Jun. 2016, pp. 779–788,
+doi: 10.1109/CVPR.2016.91.
+[38] K.
+S.
+Varshitha,
+C.
+G.
+Kumari,
+M.
+Hasvitha,
+S.
+Fiza,
+and
+V. Rachapudi,
+‘‘Natural
+language
+processing
+using
+convolutional
+neural
+network,’’
+in
+Proc.
+7th
+Int.
+Conf.
+Comput.
+Methodolog.
+Commun.
+(ICCMC),
+Erode,
+India,
+Feb.
+2023,
+pp. 362–367,
+doi:
+10.1109/ICCMC56507.2023.10083608.
+[39] R. Roesser, ‘‘A discrete state-space model for linear image processing,’’
+IEEE Trans. Autom. Control, vol. AC-20, no. 1, pp. 1–10, Feb. 1975, doi:
+10.1109/TAC.1975.1100844.
+77734
+VOLUME 14, 2026
+
+
+===== PAGE 19 =====
+
+H.-A.-H. Nguyen, C. H. Kim: Lightweight Heterogeneous Neural Network Architecture
+[40] A. Gu and T. Dao, ‘‘Mamba: Linear-time sequence modeling with selective
+state space,’’ Dec. 2023, arXiv:2312.00752.
+[41] M. Tiezzi, M. Casoni, A. Betti, M. Gori, and S. Melacci, ‘‘State-space
+modeling in long sequence processing: A survey on recurrence in the
+transformer era,’’ Neural Netw., vol. 193, Jan. 2026, Art. no. 108039, doi:
+10.1016/j.neunet.2025.108039.
+[42] L. Zhu, B. Liao, Q. Zhang, X. Wang, W. Liu, and X. Wang, ‘‘Vision
+mamba: Efficient visual representation learning with bidirectional
+state space model,’’ in Proc. 41st Int. Conf. Mach. Learn., 2024,
+pp. 62429–62442.
+[Online].
+Available:https://doi.org/10.48550/arXiv.
+2401.09417
+[43] C. Wang, Y. Wang, F. Zheng, M. Li, and R. Xia, ‘‘SSTG: An inter-
+pretable spatio-temporal selective state-space model for multi-sensor data
+fusion in intelligent diagnosis,’’ Knowl.-Based Syst., vol. 316, May 2025,
+Art. no. 113278, doi: 10.1016/j.knosys.2025.113278.
+[44] X. Chen, S. Xu, S. Hu, and X. Ma, ‘‘MambaFN: An adaptive fusion net-
+work based on an improved mamba to fuse multi-modal images,’’ Displays,
+vol. 91, Jan. 2026, Art. no. 103251, doi: 10.1016/j.displa.2025.103251.
+[45] H. N. Nguyen, C.-H. Kim, and J.-M. Kim, ‘‘Effective prediction of bearing
+fault degradation under different crack sizes using a deep neural network,’’
+Appl. Sci., vol. 8, no. 11, p. 2332, Nov. 2018, doi: 10.3390/app8112332.
+[46] M. Kang, J. Kim, I.-K. Jeong, J.-M. Kim, and M. Pecht, ‘‘A massively par-
+allel approach to real-time bearing fault detection using sub-band analysis
+on an FPGA-based multicore system,’’ IEEE Trans. Ind. Electron., vol. 63,
+no. 10, pp. 6325–6335, Oct. 2016, doi: 10.1109/TIE.2016.2574986.
+[47] M. D. P. Varma, S. R. Yeduri, R. R. Yakkati, A. B. Boddu, and
+L. R. Cenkeramaddi, ‘‘Wireless technology identification using continu-
+ous wavelet transform and deep learning,’’ IEEE Sensors J., vol. 25, no. 13,
+pp. 23284–23291, Jul. 2025, doi: 10.1109/JSEN.2024.3467681.
+[48] Y. Liu, H. An, and S. Bian, ‘‘Hilbert-huang transform and the application,’’
+in Proc. IEEE Int. Conf. Artif. Intell. Inf. Syst. (ICAIIS), Dalian, China,
+Mar. 2020, pp. 534–539, doi: 10.1109/ICAIIS49377.2020.9194944.
+[49] G. Kutyniok, ‘‘Ambiguity functions, Wigner distributions and Cohen’s
+class for LCA groups,’’ J. Math. Anal. Appl., vol. 277, no. 2, pp. 589–608,
+Jan. 2003, doi: 10.1016/s0022-247x(02)00630-3.
+[50] R. G. Stockwell, L. Mansinha, and R. P. Lowe, ‘‘Localization of the
+complex spectrum: The s transform,’’ IEEE Trans. Signal Process., vol. 44,
+no. 4, pp. 998–1001, Apr. 1996, doi: 10.1109/78.492555.
+[51] B. Dash. (2026). Stockwell Transform (S-Transform). MATLAB Cen-
+tral File Exchange. [Online]. Available: https://www.mathworks.com/
+matlabcentral/fileexchange/45848-stockwell-transform-s-transform
+HUYNH-ANH-HUY NGUYEN received the B.E.
+degree in control engineering and automation
+from Ho Chi Minh City University of Technology
+(HCMUT), Ho Chi Minh City, Vietnam, in 2019.
+He is currently pursuing the M.S. degree with
+the Department of Computer Science and Engi-
+neering, Soongsil University, Seoul, South Korea.
+From 2019 to 2023, he was an Embedded Software
+Engineer with Viettel High Tech, Hanoi, Vietnam.
+He was also a Senior Engineer with Bosch, Ho Chi
+Minh City, Vietnam, from 2023 to 2024. His research interests include
+computer architecture, embedded systems, signal processing, deep learning,
+and fault diagnosis.
+CHEOL HONG KIM received the B.S. degree in
+computer engineering from Seoul National Uni-
+versity, Seoul, South Korea, in 1998, the M.S.
+degree, in 2000, and the Ph.D. degree in electrical
+and computer engineering from Seoul National
+University, in 2006. He was a Senior Engineer
+with Samsung Electronics, South Korea, from
+December 2005 to January 2007. He was also
+a Professor with Chonnam National University,
+South Korea, from 2007 to 2020. He is currently
+a Professor with the School of Computer Science and Engineering, Soongsil
+University, South Korea. His research interests include computer systems,
+embedded systems, deep learning, fault diagnosis, and low-power systems.
+VOLUME 14, 2026
+77735
