@@ -18,7 +18,7 @@ The Radeon RX 9060 XT provides 16 GB of VRAM. Loading multiple large models conc
 
 **Status:** Accepted
 
-Ubuntu Server 24.04 LTS is the initial operating-system candidate.
+Ubuntu Server 24.04 LTS is the operating system for the current platform.
 
 ### Rationale
 
@@ -30,7 +30,7 @@ A graphical desktop is not required for normal operation. A headless system redu
 
 **Status:** Accepted
 
-ROCm/HIP will be evaluated as the primary GPU compute platform for the AMD Radeon RX 9060 XT.
+ROCm/HIP is the primary GPU compute platform for the AMD Radeon RX 9060 XT.
 
 ### Validation requirement
 
@@ -40,9 +40,9 @@ The exact driver, kernel and ROCm versions used in each benchmark must be record
 
 ## ADR-004 — llama.cpp as initial inference engine
 
-**Status:** Accepted for initial evaluation
+**Status:** Accepted for current experiments
 
-`llama.cpp` will be the first inference engine evaluated.
+`llama.cpp` is the first inference engine used for coding and academic baselines.
 
 ### Rationale
 
@@ -82,3 +82,73 @@ Every major service should expose enough telemetry to support reproducible exper
 The system will be optimized for real daily use, but production convenience must not erase the information required to reproduce important experiments.
 
 Configuration changes that can materially affect results should therefore be versioned in the repository.
+
+---
+
+## ADR-007 — Separate coding and academic LLM roles
+
+**Status:** Accepted
+
+Qwen3-Coder-30B-A3B-Instruct Q3_K_M is retained for coding-agent workloads. Academic screening will use a general instruction model, initially Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
+
+### Rationale
+
+The coding model is specialized for software-development tasks and is not the preferred choice for literature relevance judgment. A general instruction model provides a cleaner baseline for academic screening and reduces task/model mismatch.
+
+The previous one-paper academic-screening run with Qwen3-Coder is retained only as a pipeline smoke test.
+
+---
+
+## ADR-008 — Establish an LLM-only academic baseline before RAG
+
+**Status:** Accepted
+
+Academic Screening A001 will evaluate title + abstract + keywords directly with the academic LLM before embeddings, retrieval, reranking, or RAG are introduced.
+
+### Rationale
+
+A clean baseline is required to quantify whether later retrieval components improve quality rather than merely add complexity. Retrieval metrics and generation metrics will therefore be measured separately.
+
+---
+
+## ADR-009 — Freeze and audit the academic corpus before inference
+
+**Status:** Accepted
+
+The screening corpus must pass deterministic extraction, metadata validation and duplicate review before formal LLM evaluation.
+
+### Current validated state
+
+- 25 PDFs extracted successfully;
+- 24 unique READY papers;
+- P024 excluded as a duplicate of P023;
+- 0 unresolved duplicate documents;
+- frozen dataset and manifest generated under `/srv/data/benchmarks/academic-rag/`.
+
+### Rationale
+
+Corpus defects discovered after inference would invalidate comparisons and obscure whether errors originated in document parsing or model behavior.
+
+---
+
+## ADR-010 — Academic screening prioritizes recall of relevant literature
+
+**Status:** Accepted
+
+For literature screening, retaining relevant papers is more important than maximizing raw classification accuracy.
+
+### Primary interpretation
+
+Metrics must include recall for `class >= 2`, recall for class 3, and false-negative rate. A recall target such as 0.95 may be used as an experimental design goal, but must not be reported as achieved until measured.
+
+---
+
+## ADR-011 — Ground-truth provenance must be explicit
+
+**Status:** Accepted
+
+The current 24-paper ground truth is human-supervised and AI-assisted. This provenance must be recorded in reports.
+
+### Publication implication
+
+For stronger publication-quality claims, an independent human-only review should be considered so that label-assistance bias can be quantified or reduced.
