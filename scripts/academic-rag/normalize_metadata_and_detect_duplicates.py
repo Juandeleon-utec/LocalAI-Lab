@@ -105,7 +105,7 @@ def clean_doi(value: str | None) -> str:
     match = DOI_RE.search(value)
     if not match:
         return ""
-    return match.group(0).rstrip(".,;:)\]}>").lower()
+    return match.group(0).rstrip(".,;:)]}>").lower()
 
 
 def normalize_text_for_hash(text: str) -> str:
@@ -426,13 +426,36 @@ def main() -> None:
         cleaned.append(cleaned_row)
 
     duplicates: list[DuplicateCandidate] = []
-    duplicate_ids: set[str] = set()
+    duplicate_ids: set[str] = []
+
+    status_by_id = {
+        row["paper_id"]: row["corpus_status"]
+        for row in cleaned
+    }
+
     for i, row_a in enumerate(cleaned):
-        for row_b in cleaned[i + 1 :]:
+        for row_b in cleaned[i + 1:]:
             candidate = classify_duplicate(row_a, row_b)
+
             if candidate:
                 duplicates.append(candidate)
-                duplicate_ids.update((candidate.paper_id_a, candidate.paper_id_b))
+
+                a_active = (
+                    status_by_id[candidate.paper_id_a] != "EXCLUDED"
+                )
+                b_active = (
+                    status_by_id[candidate.paper_id_b] != "EXCLUDED"
+                )
+
+                # Only flag an unresolved duplicate when both documents
+                # remain active in the corpus.
+                if a_active and b_active:
+                    duplicate_ids.update(
+                        (
+                            candidate.paper_id_a,
+                            candidate.paper_id_b,
+                        )
+                 )
 
     for row in cleaned:
         if row["paper_id"] in duplicate_ids and row["corpus_status"] == "READY":

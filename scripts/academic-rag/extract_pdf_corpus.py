@@ -21,12 +21,25 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
+ABSTRACT_BLOCK_RE = re.compile(
+    r"(?is)"
+    r"(?:\bA\s*B\s*S\s*T\s*R\s*A\s*C\s*T\b|\bAbstract\b|\bSummary\b)"
+    r"\s*"
+    r"(.*?)"
+    r"(?="
+    r"\n\s*(?:1[\.\s]+)?Introduction\b"
+    r"|\n\s*Index Terms\b"
+    r"|$"
+    r")"
+)
+
 try:
     import fitz  # PyMuPDF
 except ImportError as exc:  # pragma: no cover
     raise SystemExit(
         "PyMuPDF is required. Install it with: python3 -m pip install pymupdf"
     ) from exc
+
 
 
 DEFAULT_ROOT = Path("/srv/data/papers/academic-screening-v0.1")
@@ -69,16 +82,27 @@ def first_match(pattern: re.Pattern[str], text: str) -> str:
     match = pattern.search(text)
     return match.group(0) if match else ""
 
-
 def extract_abstract(text: str, max_chars: int = 5000) -> str:
     """Conservatively extract an abstract from the first pages."""
     sample = text[:30000]
+
     match = re.search(
-        r"(?is)(?:^|\n)\s*abstract\s*[:\-]?\s*(.+?)(?=\n\s*(?:keywords?|index terms|1\.?\s+introduction|introduction)\b)",
+        r"(?is)"
+        r"(?:^|\n)\s*"
+        r"(?:A\s*B\s*S\s*T\s*R\s*A\s*C\s*T|Summary)"
+        r"\s*[:\-]?\s*"
+        r"(.+?)"
+        r"(?="
+        r"\n\s*(?:1[\.\s]+)?Introduction\b"
+        r"|\n\s*Index Terms\b"
+        r"|$"
+        r")",
         sample,
     )
+
     if not match:
         return ""
+
     return normalize_space(match.group(1))[:max_chars]
 
 
