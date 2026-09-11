@@ -44,42 +44,54 @@
 
 ## Phase 4 — Academic stack
 
-- [ ] Select main academic LLM.
-- [ ] Benchmark candidate models on scientific tasks.
-- [ ] Define PDF ingestion pipeline.
+- [x] Define deterministic PDF inventory and extraction pipeline.
+- [x] Normalize metadata and add duplicate detection/manual overrides.
+- [x] Freeze Academic Screening v0.1 corpus: 24 unique READY papers.
+- [x] Build versioned screening dataset and manifest.
+- [x] Create 24-paper ground truth.
+- [x] Create versioned academic-screening prompt.
+- [x] Implement LLM-only baseline runner.
+- [x] Select initial academic LLM: Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
+- [ ] Complete one-/three-/24-paper A001 runs with `qwen3-academic`.
+- [ ] Add automatic metric calculation and confusion matrix.
 - [ ] Define structure-aware chunking strategy.
-- [ ] Select embedding model.
-- [ ] Select reranker.
-- [ ] Select vector database.
+- [ ] Benchmark embedding models.
+- [ ] Benchmark reranker models.
+- [x] Select Qdrant as initial vector database.
+- [ ] Implement hybrid dense+sparse retrieval.
 - [ ] Implement citation-aware retrieval.
-- [ ] Build academic evaluation dataset.
+- [ ] Evaluate retrieval separately with Hit Rate@K, Precision@K, Recall@K, MRR and nDCG.
 
 ## Phase 5 — Service deployment
 
 - [x] Expose OpenAI-compatible API on the LAN for manual validation.
 - [ ] Create systemd services.
-- [ ] Implement manual model switching profiles.
+- [ ] Implement manual model-switching profiles.
 - [ ] Add health checks.
 - [ ] Add structured logging.
 - [ ] Add resource telemetry.
 - [ ] Replace development API key with managed secret/configuration.
+- [ ] Build lightweight FastAPI/HTML control panel after core benchmark validation.
 
 ## Phase 6 — Experimental platform
 
-- [ ] Record task metadata automatically.
-- [ ] Record latency and throughput.
-- [ ] Record VRAM/RAM usage.
-- [ ] Record GPU/CPU utilization.
-- [ ] Record power and energy where available.
+- [x] Record per-paper academic-screening latency and response validity.
+- [x] Record dataset/prompt fingerprints in screening run manifests.
+- [x] Store raw API responses and structured predictions.
+- [ ] Record VRAM/RAM usage automatically per run.
+- [ ] Record GPU/CPU utilization automatically per run.
+- [ ] Record power and integrated energy.
 - [ ] Record test results for coding tasks.
 - [ ] Record number of agent iterations/tool calls.
-- [ ] Store immutable benchmark runs with environment metadata.
+- [ ] Store all formal benchmark runs immutably with environment metadata.
 
 ## Phase 7 — Comparative studies
 
 - [ ] Define identical coding tasks and controlled repository states.
 - [ ] Compare local coding agents against Claude Code or other hosted agents.
 - [ ] Analyze quality, latency, energy, privacy and cost.
+- [ ] Compare Academic Screening A001 against retrieval-augmented configurations.
+- [ ] Extend the academic corpus with clearly irrelevant papers to improve false-positive evaluation.
 - [ ] Evaluate academic RAG retrieval and citation quality.
 - [ ] Prepare figures, tables and statistical analysis.
 - [ ] Assess publication targets and release reproducibility artifacts where licensing permits.

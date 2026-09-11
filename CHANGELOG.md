@@ -2,6 +2,43 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-09-11
+
+### Added
+
+- Deterministic academic-PDF inventory, extraction, metadata-normalization, duplicate-detection, dataset-builder, and baseline-screening scripts.
+- Versioned Academic Screening v0.1 prompt and dataset schema.
+- Frozen Academic Screening v0.1 dataset with 24 unique READY papers from 25 valid PDFs.
+- Human-supervised / AI-assisted ground truth for the 24-paper screening set.
+- LLM-only Academic Screening baseline runner (`run_screening_baseline.py`).
+- Dedicated academic-model selection: Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
+- Detailed current-status documentation under `docs/academic-rag/current-status-2026-09-11.md`.
+
+### Validated
+
+- 25/25 PDFs extract successfully with PyMuPDF: 274 pages and 1,158,398 characters.
+- Spaced abstract headings such as `A B S T R A C T` are recoverable; P011, P012, P015, and P021 now have abstracts.
+- P023/P024 are duplicate content; P024 is excluded and P023 remains READY.
+- Final normalization state: 24 READY, 0 metadata-review, 0 unresolved duplicates, 1 excluded.
+- Screening dataset builder completes with 24 included papers.
+- Baseline runner smoke test completes successfully for P001 with valid structured JSON, 4.311 s latency, 0 invalid outputs, and 0 errors.
+
+### Decisions
+
+- Qwen3-Coder is retained for coding-agent workloads only.
+- Formal academic screening will use Qwen3-30B-A3B-Instruct-2507 rather than the coding-specialized model.
+- The earlier Qwen3-Coder screening run is classified as a pipeline smoke test, not a formal academic result.
+- The first formal academic benchmark remains LLM-only; embeddings/RAG will be added only after baseline quality is measured.
+
+### Pending
+
+- Complete Qwen3-30B-A3B-Instruct-2507 Q3_K_M validation on the RX 9060 XT.
+- Run Academic Screening A001 on 1, 3, then all 24 papers.
+- Add automatic metrics and confusion-matrix generation against ground truth.
+- Add GPU telemetry and integrated-energy logging to formal academic runs.
+- Benchmark embeddings, hybrid retrieval, reranking, Qdrant, and citation-aware RAG.
+- Replace deprecated `import fitz` usage with `import pymupdf` and clean remaining escape warnings.
+
 ## [Unreleased] - 2026-09-02
 
 ### Added
