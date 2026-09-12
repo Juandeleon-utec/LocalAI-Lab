@@ -52,8 +52,13 @@
 - [x] Create versioned academic-screening prompt.
 - [x] Implement LLM-only baseline runner.
 - [x] Select initial academic LLM: Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
-- [ ] Complete one-/three-/24-paper A001 runs with `qwen3-academic`.
-- [ ] Add automatic metric calculation and confusion matrix.
+- [x] Complete formal A001 run on all 24 papers with `qwen3-academic`.
+- [x] Add automatic metric calculation and confusion-matrix output.
+- [x] Document A001 results and methodological interpretation.
+- [ ] Inspect A001 disagreement patterns and false positives in detail.
+- [ ] Implement A002 deterministic reading policy derived from predicted relevance.
+- [ ] Define and run A003 prompt-calibration experiment.
+- [ ] Extend Academic Screening dataset to v0.2 with clearly irrelevant papers.
 - [ ] Define structure-aware chunking strategy.
 - [ ] Benchmark embedding models.
 - [ ] Benchmark reranker models.
@@ -78,6 +83,7 @@
 - [x] Record per-paper academic-screening latency and response validity.
 - [x] Record dataset/prompt fingerprints in screening run manifests.
 - [x] Store raw API responses and structured predictions.
+- [x] Record formal A001 quality metrics against frozen ground truth.
 - [ ] Record VRAM/RAM usage automatically per run.
 - [ ] Record GPU/CPU utilization automatically per run.
 - [ ] Record power and integrated energy.
@@ -90,7 +96,8 @@
 - [ ] Define identical coding tasks and controlled repository states.
 - [ ] Compare local coding agents against Claude Code or other hosted agents.
 - [ ] Analyze quality, latency, energy, privacy and cost.
-- [ ] Compare Academic Screening A001 against retrieval-augmented configurations.
+- [ ] Compare A001, A002 and A003 before introducing retrieval.
+- [ ] Compare Academic Screening LLM-only baselines against retrieval-augmented configurations.
 - [ ] Extend the academic corpus with clearly irrelevant papers to improve false-positive evaluation.
 - [ ] Evaluate academic RAG retrieval and citation quality.
 - [ ] Prepare figures, tables and statistical analysis.
