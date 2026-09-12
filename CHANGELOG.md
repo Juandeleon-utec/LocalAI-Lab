@@ -2,6 +2,48 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-09-12
+
+### Added
+
+- Dependency-free Academic Screening evaluator (`evaluate_screening_run.py`).
+- Formal A001 result report: `docs/academic-rag/a001-results-2026-09-12.md`.
+- Evaluation artifacts for formal runs: `evaluation.json`, `comparison.csv`, and `evaluation.md`.
+
+### Validated
+
+- Formal A001 completed with Qwen3-30B-A3B-Instruct-2507 Q3_K_M (`qwen3-academic`) on all 24 frozen papers.
+- 24/24 responses were successful and structurally valid; 0 invalid outputs and 0 errors.
+- A001 wall time: 136.522 s; throughput: 632.864 papers/hour.
+- Token usage: 32,808 prompt tokens, 8,680 completion tokens, 41,488 total tokens.
+- Relevant-paper recall (GT >= 2): 1.000.
+- Relevant-paper precision: 0.864.
+- False-negative rate: 0.000.
+- Class-3 recall: 1.000.
+- Exact 4-class accuracy: 0.417.
+- Macro F1: 0.276.
+- Relevance-class MAE: 0.708.
+- Quadratic weighted kappa: 0.281.
+- Current active-reading policy preserves all relevant papers but produces 0.000 reading reduction.
+
+### Decisions
+
+- Treat A001 as a high-recall but overly conservative baseline.
+- Decouple relevance estimation from reading-policy selection.
+- Evaluate deterministic reading actions derived from relevance before introducing RAG.
+- Keep quality and efficiency as separate evaluation dimensions.
+- Do not move directly to full RAG until A002/A003 separate policy, calibration, and evidence limitations.
+- Preserve Academic Screening v0.1 as a frozen benchmark when a more balanced v0.2 dataset is created.
+
+### Next
+
+- Inspect A001 confusion patterns and binary false positives.
+- Run A002 using a deterministic relevance-to-reading mapping.
+- Define A003 as a controlled prompt-calibration experiment.
+- Add clearly irrelevant papers in dataset v0.2.
+- Add automatic VRAM/RAM/GPU utilization and integrated-energy telemetry.
+- Begin retrieval experiments only after the LLM-only screening stages are characterized.
+
 ## [Unreleased] - 2026-09-11
 
 ### Added
