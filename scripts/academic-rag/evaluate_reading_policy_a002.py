@@ -167,7 +167,7 @@ def main() -> None:
     evaluation_path = out_dir / "evaluation.json"
     evaluation_path.write_text(json.dumps(evaluation, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    report = f"""# Academic Screening A002 — Deterministic Reading Policy\n\n"
+    report = f"# Academic Screening A002 — Deterministic Reading Policy\n\n"
     report += f"Source A001 run: `{args.run}`\n\n"
     report += "Policy:\n\n- 3 -> READ_FULL\n- 2 -> READ_SECTIONS\n- 1 -> REFERENCE_ONLY\n- 0 -> DISCARD\n\n"
     report += f"- Papers: {n}\n"
