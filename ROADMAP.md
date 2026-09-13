@@ -55,14 +55,17 @@
 - [x] Complete formal A001 run on all 24 papers with `qwen3-academic`.
 - [x] Add automatic metric calculation and confusion-matrix output.
 - [x] Document A001 results and methodological interpretation.
-- [ ] Inspect A001 disagreement patterns and false positives in detail.
-- [ ] Implement A002 deterministic reading policy derived from predicted relevance.
-- [ ] Define and run A003 prompt-calibration experiment.
-- [ ] Extend Academic Screening dataset to v0.2 with clearly irrelevant papers.
+- [x] Inspect A001 disagreement patterns and false positives in detail.
+- [x] Implement A002 deterministic reading policy derived from predicted relevance.
+- [x] Define and run A003 prompt-calibration experiment.
+- [x] Document A003 results and A001/A003 comparison.
+- [ ] Extend Academic Screening dataset to v0.2 with clearly irrelevant and borderline papers.
+- [ ] Validate prompt v0.2 on an independent or expanded hold-out set without further tuning.
 - [ ] Define structure-aware chunking strategy.
 - [ ] Benchmark embedding models.
 - [ ] Benchmark reranker models.
 - [x] Select Qdrant as initial vector database.
+- [ ] Implement dense-retrieval baseline B001.
 - [ ] Implement hybrid dense+sparse retrieval.
 - [ ] Implement citation-aware retrieval.
 - [ ] Evaluate retrieval separately with Hit Rate@K, Precision@K, Recall@K, MRR and nDCG.
@@ -84,6 +87,7 @@
 - [x] Record dataset/prompt fingerprints in screening run manifests.
 - [x] Store raw API responses and structured predictions.
 - [x] Record formal A001 quality metrics against frozen ground truth.
+- [x] Record formal A003 quality metrics against frozen ground truth.
 - [ ] Record VRAM/RAM usage automatically per run.
 - [ ] Record GPU/CPU utilization automatically per run.
 - [ ] Record power and integrated energy.
@@ -96,7 +100,7 @@
 - [ ] Define identical coding tasks and controlled repository states.
 - [ ] Compare local coding agents against Claude Code or other hosted agents.
 - [ ] Analyze quality, latency, energy, privacy and cost.
-- [ ] Compare A001, A002 and A003 before introducing retrieval.
+- [x] Compare A001, A002 and A003 before introducing retrieval.
 - [ ] Compare Academic Screening LLM-only baselines against retrieval-augmented configurations.
 - [ ] Extend the academic corpus with clearly irrelevant papers to improve false-positive evaluation.
 - [ ] Evaluate academic RAG retrieval and citation quality.
