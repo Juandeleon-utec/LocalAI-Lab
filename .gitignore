@@ -1,1 +1,7 @@
 .venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.gguf
+academic-screening-evidence-*.tar.gz
+academic-screening-evidence-*.tar.gz.sha256

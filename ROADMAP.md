@@ -47,9 +47,9 @@
 - [x] Define deterministic PDF inventory and extraction pipeline.
 - [x] Normalize metadata and add duplicate detection/manual overrides.
 - [x] Freeze Academic Screening v0.1 corpus: 24 unique READY papers.
-- [x] Build versioned screening dataset and manifest.
+- [x] Build versioned screening dataset and manifest on the experiment server.
 - [x] Create 24-paper ground truth.
-- [x] Create versioned academic-screening prompt.
+- [x] Create versioned academic-screening prompt v0.1.
 - [x] Implement LLM-only baseline runner.
 - [x] Select initial academic LLM: Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
 - [x] Complete formal A001 run on all 24 papers with `qwen3-academic`.
@@ -59,6 +59,7 @@
 - [x] Implement A002 deterministic reading policy derived from predicted relevance.
 - [x] Define and run A003 prompt-calibration experiment.
 - [x] Document A003 results and A001/A003 comparison.
+- [x] Freeze prompt v0.2 as a development candidate after A003.
 - [ ] Extend Academic Screening dataset to v0.2 with clearly irrelevant and borderline papers.
 - [ ] Validate prompt v0.2 on an independent or expanded hold-out set without further tuning.
 - [ ] Define structure-aware chunking strategy.
@@ -81,19 +82,28 @@
 - [ ] Replace development API key with managed secret/configuration.
 - [ ] Build lightweight FastAPI/HTML control panel after core benchmark validation.
 
-## Phase 6 — Experimental platform
+## Phase 6 — Experimental platform and reproducibility
 
 - [x] Record per-paper academic-screening latency and response validity.
 - [x] Record dataset/prompt fingerprints in screening run manifests.
 - [x] Store raw API responses and structured predictions.
 - [x] Record formal A001 quality metrics against frozen ground truth.
 - [x] Record formal A003 quality metrics against frozen ground truth.
+- [x] Version A001/A003 manifests, raw responses, predictions, comparisons and evaluations in Git.
+- [x] Create a separately checksummed archival snapshot of the academic-screening experiments.
+- [x] Audit repository reproducibility and document remaining gaps.
+- [ ] Version or immutably reference the exact frozen `papers-v0.1.csv` and dataset manifest used in A001/A003.
+- [ ] Version or immutably reference the exact full `ground-truth-v0.1.csv` used in evaluation.
+- [ ] Version manual metadata overrides and normalized corpus validation outputs used to build v0.1.
+- [ ] Record SHA-256 of every model artifact used in formal runs.
+- [ ] Capture a Python/dependency environment snapshot for formal academic runs.
+- [ ] Record the LocalAI-Lab repository commit used at experiment execution time in future manifests.
 - [ ] Record VRAM/RAM usage automatically per run.
 - [ ] Record GPU/CPU utilization automatically per run.
 - [ ] Record power and integrated energy.
 - [ ] Record test results for coding tasks.
 - [ ] Record number of agent iterations/tool calls.
-- [ ] Store all formal benchmark runs immutably with environment metadata.
+- [ ] Define an immutable artifact policy for all future formal benchmark runs.
 
 ## Phase 7 — Comparative studies
 
@@ -106,3 +116,12 @@
 - [ ] Evaluate academic RAG retrieval and citation quality.
 - [ ] Prepare figures, tables and statistical analysis.
 - [ ] Assess publication targets and release reproducibility artifacts where licensing permits.
+
+## Immediate priority order after A003
+
+1. Close the frozen-input reproducibility gaps identified in `docs/academic-rag/reproducibility-record-2026-09-13.md`.
+2. Add model hashing, environment capture and run telemetry before the next publication-oriented experiment.
+3. Build Academic Screening v0.2/hold-out with class-0 and borderline papers.
+4. Define structure-aware chunks and retrieval ground truth.
+5. Benchmark embedding candidates and run B001 dense retrieval.
+6. Add hybrid retrieval, reranking and citation-aware RAG only after retrieval metrics are understood.
