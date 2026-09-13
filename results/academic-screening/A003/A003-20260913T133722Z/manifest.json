@@ -1,0 +1,30 @@
+{
+  "benchmark": "Academic Screening LLM-only baseline",
+  "run_id": "A003",
+  "timestamp_utc": "20260913T133722Z",
+  "papers": 24,
+  "successful": 24,
+  "invalid": 0,
+  "errors": 0,
+  "wall_time_s": 150.521573,
+  "papers_per_hour": 574.004,
+  "model": "qwen3-academic",
+  "base_url": "http://127.0.0.1:8080/v1",
+  "temperature": 0.0,
+  "max_tokens": 1200,
+  "seed": 42,
+  "research_objective": "Evaluate scientific literature relevant to predictive maintenance and fault diagnosis of rotating machinery and induction motors, with emphasis on vibration-based condition monitoring, machine learning or deep learning, edge AI deployment, embedded sensing, low-cost hardware, and experimentally validated methods applicable to resource-constrained systems.",
+  "dataset": "/srv/data/benchmarks/academic-rag/datasets/academic-screening-v0.1/papers-v0.1.csv",
+  "dataset_sha256": "f0f43a52042a791b9a341011b7bf831a9d82f754f02f0d66f16e5172301bccb2",
+  "prompt": "/home/jpdeleon/academic/academic-screening-v0.2.txt",
+  "prompt_sha256": "04dbcc97f7b1d604746a47ff295181eaa61c678b3673190fedbfa12bfb943539",
+  "token_usage": {
+    "prompt_tokens": 50088,
+    "completion_tokens": 8824,
+    "total_tokens": 58912
+  },
+  "outputs": {
+    "predictions": "/srv/data/benchmarks/academic-rag/runs/A003-20260913T133722Z/predictions.csv",
+    "raw_responses": "/srv/data/benchmarks/academic-rag/runs/A003-20260913T133722Z/responses.jsonl"
+  }
+}

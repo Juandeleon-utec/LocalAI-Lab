@@ -1,0 +1,25 @@
+paper_id,title,gt_class,pred_class,class_error,abs_class_error,gt_label,pred_label,gt_reading_decision,pred_reading_decision,gt_relevant,pred_relevant,binary_correct,exact_class_correct
+P001,Transforming Industrial Maintenance with Thermoelectric Energy Harvesting and NB-IoT: A Case Study in Oil Refinery Applications,1,1,0,0,Relación débil/periférica,TANGENTIAL,REFERENCE_ONLY,READ_SECTIONS,0,0,1,1
+P002,On-Device Low-Frequency Mechanical Fault Detection of Induction Motors using MEMS Sensors and Edge AI,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P003,Advanced Edge Computing Framework for Grid Power Quality Monitoring of Industrial Motor Drive Applications,1,1,0,0,Relación débil/periférica,TANGENTIAL,REFERENCE_ONLY,READ_SECTIONS,0,0,1,1
+P004,Predictive Maintenance in Electrical Machines: An Edge Computing Approach,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P005,A New Framework Based on FOG Computing and Edge AI to Increase the Reliability of Predictive Maintenance of Rotating Machines,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P006,Feature Reduction of SVM-Based Classifier For Predictive Maintenance OF Rotating Machines,1,3,2,2,Relación débil/periférica,HIGHLY_RELEVANT,REFERENCE_ONLY,READ_FULL,0,1,0,0
+P007,Cloud&#x2013;Edge Collaborative Intelligent Fault Diagnosis of Rotor-Bearing System: Methodology and Experiment,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P008,Enhance Predictive Maintenance with AI Models: Utilizing Real-Time Sensor Data with Industrial IoT to Prevent Equipment Failure,1,3,2,2,Relación débil/periférica,HIGHLY_RELEVANT,REFERENCE_ONLY,READ_FULL,0,1,0,0
+P009,An Intelligent Anomaly Detection Method for Rotating Machinery Based on Vibration Vectors,1,3,2,2,Relación débil/periférica,HIGHLY_RELEVANT,REFERENCE_ONLY,READ_FULL,0,1,0,0
+P010,Edge-Ai Enabled Fault Detection And Root Cause Analysis In Industrial Motors Using Multimodal Sensor Data,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P011,Transformer with multi-head attention mechanism for bearing fault detection,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P012,Frequency-band graph-based sensor fusion with sensitivity-aware energy assist network for machinery system fault diagnosis,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P013,Gear Fault Diagnosis in Geared Motors Based on Frequency Adaptation Graph Prototype Network with Limited Data,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P014,Employment of ANN for Predictive Motor Maintenance and Bearing Fault Detection Using Park&#x2019;s Vector Analysis,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P015,Artificial intelligence of things based approach for anomaly detection in rotating machines,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P016,Efficient Bearing Fault Diagnosis for Edge Computing Using Grayscale Spectrograms and,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P017,A Lightweight Heterogeneous Neural Network Architecture for Multiscale Feature Extraction in Bearing Fault Diagnosis,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P018,"Network for Predictive Fault Diagnosis in Robotic Arms Balaji Periasamy1*, Dr.P. Rajalakshmy Venugopal2, and R. Madhanraj3",3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P019,Investigation of the Capabilities of Artificial Intelligence in Predictive Maintenance of Technical Equipment,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P020,Graph Cardinality Preserved Attention Network for Fault Diagnosis of Induction Motor Under Varying Speed and Load Condition,2,3,1,1,Relevante,HIGHLY_RELEVANT,READ_SECTIONS,READ_FULL,1,1,1,0
+P021,CDGCN: A CNN-enhanced dynamic graph convolutional network for multimodal fault diagnosis,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P022,Noise-Robust and Edge Deployable ML Framework for Predictive Maintenance of Industrial Motors,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P023,Motor Fault Prediction Based on Graph Convolutional Networks with Signal Association Mining,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1
+P025,A Deployable Edge Computing Solution for Machine Condition Monitoring,3,3,0,0,Muy relevante/directamente aplicable,HIGHLY_RELEVANT,READ_FULL,READ_FULL,1,1,1,1

@@ -1,0 +1,163 @@
+{
+  "benchmark": "Academic Screening evaluation",
+  "run": "/srv/data/benchmarks/academic-rag/runs/A001-20260912T122718Z",
+  "ground_truth": "/srv/data/benchmarks/academic-rag/ground-truth/academic-screening-v0.1/ground-truth-v0.1.csv",
+  "papers_evaluated": 24,
+  "relevant_threshold": 2,
+  "ground_truth_class_distribution": {
+    "1": 5,
+    "2": 11,
+    "3": 8
+  },
+  "predicted_class_distribution": {
+    "1": 2,
+    "3": 22
+  },
+  "multiclass": {
+    "accuracy": 0.416667,
+    "macro_precision": 0.340909,
+    "macro_recall": 0.35,
+    "macro_f1": 0.276191,
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        2,
+        0,
+        3
+      ],
+      [
+        0,
+        0,
+        0,
+        11
+      ],
+      [
+        0,
+        0,
+        0,
+        8
+      ]
+    ],
+    "per_class": {
+      "0": {
+        "label": "NOT_RELEVANT",
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 24,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "1": {
+        "label": "TANGENTIAL",
+        "support": 5,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3,
+        "tn": 19,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.571429
+      },
+      "2": {
+        "label": "RELEVANT",
+        "support": 11,
+        "tp": 0,
+        "fp": 0,
+        "fn": 11,
+        "tn": 13,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "3": {
+        "label": "HIGHLY_RELEVANT",
+        "support": 8,
+        "tp": 8,
+        "fp": 14,
+        "fn": 0,
+        "tn": 2,
+        "precision": 0.363636,
+        "recall": 1.0,
+        "f1": 0.533333
+      }
+    }
+  },
+  "ordinal": {
+    "mae": 0.708333,
+    "rmse": 0.978945,
+    "linear_weighted_kappa": 0.209302,
+    "quadratic_weighted_kappa": 0.28125
+  },
+  "binary_screening": {
+    "true_positive": 19,
+    "false_positive": 3,
+    "false_negative": 0,
+    "true_negative": 2,
+    "precision": 0.863636,
+    "recall": 1.0,
+    "f1": 0.926829,
+    "false_negative_rate": 0.0,
+    "class3_recall": 1.0
+  },
+  "reading_workload": {
+    "active_reading_definition": [
+      "READ_FULL",
+      "READ_SECTIONS"
+    ],
+    "ground_truth_active_reading": 19,
+    "predicted_active_reading": 24,
+    "predicted_active_reading_fraction": 1.0,
+    "potential_active_reading_reduction": 0.0,
+    "ground_truth_relevant": 19,
+    "relevant_retained_by_active_reading": 19,
+    "relevant_retention_by_active_reading": 1.0,
+    "ground_truth_decision_distribution": {
+      "READ_FULL": 8,
+      "READ_SECTIONS": 11,
+      "REFERENCE_ONLY": 5
+    },
+    "predicted_decision_distribution": {
+      "READ_FULL": 22,
+      "READ_SECTIONS": 2
+    }
+  },
+  "run_manifest": {
+    "benchmark": "Academic Screening LLM-only baseline",
+    "run_id": "A001",
+    "timestamp_utc": "20260912T122718Z",
+    "papers": 24,
+    "successful": 24,
+    "invalid": 0,
+    "errors": 0,
+    "wall_time_s": 136.522189,
+    "papers_per_hour": 632.864,
+    "model": "qwen3-academic",
+    "base_url": "http://127.0.0.1:8080/v1",
+    "temperature": 0.0,
+    "max_tokens": 1200,
+    "seed": 42,
+    "research_objective": "Evaluate scientific literature relevant to predictive maintenance and fault diagnosis of rotating machinery and induction motors, with emphasis on vibration-based condition monitoring, machine learning or deep learning, edge AI deployment, embedded sensing, low-cost hardware, and experimentally validated methods applicable to resource-constrained systems.",
+    "dataset": "/srv/data/benchmarks/academic-rag/datasets/academic-screening-v0.1/papers-v0.1.csv",
+    "dataset_sha256": "f0f43a52042a791b9a341011b7bf831a9d82f754f02f0d66f16e5172301bccb2",
+    "prompt": "/home/jpdeleon/academic/academic-screening-v0.1.txt",
+    "prompt_sha256": "2d63833dcf5e3a2cbbea8ddc6296dd040ed73b63f261fd10e7b4d3b8537e670d",
+    "token_usage": {
+      "prompt_tokens": 32808,
+      "completion_tokens": 8680,
+      "total_tokens": 41488
+    },
+    "outputs": {
+      "predictions": "/srv/data/benchmarks/academic-rag/runs/A001-20260912T122718Z/predictions.csv",
+      "raw_responses": "/srv/data/benchmarks/academic-rag/runs/A001-20260912T122718Z/responses.jsonl"
+    }
+  }
+}
