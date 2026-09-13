@@ -2,6 +2,75 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-09-13
+
+### Added
+
+- Formal A003 result report: `docs/academic-rag/a003-results-2026-09-13.md`.
+- Academic Screening reproducibility audit: `docs/academic-rag/reproducibility-record-2026-09-13.md`.
+- Versioned formal-run evidence under `results/academic-screening/` for A001 and A003.
+- `results/academic-screening/README.md` documenting artifact semantics, run fingerprints, and A001/A003 comparison.
+- Prompt v0.2: `prompts/academic-screening-v0.2.txt`.
+- Deterministic reading-policy evaluator: `scripts/academic-rag/evaluate_reading_policy_a002.py`.
+
+### Preserved evidence
+
+Formal A001 repository artifacts now include:
+
+- `manifest.json`
+- `responses.jsonl`
+- `predictions.csv`
+- `comparison.csv`
+- `evaluation.json`
+- `evaluation.md`
+
+Formal A003 repository artifacts include the same evidence set.
+
+The raw `responses.jsonl` files are preserved as the closest records to the original model outputs. A separately checksummed full experiment archive is also retained outside Git for audit/reviewer use.
+
+### Validated — A003
+
+- Formal run: `A003-20260913T133722Z`.
+- 24/24 responses successful and structurally valid; 0 invalid outputs and 0 errors.
+- Wall time: 150.522 s.
+- Throughput: 574.004 papers/hour.
+- Token usage: 50,088 prompt tokens, 8,824 completion tokens, 58,912 total tokens.
+- Dataset SHA-256: `f0f43a52042a791b9a341011b7bf831a9d82f754f02f0d66f16e5172301bccb2`.
+- Prompt v0.2 SHA-256: `04dbcc97f7b1d604746a47ff295181eaa61c678b3673190fedbfa12bfb943539`.
+- Exact 4-class accuracy: 0.542.
+- Macro F1: 0.408.
+- Relevant-paper recall: 1.000.
+- Relevant-paper precision: 0.864.
+- False-negative rate: 0.000.
+- Class-3 recall: 0.500.
+- Relevance-class MAE: 0.458.
+- Quadratic weighted kappa: 0.488.
+- Active-reading reduction: 0.083.
+- Relevant retention: 1.000.
+
+### A001/A003 interpretation
+
+- A003 improves ordinal relevance calibration relative to A001.
+- The binary screening confusion matrix is unchanged: 19 TP, 3 FP, 0 FN, 2 TN.
+- A003 therefore does not improve relevant-paper precision or the number of papers selected for active reading beyond the deterministic A002 policy.
+- Class-3 recall falls from 1.000 to 0.500, so prompt v0.2 is frozen as a development candidate rather than tuned further on the same 24-paper set.
+- Further prompt optimization on Academic Screening v0.1 is avoided to reduce development-set overfitting.
+
+### Reproducibility audit
+
+The Git repository now contains the formal run outputs, prompts and analysis scripts, but a repository-only end-to-end reproduction still requires additional exact inputs. Missing or externally archived items include the frozen dataset CSV and manifest, full frozen ground-truth CSV, manual metadata overrides, normalized validation outputs, exact academic GGUF SHA-256, Python dependency snapshot, and automatic hardware/energy telemetry.
+
+These gaps are explicitly tracked instead of being silently assumed complete.
+
+### Next
+
+- Version or immutably reference all remaining frozen Academic Screening v0.1 input artifacts.
+- Record exact GGUF SHA-256 and Python environment snapshot.
+- Extend Academic Screening to v0.2 with clearly irrelevant and borderline papers.
+- Validate prompt v0.2 on an independent/expanded hold-out set without further tuning.
+- Add VRAM/RAM/GPU utilization and integrated-energy telemetry.
+- Begin B001 dense-retrieval experiments after defining structure-aware chunks and retrieval ground truth.
+
 ## [Unreleased] - 2026-09-12
 
 ### Added
@@ -130,6 +199,6 @@ All notable changes to LocalAI-Lab will be documented here.
 - `llama.cpp` selected as initial inference-engine candidate.
 - Two operating profiles defined: coding and academic research/RAG.
 - Qwen3-Coder family selected as initial coding-model candidate.
-- Qwen3 family and alternative models identified for academic evaluation.
+- Qwen3 family and alternative models identified as academic evaluation candidates.
 - Qwen3-Embedding and Qwen3-Reranker families identified as RAG candidates.
 - Reproducibility, telemetry and future publication potential established as project requirements.
