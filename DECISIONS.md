@@ -89,7 +89,7 @@ Configuration changes that can materially affect results should therefore be ver
 
 **Status:** Accepted
 
-Qwen3-Coder-30B-A3B-Instruct Q3_K_M is retained for coding-agent workloads. Academic screening will use a general instruction model, initially Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
+Qwen3-Coder-30B-A3B-Instruct Q3_K_M is retained for coding-agent workloads. Academic screening uses a general instruction model, initially Qwen3-30B-A3B-Instruct-2507 Q3_K_M.
 
 ### Rationale
 
@@ -101,13 +101,15 @@ The previous one-paper academic-screening run with Qwen3-Coder is retained only 
 
 ## ADR-008 — Establish an LLM-only academic baseline before RAG
 
-**Status:** Accepted
+**Status:** Accepted and executed
 
-Academic Screening A001 will evaluate title + abstract + keywords directly with the academic LLM before embeddings, retrieval, reranking, or RAG are introduced.
+Academic Screening A001 evaluates title + abstract + keywords directly with the academic LLM before embeddings, retrieval, reranking, or RAG are introduced.
 
 ### Rationale
 
 A clean baseline is required to quantify whether later retrieval components improve quality rather than merely add complexity. Retrieval metrics and generation metrics will therefore be measured separately.
+
+A001 completed successfully on 24 papers. A003 later changed only the prompt to test relevance calibration while preserving the rest of the screening setup.
 
 ---
 
@@ -123,7 +125,7 @@ The screening corpus must pass deterministic extraction, metadata validation and
 - 24 unique READY papers;
 - P024 excluded as a duplicate of P023;
 - 0 unresolved duplicate documents;
-- frozen dataset and manifest generated under `/srv/data/benchmarks/academic-rag/`.
+- frozen dataset generated under `/srv/data/benchmarks/academic-rag/`.
 
 ### Rationale
 
@@ -133,13 +135,15 @@ Corpus defects discovered after inference would invalidate comparisons and obscu
 
 ## ADR-010 — Academic screening prioritizes recall of relevant literature
 
-**Status:** Accepted
+**Status:** Accepted and validated on v0.1
 
 For literature screening, retaining relevant papers is more important than maximizing raw classification accuracy.
 
 ### Primary interpretation
 
-Metrics must include recall for `class >= 2`, recall for class 3, and false-negative rate. A recall target such as 0.95 may be used as an experimental design goal, but must not be reported as achieved until measured.
+Metrics must include recall for `class >= 2`, recall for class 3, and false-negative rate. A recall target of at least 0.95 is the current design goal.
+
+A001 and A003 both achieved relevant-paper recall 1.000 and false-negative rate 0.000 on Academic Screening v0.1. This result is specific to the frozen 24-paper corpus and must not be generalized beyond it without hold-out validation.
 
 ---
 
@@ -152,3 +156,79 @@ The current 24-paper ground truth is human-supervised and AI-assisted. This prov
 ### Publication implication
 
 For stronger publication-quality claims, an independent human-only review should be considered so that label-assistance bias can be quantified or reduced.
+
+---
+
+## ADR-012 — Separate ordinal calibration from binary screening efficiency
+
+**Status:** Accepted after A003
+
+A003 improved exact four-class accuracy, macro F1, MAE and weighted kappa, but did not improve binary relevant-paper precision or relevant-paper recall relative to A001.
+
+At threshold `class >= 2`, A001 and A003 both produced:
+
+- 19 true positives;
+- 3 false positives;
+- 0 false negatives;
+- 2 true negatives.
+
+### Rationale
+
+A model may improve the ordering of `TANGENTIAL`, `RELEVANT`, and `HIGHLY_RELEVANT` without reducing the number of papers selected for active reading. Ordinal calibration and screening-efficiency metrics must therefore be reported separately.
+
+---
+
+## ADR-013 — Do not continue prompt tuning on Academic Screening v0.1
+
+**Status:** Accepted
+
+Prompt v0.2 is frozen as a development candidate after A003. No further prompt calibration should be performed against the same 24-paper ground truth before an independent or expanded hold-out set is available.
+
+### Rationale
+
+A003 was designed after inspecting A001 errors. Further optimization on the same small corpus would increase development-set overfitting risk and weaken publication claims.
+
+The next evaluation set should include clearly irrelevant class-0 papers and borderline cases.
+
+---
+
+## ADR-014 — Preserve small formal-run artifacts in Git and full snapshots separately
+
+**Status:** Accepted
+
+Formal benchmark artifacts that are small, textual, and directly auditable should be versioned in Git. This includes manifests, raw JSONL responses, structured predictions, comparison tables, evaluation JSON, and human-readable reports.
+
+Large or redundant evidence bundles, original PDFs when licensing is uncertain, model GGUF files, and high-frequency telemetry logs should be stored outside normal Git and referenced by immutable checksums when possible.
+
+### Rationale
+
+This provides two complementary evidence layers:
+
+1. Git history for inspectable, diffable run evidence;
+2. separately checksummed experiment snapshots for complete archival recovery.
+
+`results/academic-screening/` is the canonical Git location for the preserved A001/A003 formal-run artifacts.
+
+---
+
+## ADR-015 — Reproducibility claims require a complete provenance chain
+
+**Status:** Accepted
+
+A final metric table alone is not considered a reproducible experiment record.
+
+For future formal runs, the required provenance chain includes:
+
+- exact dataset and ground truth;
+- prompt and their checksums;
+- exact model artifact checksum;
+- inference engine revision;
+- server launch arguments;
+- OS/kernel/ROCm/HIP versions;
+- Python dependency snapshot;
+- repository commit used for the run;
+- raw model responses;
+- parsed outputs and evaluation artifacts;
+- telemetry logs when resource claims are made.
+
+The A001/A003 repository audit identified several missing inputs, which are tracked explicitly in `docs/academic-rag/reproducibility-record-2026-09-13.md` rather than being silently assumed present.
