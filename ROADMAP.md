@@ -71,16 +71,37 @@
 - [ ] Implement citation-aware retrieval.
 - [ ] Evaluate retrieval separately with Hit Rate@K, Precision@K, Recall@K, MRR and nDCG.
 
-## Phase 5 — Service deployment
+## Phase 5 — Service deployment and web control plane
+
+This phase starts only after the current Academic Screening/RAG validation work reaches a stable checkpoint. The first goal is operational control of model services, not new end-user functionality.
 
 - [x] Expose OpenAI-compatible API on the LAN for manual validation.
-- [ ] Create systemd services.
-- [ ] Implement manual model-switching profiles.
-- [ ] Add health checks.
-- [ ] Add structured logging.
-- [ ] Add resource telemetry.
+- [ ] Define service profiles for each operational mode.
+- [ ] Create systemd services or equivalent controlled service wrappers.
+- [ ] Implement safe start/stop/switch logic for large GPU models.
+- [ ] Enforce the operating rule of one large GPU model loaded at a time.
+- [ ] Add health checks and readiness state for each model backend.
+- [ ] Add structured logging for service transitions and failures.
+- [ ] Add resource telemetry to the service layer.
 - [ ] Replace development API key with managed secret/configuration.
-- [ ] Build lightweight FastAPI/HTML control panel after core benchmark validation.
+- [ ] Build lightweight FastAPI/HTML web control panel.
+- [ ] Expose model/service states in the web interface: STOPPED, STARTING, READY, STOPPING, ERROR.
+- [ ] Add initial web actions for Coding Agent and Academic Reviewer profiles.
+- [ ] Add a global STOP ALL action and verify VRAM release before a new large model starts.
+- [ ] Keep OpenCode on the Windows workstation; the web panel controls Linux model backends only.
+
+Planned control flow:
+
+```text
+Browser
+  -> Web control panel
+  -> Mode / service manager
+  -> stop currently active large model
+  -> verify process termination and VRAM release
+  -> start selected model profile
+  -> health check
+  -> READY
+```
 
 ## Phase 6 — Experimental platform and reproducibility
 
@@ -117,6 +138,78 @@
 - [ ] Prepare figures, tables and statistical analysis.
 - [ ] Assess publication targets and release reproducibility artifacts where licensing permits.
 
+## Phase 8 — Future Teaching Content Assistant
+
+This is a planned future capability and is intentionally deferred until the Academic stack and the web control plane are stable. The initial assumption is to reuse a validated general instruction model before introducing another model family.
+
+### 8.1 — Source-grounded knowledge layer
+
+- [ ] Reuse the document-ingestion and RAG foundations already validated in the Academic stack.
+- [ ] Accept books, articles, technical documents, notes and instructor-provided texts as source material.
+- [ ] Preserve source metadata and page/section traceability.
+- [ ] Implement structure-aware chunking appropriate for books and teaching material.
+- [ ] Retrieve only the evidence required for the requested lesson instead of placing entire books in the LLM context.
+- [ ] Require generated teaching content to remain grounded in the supplied sources.
+
+### 8.2 — Teaching planning layer
+
+- [ ] Define a structured request for target audience, learning objectives, lesson duration, technical depth and desired activities.
+- [ ] Separate source analysis from pedagogical planning.
+- [ ] Generate a lesson outline before generating final artifacts.
+- [ ] Support class structure such as concepts, examples, exercises, questions, instructor notes and student material.
+
+### 8.3 — Structured content generation
+
+- [ ] Use Qwen3-30B-A3B-Instruct-2507 initially as the general instruction-model baseline unless benchmark evidence justifies changing models.
+- [ ] Define a versioned Teaching Generation prompt/profile independent from Academic Screening prompts.
+- [ ] Generate an intermediate structured representation, preferably JSON plus Markdown, before rendering files.
+- [ ] Include source references in the intermediate representation so claims can be traced back to books/articles/texts.
+- [ ] Keep content generation separate from document rendering.
+
+Planned logical pipeline:
+
+```text
+Books / articles / notes / technical texts
+  -> extraction and metadata
+  -> structure-aware chunks
+  -> embeddings / retrieval
+  -> grounded evidence set
+  -> general instruction LLM
+  -> pedagogical plan
+  -> structured lesson representation
+  -> artifact renderers
+       -> Markdown
+       -> PDF
+       -> PPTX
+       -> later additional formats
+```
+
+### 8.4 — Artifact rendering
+
+- [ ] Generate Markdown directly from the structured lesson representation.
+- [ ] Add deterministic PDF generation from templates rather than asking the LLM to create binary PDF output directly.
+- [ ] Add deterministic PPTX generation from structured slide data rather than asking the LLM to create presentations directly.
+- [ ] Preserve references, document metadata and generation configuration alongside each artifact.
+- [ ] Add reusable visual/document templates only after content correctness is validated.
+
+### 8.5 — Web integration
+
+- [ ] Add a Teaching Content Generator mode to the web control panel after the service manager is stable.
+- [ ] Allow source-set selection and generation-profile selection from the interface.
+- [ ] Reuse the same large general instruction model initially when practical rather than maintaining an unnecessary dedicated model.
+- [ ] Add additional models only when controlled benchmarks show a measurable benefit.
+- [ ] Keep the one-large-model-at-a-time policy unless future hardware changes justify a different design.
+
+### 8.6 — Validation and future benchmark
+
+- [ ] Define Teaching Generation v0.1 before comparing models.
+- [ ] Measure source fidelity and unsupported-claim/hallucination rate.
+- [ ] Measure conceptual coverage against the requested learning objectives.
+- [ ] Measure instructor editing effort required before use.
+- [ ] Measure generation time, token usage, resource consumption and integrated energy.
+- [ ] Evaluate PPTX/PDF/MD artifact correctness separately from pedagogical/content quality.
+- [ ] Only after this baseline exists, compare alternative general-purpose LLMs against the existing Qwen3 instruction model.
+
 ## Immediate priority order after A003
 
 1. Close the frozen-input reproducibility gaps identified in `docs/academic-rag/reproducibility-record-2026-09-13.md`.
@@ -125,3 +218,5 @@
 4. Define structure-aware chunks and retrieval ground truth.
 5. Benchmark embedding candidates and run B001 dense retrieval.
 6. Add hybrid retrieval, reranking and citation-aware RAG only after retrieval metrics are understood.
+7. After the Academic stack reaches a stable checkpoint, implement the web control plane for safe model/service switching.
+8. Only after the web control plane is stable, begin Teaching Content Assistant v0.1 as a source-grounded generation pipeline.
