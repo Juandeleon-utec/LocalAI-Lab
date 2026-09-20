@@ -2,6 +2,31 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-09-20
+
+### Added
+
+- Exact frozen Academic Screening v0.1 inputs under `results/academic-screening/inputs/v0.1/`.
+- Preserved corpus-build audit artifacts: manual overrides, normalized metadata, duplicate candidates, and corpus validation.
+- Post-run Python dependency snapshot under `results/academic-screening/environment/`.
+
+### Verified fingerprints
+
+- `papers-v0.1.csv`: `f0f43a52042a791b9a341011b7bf831a9d82f754f02f0d66f16e5172301bccb2` — matches the dataset SHA-256 recorded in both A001 and A003 manifests.
+- `manifest-v0.1.json`: `495aff80d68e05583bed8495f32b67b50d5fcc1725c6a4191752920fc0580747`.
+- `ground-truth-v0.1.csv`: `63b9d499c52884f343ac69d66cde16627c785fc1b53735b6c805b900c62cf56d`.
+- Preserved Qwen3-30B-A3B-Instruct-2507 Q3_K_M GGUF: `327c6e0826bee8f19172e96c94bb7bba385f7a39d08314803652df9942401c4f`.
+
+### Environment note
+
+- A post-run snapshot captured on 2026-09-20 records Python 3.12.3 and PyMuPDF 1.28.2.
+- The 2026-09-20 kernel is `7.0.0-31-generic`; A001/A003 remain documented with the contemporaneous `7.0.0-30-generic` kernel.
+- The GGUF hash and dependency snapshot were captured post hoc and are documented as such rather than retroactively presented as original manifest fields.
+
+### Reproducibility status
+
+The frozen dataset, ground truth, corpus-build audit artifacts, prompts, raw model responses, parsed predictions, evaluations, inference-engine revision, and preserved model artifact are now all versioned or fingerprinted. Remaining gaps are automatic hardware/energy telemetry, exact contemporaneous package-state proof, and embedding the LocalAI-Lab commit directly into future run manifests.
+
 ## [Unreleased] - 2026-09-13
 
 ### Added
