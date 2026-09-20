@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "documents": 25,
+  "extraction_ok": 25,
+  "ready": 24,
+  "review_metadata": 0,
+  "possible_duplicate_documents": 0,
+  "excluded": 1,
+  "missing_title": 0,
+  "missing_year": 0,
+  "missing_doi": 2,
+  "duplicate_candidate_pairs": 1,
+  "duplicate_types": {
+    "DUPLICATE_EXACT": 0,
+    "DUPLICATE_DOI": 0,
+    "DUPLICATE_TEXT": 1,
+    "POSSIBLE_DUPLICATE_TITLE": 0
+  },
+  "inputs": {
+    "metadata": "/srv/data/papers/academic-screening-v0.1/metadata/papers-metadata-v0.1.csv",
+    "extracted_dir": "/srv/data/papers/academic-screening-v0.1/extracted",
+    "manual_overrides": "/srv/data/papers/academic-screening-v0.1/metadata/manual-overrides-v0.1.csv"
+  },
+  "outputs": {
+    "clean_metadata": "/srv/data/papers/academic-screening-v0.1/metadata/papers-metadata-clean-v0.1.csv",
+    "duplicate_candidates": "/srv/data/papers/academic-screening-v0.1/metadata/duplicate-candidates-v0.1.csv"
+  }
+}

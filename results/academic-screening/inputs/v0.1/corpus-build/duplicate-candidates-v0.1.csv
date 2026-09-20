@@ -1,0 +1,2 @@
+paper_id_a,paper_id_b,duplicate_type,sha256_equal,doi_equal,normalized_text_sha256_equal,title_similarity,title_a,title_b,recommended_action
+P023,P024,DUPLICATE_TEXT,False,False,True,0.201,Motor Fault Prediction Based on Graph Convolutional Networks with Signal Association Mining,"motor operation data, and then use shallow machine learning algorithms such as support vector machines, random",KEEP_ONE_REVIEW
