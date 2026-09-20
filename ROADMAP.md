@@ -113,11 +113,11 @@ Browser
 - [x] Version A001/A003 manifests, raw responses, predictions, comparisons and evaluations in Git.
 - [x] Create a separately checksummed archival snapshot of the academic-screening experiments.
 - [x] Audit repository reproducibility and document remaining gaps.
-- [ ] Version or immutably reference the exact frozen `papers-v0.1.csv` and dataset manifest used in A001/A003.
-- [ ] Version or immutably reference the exact full `ground-truth-v0.1.csv` used in evaluation.
-- [ ] Version manual metadata overrides and normalized corpus validation outputs used to build v0.1.
-- [ ] Record SHA-256 of every model artifact used in formal runs.
-- [ ] Capture a Python/dependency environment snapshot for formal academic runs.
+- [x] Version the exact frozen `papers-v0.1.csv` and dataset manifest used in A001/A003; the dataset CSV matches the SHA-256 recorded in both run manifests.
+- [x] Version the exact full `ground-truth-v0.1.csv` used in evaluation and record its SHA-256.
+- [x] Version manual metadata overrides, normalized metadata, duplicate candidates, and corpus-validation outputs used to build v0.1.
+- [x] Record the SHA-256 of the preserved Qwen3 academic GGUF used for A001/A003; the hash was captured post hoc and is documented as such.
+- [x] Preserve a post-run Python/dependency snapshot from 2026-09-20 (Python 3.12.3, PyMuPDF 1.28.2); keep the exact A001/A003 package state marked as not independently proven.
 - [ ] Record the LocalAI-Lab repository commit used at experiment execution time in future manifests.
 - [ ] Record VRAM/RAM usage automatically per run.
 - [ ] Record GPU/CPU utilization automatically per run.
@@ -212,8 +212,8 @@ Books / articles / notes / technical texts
 
 ## Immediate priority order after A003
 
-1. Close the frozen-input reproducibility gaps identified in `docs/academic-rag/reproducibility-record-2026-09-13.md`.
-2. Add model hashing, environment capture and run telemetry before the next publication-oriented experiment.
+1. Keep the frozen Academic Screening v0.1 inputs and A001/A003 evidence immutable.
+2. Add automatic run telemetry and record the repository commit directly in every future formal run manifest.
 3. Build Academic Screening v0.2/hold-out with class-0 and borderline papers.
 4. Define structure-aware chunks and retrieval ground truth.
 5. Benchmark embedding candidates and run B001 dense retrieval.
