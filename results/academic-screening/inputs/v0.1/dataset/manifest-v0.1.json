@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1",
+  "benchmark": "academic-screening-v0.1",
+  "corpus": "academic-screening-v0.1",
+  "source_documents": 25,
+  "included_documents": 24,
+  "excluded_or_nonready_documents": 1,
+  "skipped_paper_ids": [
+    "P024"
+  ],
+  "validation": {
+    "documents": 24,
+    "duplicate_paper_ids": 0,
+    "missing_title": 0,
+    "missing_abstract": 0,
+    "missing_keywords": 17,
+    "missing_year": 0,
+    "missing_doi": 1,
+    "missing_authors": 17
+  },
+  "inputs": {
+    "clean_metadata": "/srv/data/papers/academic-screening-v0.1/metadata/papers-metadata-clean-v0.1.csv",
+    "clean_metadata_sha256": "7171df9fdcbc61fba41c8d4d4207848e77316c1bc69514963f607e4571cd2e89"
+  },
+  "outputs": {
+    "papers": "/srv/data/benchmarks/academic-rag/datasets/academic-screening-v0.1/papers-v0.1.csv",
+    "papers_sha256": "f0f43a52042a791b9a341011b7bf831a9d82f754f02f0d66f16e5172301bccb2",
+    "ground_truth": "/srv/data/benchmarks/academic-rag/ground-truth/academic-screening-v0.1/ground-truth-v0.1.csv",
+    "ground_truth_created": true
+  },
+  "notes": [
+    "Only rows with corpus_status=READY are included.",
+    "paper_id values are preserved from the source corpus and are not renumbered.",
+    "Ground truth is created only when missing and is never overwritten by this script.",
+    "No model predictions are stored in the ground-truth file."
+  ]
+}
