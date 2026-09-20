@@ -44,7 +44,13 @@ Academic model:
 - server path: `/srv/models/academic/qwen3-30b-a3b-instruct-2507/Qwen_Qwen3-30B-A3B-Instruct-2507-Q3_K_M.gguf`
 - recorded size: 14,070,833,152 bytes
 
-The exact GGUF SHA-256 was not captured in the formal A001/A003 manifests. This is a reproducibility gap and should be corrected before the next publication-oriented run.
+The exact GGUF SHA-256 was not captured inside the original A001/A003 manifests. The preserved model artifact was hashed post hoc on 2026-09-20:
+
+```text
+327c6e0826bee8f19172e96c94bb7bba385f7a39d08314803652df9942401c4f
+```
+
+This closes model-artifact identification for the preserved file, but the documentation must continue to state that the hash was captured after the formal runs rather than recorded contemporaneously in their manifests.
 
 ## Server launch profile
 
@@ -94,6 +100,20 @@ SHA-256:
 ```text
 f0f43a52042a791b9a341011b7bf831a9d82f754f02f0d66f16e5172301bccb2
 ```
+
+The preserved repository copy at `results/academic-screening/inputs/v0.1/dataset/papers-v0.1.csv` was independently verified on Windows and matches this hash exactly.
+
+Additional frozen-input fingerprints:
+
+```text
+manifest-v0.1.json
+495aff80d68e05583bed8495f32b67b50d5fcc1725c6a4191752920fc0580747
+
+ground-truth-v0.1.csv
+63b9d499c52884f343ac69d66cde16627c785fc1b53735b6c805b900c62cf56d
+```
+
+These files are versioned under `results/academic-screening/inputs/v0.1/`.
 
 Corpus state used to build the dataset:
 
@@ -259,24 +279,58 @@ The repository contains:
 - versioned prompts v0.1 and v0.2;
 - extraction, normalization, dataset-builder, runner, policy, and evaluator scripts;
 - extracted paper text and initial corpus metadata under `results/academic-rag/`;
+- the exact frozen `papers-v0.1.csv` used by A001/A003 and its dataset manifest;
+- the exact frozen `ground-truth-v0.1.csv` used by the evaluator;
+- `manual-overrides-v0.1.csv`, normalized metadata, duplicate-candidate output, and corpus-validation output used to build v0.1;
 - formal A001 raw responses, predictions, manifest, comparison, and evaluation artifacts;
 - formal A003 raw responses, predictions, manifest, comparison, and evaluation artifacts;
+- a post-run Python dependency snapshot captured on 2026-09-20;
+- the SHA-256 of the preserved academic GGUF artifact;
 - methodological interpretation documents.
 
-## Reproducibility gaps identified by repository audit
+The frozen-input/evidence bundle was committed directly to `main` as commit `bf4ce062d403605bef04f96d519bf45f34ff1a74` with message `Preserve Academic Screening v0.1 frozen inputs`.
 
-The current Git tree does **not** contain every exact input required to reconstruct the formal runs from scratch. The following should be added or immutably archived before claiming full repository-only reproduction:
+## Current reproducibility status
 
-1. frozen `papers-v0.1.csv` used by A001/A003;
-2. `manifest-v0.1.json` for that dataset;
-3. frozen `ground-truth-v0.1.csv` including evaluator provenance and rationales;
-4. `manual-overrides-v0.1.csv` used to exclude P024 and correct metadata;
-5. normalized clean metadata and duplicate-candidate/validation outputs;
-6. exact SHA-256 of the academic GGUF model;
-7. Python dependency snapshot, at minimum Python and PyMuPDF versions used for corpus extraction and benchmark scripts;
-8. automatic hardware telemetry and integrated-energy logs for formal runs.
+A001/A003 now have a substantially complete provenance chain from the frozen screening dataset onward:
 
-The separate checksummed evidence archive created after the experiments contains additional material and should be retained independently from Git. Its checksum should be stored with the archive.
+```text
+frozen papers-v0.1.csv
+  -> frozen ground-truth-v0.1.csv
+  -> versioned prompt
+  -> preserved GGUF artifact
+  -> fixed llama.cpp build
+  -> raw responses
+  -> parsed predictions
+  -> evaluation outputs
+```
+
+The dataset CSV is cryptographically linked to the original A001/A003 manifests through the same SHA-256. The manifest and ground-truth files now also have recorded SHA-256 fingerprints.
+
+Remaining limitations should still be stated explicitly:
+
+1. the academic GGUF hash was captured post hoc on 2026-09-20 rather than inside the original A001/A003 manifests;
+2. the preserved dependency snapshot was captured on 2026-09-20 and confirms Python 3.12.3 and PyMuPDF 1.28.2 at that date, but does not independently prove that every installed package version was identical during A001/A003;
+3. the current kernel snapshot on 2026-09-20 is `7.0.0-31-generic`, whereas the formal A001/A003 environment was documented as `7.0.0-30-generic`;
+4. automatic per-run VRAM/RAM/CPU/GPU telemetry and integrated-energy logs were not captured for A001/A003;
+5. the LocalAI-Lab repository commit was not embedded directly in the original run manifests.
+
+The separate checksummed evidence archive created after the experiments should continue to be retained independently from Git for audit/reviewer use.
+
+## Post-run environment snapshot
+
+A dependency snapshot was preserved as `results/academic-screening/environment/academic-environment-20260920.txt`.
+
+Observed on 2026-09-20:
+
+- Python: 3.12.3
+- PyMuPDF: 1.28.2
+- OS: Ubuntu 24.04.4 LTS
+- kernel: `7.0.0-31-generic`
+- GPU: AMD Radeon RX 9060 XT
+- ROCm target: `gfx1200`
+
+This snapshot is intentionally described as post-run evidence and must not be substituted for the contemporaneous A001/A003 environment record.
 
 ## Known code cleanup items
 
