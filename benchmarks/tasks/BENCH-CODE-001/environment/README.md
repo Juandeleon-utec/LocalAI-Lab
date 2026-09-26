@@ -12,7 +12,7 @@ The current Windows development workstation (Ryzen 7 5700G, 32 GB RAM, GTX 1050 
 
 For the v1.0 engineering phase, use:
 
-- Linux x86-64 host;
+- one fixed x86-64 staging host for all formal runs (Windows or Linux);
 - Docker/OCI-compatible container runtime;
 - Node.js 24 LTS family for candidate execution;
 - MySQL 8.4 LTS family;
@@ -84,15 +84,22 @@ Do not expose BENCH-CODE-001 candidates directly to the public Internet.
 
 ## Public harness
 
-The repository includes:
+The repository includes both Windows/PowerShell and Bash variants where operating-system-specific orchestration is required.
+
+Windows staging uses:
+
+- `preflight.ps1`;
+- `start-database.ps1` / `stop-database.ps1`;
+- `wait-health.ps1`;
+- `capture-environment.ps1`;
+- `run-candidate.ps1`.
+
+Linux/Bash staging uses the corresponding `.sh` helpers.
+
+Shared files:
 
 - `docker-compose.yml` — ephemeral MySQL service;
-- `preflight.sh` — required-tool and Docker-daemon validation;
-- `start-database.sh` / `stop-database.sh` — clean database lifecycle;
-- `wait-health.sh` — readiness check;
-- `capture-environment.sh` — environment/version snapshot;
 - `aggregate-evaluation.py` — combines pre/post evaluator phases into one result;
-- `run-candidate.sh` — install, initialize, run, restart, evaluate and preserve provenance;
 - `reference-validation.env.example` — benchmark-only environment example;
 - `VALIDATION.md` — reference-validation and freeze procedure.
 

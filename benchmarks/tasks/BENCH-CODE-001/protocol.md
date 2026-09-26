@@ -38,7 +38,7 @@ All candidate applications are validated on the same dedicated benchmark/staging
 
 The benchmark server should provide the same:
 
-- operating system image;
+- physical host and operating-system build;
 - CPU allocation;
 - RAM allocation;
 - Node.js version;
