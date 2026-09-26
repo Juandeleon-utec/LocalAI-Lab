@@ -23,7 +23,7 @@ try {
 
         if ($status -eq "healthy") {
             Write-Host "MySQL is healthy."
-            exit 0
+            return
         }
 
         if ($status -eq "unhealthy") {
