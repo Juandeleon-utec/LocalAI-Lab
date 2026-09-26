@@ -121,10 +121,18 @@ function Invoke-NpmLogged {
 
     Push-Location $candidateDir
     try {
-        & npm.cmd @Arguments 2>&1 | Tee-Object -FilePath $LogPath
-        $exitCode = $LASTEXITCODE
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            & npm.cmd @Arguments 2>&1 | ForEach-Object { "$_" } | Tee-Object -FilePath $LogPath
+            $exitCode = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+
         if ($exitCode -ne 0) {
-            throw "npm $($Arguments -join ' ') failed with exit code $exitCode."
+            throw "npm $($Arguments -join ' ') failed with exit code $exitCode. See $LogPath"
         }
     }
     finally {
