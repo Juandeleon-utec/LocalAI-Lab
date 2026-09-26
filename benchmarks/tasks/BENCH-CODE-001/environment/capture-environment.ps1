@@ -73,7 +73,7 @@ Add-Line (& docker.exe compose version)
 
 Add-Line ""
 Add-Line "## MySQL image"
-$mysqlImage = if ($env:MYSQL_IMAGE) { $env:MYSQL_IMAGE } else { "mysql:8.4" }
+$mysqlImage = if ($env:MYSQL_IMAGE) { $env:MYSQL_IMAGE } else { "mysql@sha256:0744ee5ef89ce6ccfa13de3e579fe6b9e27f93dd70da9c06d2c908b1b193fb8d" }
 try {
     $repoDigests = & docker.exe image inspect $mysqlImage --format "{{json .RepoDigests}}"
     Add-Line $repoDigests
