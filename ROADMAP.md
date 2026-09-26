@@ -33,14 +33,22 @@
 
 - [x] Select initial Qwen3-Coder quantization: Qwen3-Coder-30B-A3B-Instruct Q3_K_M.
 - [x] Define initial context-size profile: 8K for agent validation.
+- [x] Reclassify the 8K coding-agent work as pilot evidence after context pressure/compaction was observed.
+- [x] Define 32K as the nominal local context budget for formal BENCH-CODE-001 comparisons.
 - [x] Measure prompt and generation throughput.
 - [x] Measure RAM/VRAM behavior for the selected coder model.
 - [x] Evaluate OpenCode for repository reading and controlled writes.
 - [ ] Evaluate Qwen Code.
 - [ ] Evaluate Aider.
 - [x] Validate initial local coding-agent workflow over LAN.
-- [ ] Create controlled coding benchmark dataset.
-- [ ] Validate autonomous edit-test-fix loop.
+- [x] Define BENCH-CODE-001 v1.0: authenticated Node.js/MySQL web-application task.
+- [x] Freeze participant prompt, execution protocol, evaluator contract and blinded-review rubric before formal runs.
+- [ ] Implement and checksum the external hidden evaluator for BENCH-CODE-001.
+- [ ] Prepare the isolated benchmark/staging server and clean MySQL-per-run reset procedure.
+- [ ] Validate autonomous edit-test-fix loop under BENCH-CODE-001.
+- [ ] Run Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K.
+- [ ] Integrate and benchmark Qwen3.6-35B-A3B Q4_K_M at 32K.
+- [ ] Evaluate Qwen3.6 MTP as a separate inference-efficiency factor.
 
 ## Phase 4 — Academic stack
 
@@ -128,8 +136,9 @@ Browser
 
 ## Phase 7 — Comparative studies
 
-- [ ] Define identical coding tasks and controlled repository states.
-- [ ] Compare local coding agents against Claude Code or other hosted agents.
+- [x] Define identical coding task and controlled repository state for BENCH-CODE-001 v1.0.
+- [ ] Execute three clean runs per local system for the BENCH-CODE-001 engineering phase.
+- [ ] Compare BENCH-CODE-001 local systems against Claude Code as a hosted system-level baseline.
 - [ ] Analyze quality, latency, energy, privacy and cost.
 - [x] Compare A001, A002 and A003 before introducing retrieval.
 - [ ] Compare Academic Screening LLM-only baselines against retrieval-augmented configurations.
@@ -220,3 +229,14 @@ Books / articles / notes / technical texts
 6. Add hybrid retrieval, reranking and citation-aware RAG only after retrieval metrics are understood.
 7. After the Academic stack reaches a stable checkpoint, implement the web control plane for safe model/service switching.
 8. Only after the web control plane is stable, begin Teaching Content Assistant v0.1 as a source-grounded generation pipeline.
+
+
+## Immediate coding benchmark sequence
+
+1. Freeze and checksum BENCH-CODE-001 v1.0 inputs before the first formal run.
+2. Build the external hidden evaluator and staging-server reset procedure.
+3. Run OpenCode + Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K as the local baseline.
+4. Add Qwen3.6-35B-A3B Q4_K_M without MTP and repeat the identical benchmark.
+5. Compare the best local configuration with Claude Code using the same prompt and seed repository.
+6. Evaluate Qwen3.6 + MTP separately for end-to-end throughput, latency and energy.
+7. Preserve every candidate repository, run manifest, hidden-test output and telemetry artifact before interpretation.

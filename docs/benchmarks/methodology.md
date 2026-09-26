@@ -34,7 +34,19 @@ Any unavoidable difference must be documented before interpreting results.
 - input/output tokens where measurable;
 - files and lines changed;
 - human intervention required;
-- failure mode.
+- failure mode;
+- maximum observed context/token usage where measurable;
+- observable context-compaction events;
+- files and lines created/changed;
+- dependency count.
+
+For BENCH-CODE-001, the primary engineering outcome is independent hidden functional tests passed without human intervention. Critical authentication and cross-user authorization failures must also be reported separately rather than hidden inside an aggregate test count.
+
+Formal BENCH-CODE-001 runs use one initial task prompt and no corrective human prompts or manual code edits. Agent self-correction through its normal tools is allowed and is part of the measured behavior.
+
+The executable hidden evaluator must remain outside the participant workspace. Because repository visibility may expose public files to participants, the exact hidden-test archive should be retained separately and frozen by checksum before formal execution.
+
+The initial engineering phase uses three clean runs per system. Publication-oriented use must define the final repetition count and statistical analysis before inspecting formal results.
 
 ## Infrastructure metrics
 

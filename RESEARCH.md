@@ -31,6 +31,20 @@ Possible systems:
 
 The comparison should evaluate complete agent systems rather than isolated model responses.
 
+### Current coding benchmark design
+
+BENCH-CODE-001 v1.0 operationalizes RQ1/RQ2 with an authenticated Node.js/MySQL web application generated from a clean repository.
+
+The first controlled comparison separates three questions:
+
+1. **Local model effect:** OpenCode + Qwen3-Coder-30B-A3B-Instruct Q3_K_M vs OpenCode + Qwen3.6-35B-A3B Q4_K_M, both with a nominal 32K local context budget.
+2. **Hosted system comparison:** the best local configuration vs Claude Code using the same prompt, seed repository and external functional evaluator.
+3. **Inference optimization:** Qwen3.6 without vs with MTP, primarily measuring throughput, latency, total task time and energy while retaining functional quality as a guardrail.
+
+The earlier 8K OpenCode/Qwen3-Coder work is retained as pilot evidence because context pressure/compaction may have affected implementation style and maintainability.
+
+The initial engineering protocol uses three clean runs per system, no corrective human prompts, independent hidden functional tests, candidate repository preservation and blinded qualitative review where practical.
+
 ### RQ3 — What is the quality/cost/privacy trade-off of local inference?
 
 Possible dimensions:

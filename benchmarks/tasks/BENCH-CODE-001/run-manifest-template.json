@@ -1,0 +1,89 @@
+{
+  "benchmark": {
+    "id": "BENCH-CODE-001",
+    "version": "1.0",
+    "run_id": null,
+    "timestamp_utc": null,
+    "localai_lab_commit": null,
+    "prompt_sha256": null,
+    "seed_sha256": null,
+    "evaluator_sha256": null,
+    "environment_sha256": null
+  },
+  "system": {
+    "agent": null,
+    "agent_version": null,
+    "model_provider": null,
+    "model_id": null,
+    "model_file": null,
+    "model_sha256": null,
+    "quantization": null,
+    "inference_engine": null,
+    "inference_engine_commit": null,
+    "configured_context_tokens": null,
+    "max_observed_context_tokens": null,
+    "compaction_events": null,
+    "generation_settings": {}
+  },
+  "local_hardware": {
+    "gpu": null,
+    "vram_gb": null,
+    "cpu": null,
+    "ram_gb": null,
+    "rocm_version": null,
+    "kernel": null,
+    "os": null
+  },
+  "execution": {
+    "started_at_utc": null,
+    "ended_at_utc": null,
+    "wall_time_seconds": null,
+    "termination_reason": null,
+    "human_interventions": 0,
+    "tool_calls": null,
+    "agent_iterations": null,
+    "edit_test_fix_cycles": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "candidate_commit": null
+  },
+  "evaluation": {
+    "application_started": null,
+    "tests_passed": null,
+    "tests_total": 16,
+    "critical_tests_passed": null,
+    "critical_tests_total": 14,
+    "hidden_evaluator_exit_code": null,
+    "critical_authorization_failure": null,
+    "unexpected_server_crash": null
+  },
+  "telemetry": {
+    "peak_vram_mb": null,
+    "mean_vram_mb": null,
+    "peak_ram_mb": null,
+    "mean_ram_mb": null,
+    "mean_gpu_utilization_percent": null,
+    "mean_cpu_utilization_percent": null,
+    "peak_temperature_c": null,
+    "mean_power_w": null,
+    "integrated_energy_wh": null,
+    "telemetry_artifact": null
+  },
+  "artifacts": {
+    "candidate_repository_archive": null,
+    "agent_log": null,
+    "test_output": null,
+    "server_log": null,
+    "human_review": null
+  },
+  "notes": [],
+  "execution_environment": {
+    "host_os": null,
+    "host_kernel": null,
+    "container_runtime": null,
+    "node_version": null,
+    "node_image_digest": null,
+    "mysql_version": null,
+    "mysql_image_digest": null
+  }
+}

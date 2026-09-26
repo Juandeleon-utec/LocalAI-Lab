@@ -2,6 +2,36 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-09-26
+
+### Added
+
+- BENCH-CODE-001 v1.0 benchmark definition under `benchmarks/tasks/BENCH-CODE-001/`.
+- Frozen participant prompt for an authenticated Node.js/MySQL web application with a minimal frontend.
+- Controlled-run protocol with 32K nominal local context, no corrective human prompting, clean-run isolation and three engineering repetitions per system.
+- External hidden-evaluator contract covering authentication, authorization, CRUD, persistence, validation and representative injection-style inputs.
+- Blinded human-review rubric focused on usability, readability, maintainability, code compression and unnecessary complexity.
+- Run-manifest template and BENCH-CODE-001 result layout.
+- Benchmark/staging environment contract for consistent Node.js/MySQL validation.
+
+### Decisions
+
+- Treat the previous 8K OpenCode/Qwen3-Coder work as pilot evidence after context pressure/compaction was observed.
+- Use 32K as the nominal context budget for the first formal local coding comparison.
+- Compare Qwen3-Coder and Qwen3.6 under the same OpenCode agent before interpreting a hosted-system comparison.
+- Treat Claude Code as a professional hosted system-level baseline, not as ground truth.
+- Evaluate Qwen3.6 MTP separately as an inference-efficiency factor.
+- Keep exact hidden evaluator code outside the participant-visible repository and bind it to formal runs by SHA-256.
+
+### Pending
+
+- Implement and freeze the executable hidden evaluator.
+- Prepare the dedicated benchmark/staging server and repeatable clean-database reset procedure.
+- Run three BENCH-CODE-001 repetitions with the existing Qwen3-Coder baseline at 32K.
+- Integrate Qwen3.6-35B-A3B Q4_K_M, benchmark it without MTP, then evaluate MTP separately.
+- Execute the same frozen benchmark with Claude Code.
+- Add automatic telemetry and preserve per-run candidate repositories, logs and evaluator outputs.
+
 ## [Unreleased] - 2026-09-20
 
 ### Added
