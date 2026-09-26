@@ -31,12 +31,22 @@ git rev-parse HEAD
 
 Record that commit in the run manifest.
 
-## 4. Capture environment
+## 4. Preflight and capture environment
 
 ```bash
 cd benchmarks/tasks/BENCH-CODE-001/environment
 chmod +x *.sh
+./preflight.sh
+```
+
+The preflight must report `PASS` before continuing.
+
+The candidate runner captures the environment automatically after the MySQL image is available. For a manual snapshot:
+
+```bash
+./start-database.sh
 ./capture-environment.sh environment-snapshot.txt
+./stop-database.sh
 ```
 
 Record the generated SHA-256.
@@ -53,19 +63,33 @@ docker compose ps
 
 Both starts must reach the healthy state.
 
-## 6. Hidden evaluator
+## 6. Hidden evaluator and validation reference
 
-Place the frozen evaluator outside the participant workspace.
+Place both frozen validation artifacts outside the participant workspace.
 
-Example:
+Recommended layout:
 
 ```text
-/opt/bench-code-001-hidden/evaluator.py
+/opt/bench-code-001-hidden/
+├── evaluator.py
+└── reference-candidate/
 ```
 
-Record the evaluator archive SHA-256 in the run manifest.
+Current engineering-validation fingerprints:
 
-Do not copy the evaluator into a candidate repository.
+```text
+hidden evaluator ZIP
+SHA-256: edb663ba732cd54ad3ce6cae34e73d1a351ed8afe4bcf58209dd60e46aede670
+
+reference candidate ZIP
+SHA-256: 452d8deae6fa04b83b1356850db265105e5fa5ee94bfa4471deff5dc93d3d5cf
+```
+
+The reference implementation exists only to validate the harness. It is not ground truth and must never be provided to evaluated agents.
+
+Record the evaluator archive SHA-256 in every formal run manifest.
+
+Do not copy either artifact into a participant repository.
 
 ## 7. Reference-validation run
 
@@ -77,9 +101,38 @@ Run:
 export BENCH_EVALUATOR=/opt/bench-code-001-hidden/evaluator.py
 
 ./run-candidate.sh \
-  /path/to/reference-candidate \
+  /opt/bench-code-001-hidden/reference-candidate \
   /path/to/results/reference-validation
 ```
+
+The runner must produce at least:
+
+```text
+run-info.txt
+environment-snapshot.txt
+environment-sha256.txt
+npm-install.log
+db-init.log
+app.log
+mysql.log
+evaluator-pre.json
+evaluator-post.json
+evaluator-state.json
+evaluation.json
+```
+
+For the known-good reference candidate, the expected functional result is:
+
+```text
+tests_passed: 16
+tests_total: 16
+critical_tests_passed: 14
+critical_tests_total: 14
+all_tests_passed: true
+all_critical_tests_passed: true
+```
+
+If the reference candidate does not reach that result, do not run model comparisons yet. Diagnose the harness/evaluator/reference interaction first.
 
 The purpose of this run is to validate the benchmark harness, not to create a comparison result.
 
@@ -120,3 +173,12 @@ Only after the harness has passed reference validation:
 4. C001-D — Qwen3.6 + MTP efficiency experiment.
 
 Each run starts from a clean candidate workspace and a fresh MySQL instance.
+
+
+## 10. Engineering validation vs formal staging
+
+The Ryzen 7 5700G / 32 GB workstation may be used immediately for engineering validation under WSL2/Linux-compatible Docker.
+
+That does **not** automatically freeze it as the formal staging host.
+
+If a different dedicated staging server is selected later, repeat Sections 4–8 on that server and freeze the new environment before C001-A01. Formal Qwen/Claude results must all use the same final staging environment.

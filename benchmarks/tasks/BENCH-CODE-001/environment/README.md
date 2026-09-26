@@ -87,9 +87,15 @@ Do not expose BENCH-CODE-001 candidates directly to the public Internet.
 The repository includes:
 
 - `docker-compose.yml` — ephemeral MySQL service;
+- `preflight.sh` — required-tool and Docker-daemon validation;
 - `start-database.sh` / `stop-database.sh` — clean database lifecycle;
 - `wait-health.sh` — readiness check;
-- `capture-environment.sh` — environment snapshot;
-- `run-candidate.sh` — install, initialize, run, restart and evaluator orchestration.
+- `capture-environment.sh` — environment/version snapshot;
+- `aggregate-evaluation.py` — combines pre/post evaluator phases into one result;
+- `run-candidate.sh` — install, initialize, run, restart, evaluate and preserve provenance;
+- `reference-validation.env.example` — benchmark-only environment example;
+- `VALIDATION.md` — reference-validation and freeze procedure.
 
-The exact hidden evaluator is deliberately external. Set `BENCH_EVALUATOR` to its executable path when running a candidate.
+The exact hidden evaluator is deliberately external. Set `BENCH_EVALUATOR` to its path when running a scored candidate. Python evaluator files are invoked through `python3`, so executable file permissions are not required.
+
+By default, `run-candidate.sh` refuses to run without an evaluator. `BENCH_ALLOW_NO_EVALUATOR=1` exists only for an explicitly unscored harness smoke test.
