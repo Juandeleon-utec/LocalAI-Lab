@@ -2,7 +2,7 @@
 
 **Local LLM, RAG and Coding Agent Testbed on Consumer Hardware**
 
-LocalAI-Lab is a private engineering and research project for building, operating and evaluating a local AI server with two primary workloads:
+LocalAI-Lab is an engineering and research project for building, operating and evaluating a local AI server with two primary workloads:
 
 1. **AI-assisted software development**, using local coding models and agentic tools.
 2. **Academic research and writing**, using literature screening, Retrieval-Augmented Generation (RAG), document analysis and scientific-writing workflows.
@@ -53,6 +53,22 @@ Validated components:
 - controlled repository reading and writes
 
 Formal B002 generation throughput is about 69.1 tok/s TG128, with roughly 14.4–14.7 GB VRAM usage.
+
+The initial 8K OpenCode validation is now treated as pilot evidence because context pressure/compaction was observed during larger code-generation work.
+
+The first controlled coding-agent benchmark is being frozen as **BENCH-CODE-001 v1.0**:
+
+- greenfield authenticated Node.js + MySQL web application;
+- fixed REST/API and minimal frontend contract;
+- 32K nominal context for local model comparisons;
+- independent external hidden evaluator;
+- three clean engineering runs per system;
+- OpenCode + Qwen3-Coder as the local baseline;
+- OpenCode + Qwen3.6 as the next local-model comparison;
+- Claude Code as a hosted system-level baseline;
+- Qwen3.6 + MTP evaluated separately for inference efficiency.
+
+Benchmark definition: `benchmarks/tasks/BENCH-CODE-001/`.
 
 ## Academic stack status
 
@@ -194,4 +210,4 @@ LocalAI-Lab/
 **Version:** V0.1  
 **Stage:** Working experimental platform; A001/A002/A003 academic screening characterization complete, reproducibility hardening and retrieval baseline next.
 
-The coding path is operational. The academic screening baseline and prompt-calibration stages are complete. The next priorities are to close the remaining reproducibility gaps, extend the screening benchmark with class-0/borderline papers, add automatic telemetry, and begin controlled dense-retrieval experiments.
+The coding path is operational and BENCH-CODE-001 v1.0 is now defined as the next controlled coding-agent experiment. The academic screening baseline and prompt-calibration stages are complete. Near-term work is split between freezing/executing the coding benchmark and continuing the academic retrieval/reproducibility roadmap.
