@@ -1,3 +1,6 @@
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $scriptDir "windows-common.ps1")
+
 $ErrorActionPreference = "Stop"
 
 function Test-Command {
@@ -18,7 +21,15 @@ function Test-Command {
 
 $ok = $true
 $ok = (Test-Command "git.exe" "Git") -and $ok
-$ok = (Test-Command "docker.exe" "Docker") -and $ok
+
+$dockerPath = Ensure-DockerCommand
+if ($null -eq $dockerPath) {
+    Write-Host "MISSING: Docker"
+    $ok = $false
+}
+else {
+    Write-Host "FOUND:   Docker -> $dockerPath"
+}
 $ok = (Test-Command "node.exe" "Node.js") -and $ok
 $ok = (Test-Command "npm.cmd" "npm") -and $ok
 
