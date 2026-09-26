@@ -7,9 +7,18 @@ $ErrorActionPreference = "Stop"
 Push-Location $scriptDir
 
 try {
-    & docker.exe compose down --remove-orphans
-    if ($LASTEXITCODE -ne 0) {
-        throw "Docker Compose failed to stop the BENCH-CODE-001 database."
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & docker.exe compose down --remove-orphans 2>&1 | Out-Host
+        $dockerExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+
+    if ($dockerExitCode -ne 0) {
+        throw "Docker Compose failed to stop the BENCH-CODE-001 database with exit code $dockerExitCode."
     }
 }
 finally {
