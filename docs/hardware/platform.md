@@ -37,3 +37,16 @@ The primary expected constraint is GPU memory rather than CPU compute. The platf
 ## Upgrade philosophy
 
 No hardware upgrade should be justified without measured evidence. Future changes such as 128 GB RAM or a larger-VRAM GPU should be tied to observed bottlenecks and repeated benchmarks.
+
+
+## Development workstation
+
+The primary interactive workstation is documented separately in `docs/hardware/development-workstation.md`.
+
+It currently uses:
+
+- AMD Ryzen 7 5700G;
+- 32 GB RAM;
+- NVIDIA GeForce GTX 1050 4 GB.
+
+This workstation is not the LocalAI-Lab inference server and must not be used accidentally when reporting RX 9060 XT inference measurements.
