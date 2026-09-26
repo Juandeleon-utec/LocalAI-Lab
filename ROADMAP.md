@@ -3,7 +3,7 @@
 ## Phase 0 — Project definition
 
 - [x] Define project goals.
-- [x] Create private GitHub repository.
+- [x] Create GitHub repository.
 - [x] Define initial hardware.
 - [x] Define coding and academic operating modes.
 - [x] Define reproducibility and benchmarking as first-class goals.
@@ -43,8 +43,10 @@
 - [x] Validate initial local coding-agent workflow over LAN.
 - [x] Define BENCH-CODE-001 v1.0: authenticated Node.js/MySQL web-application task.
 - [x] Freeze participant prompt, execution protocol, evaluator contract and blinded-review rubric before formal runs.
-- [ ] Implement and checksum the external hidden evaluator for BENCH-CODE-001.
-- [ ] Prepare the isolated benchmark/staging server and clean MySQL-per-run reset procedure.
+- [x] Implement and checksum the external hidden evaluator for BENCH-CODE-001.
+- [x] Add the public staging harness and clean ephemeral MySQL-per-run reset procedure.
+- [ ] Select and freeze the physical benchmark/staging host.
+- [ ] Validate the hidden evaluator and harness against a known-good reference implementation on the selected staging host.
 - [ ] Validate autonomous edit-test-fix loop under BENCH-CODE-001.
 - [ ] Run Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K.
 - [ ] Integrate and benchmark Qwen3.6-35B-A3B Q4_K_M at 32K.
