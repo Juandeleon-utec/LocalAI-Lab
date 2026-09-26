@@ -63,12 +63,14 @@ function Invoke-Evaluator {
     if ([System.IO.Path]::GetExtension($env:BENCH_EVALUATOR).ToLowerInvariant() -eq ".py") {
         $python = Get-PythonInvocation
         $args = @() + $python.Prefix + @($env:BENCH_EVALUATOR) + $evaluatorArgs
-        & $python.File @args
-        return $LASTEXITCODE
+        & $python.File @args | Out-Host
+        $code = $LASTEXITCODE
+        return [int]$code
     }
 
-    & $env:BENCH_EVALUATOR @evaluatorArgs
-    return $LASTEXITCODE
+    & $env:BENCH_EVALUATOR @evaluatorArgs | Out-Host
+    $code = $LASTEXITCODE
+    return [int]$code
 }
 
 $script:appProcess = $null
