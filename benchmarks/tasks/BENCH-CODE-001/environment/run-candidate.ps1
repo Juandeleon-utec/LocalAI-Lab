@@ -80,7 +80,14 @@ $script:appProcess = $null
 
 function Stop-CandidateApp {
     if ($null -ne $script:appProcess -and -not $script:appProcess.HasExited) {
-        & taskkill.exe /PID $script:appProcess.Id /T /F *> $null
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            & taskkill.exe /PID $script:appProcess.Id /T /F 2>&1 | Out-Null
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
         try { $script:appProcess.WaitForExit(10000) | Out-Null } catch {}
     }
     $script:appProcess = $null
@@ -209,9 +216,19 @@ finally {
 
     Push-Location $scriptDir
     try {
-        $mysqlLog = Join-Path $outputDir "mysql.log"
-        & docker.exe compose logs mysql 2>&1 | Set-Content -Path $mysqlLog
-        & docker.exe compose down --remove-orphans *> $null
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            $mysqlLog = Join-Path $outputDir "mysql.log"
+            & docker.exe compose logs mysql 2>&1 | ForEach-Object { "$_" } | Set-Content -Path $mysqlLog
+            & docker.exe compose down --remove-orphans 2>&1 | Out-Null
+        }
+        catch {
+            Write-Warning "Cleanup warning: $($_.Exception.Message)"
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
     }
     finally {
         Pop-Location
