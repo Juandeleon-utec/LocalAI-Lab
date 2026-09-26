@@ -1,6 +1,9 @@
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $scriptDir "windows-common.ps1")
+if ($null -eq (Ensure-DockerCommand)) { throw "Docker Desktop CLI was not found." }
+
 $ErrorActionPreference = "Stop"
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Push-Location $scriptDir
 
 try {

@@ -65,6 +65,8 @@ The last line must be:
 Preflight PASS
 ```
 
+If Docker Desktop was installed after the current PowerShell/VS Code session started, the harness also checks Docker Desktop's standard installation directory and temporarily adds its CLI directory to the current process PATH when necessary.
+
 The preflight reports the exact Windows, Node.js, npm, Python, Docker and Docker Compose versions.
 
 ## 6. Validate clean MySQL lifecycle
