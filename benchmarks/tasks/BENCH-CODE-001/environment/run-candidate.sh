@@ -22,7 +22,8 @@ BASE_URL="http://127.0.0.1:$PORT"
 START_EPOCH="$(date +%s)"
 
 if [[ -z "${BENCH_EVALUATOR:-}" && "${BENCH_ALLOW_NO_EVALUATOR:-0}" != "1" ]]; then
-  echo "ERROR: BENCH_EVALUATOR is required. Set BENCH_ALLOW_NO_EVALUATOR=1 only for an unscored harness smoke test." >&2
+  echo "ERROR: BENCH_EVALUATOR is required." >&2
+  echo "Set BENCH_ALLOW_NO_EVALUATOR=1 only for an explicitly unscored harness smoke test." >&2
   exit 2
 fi
 
@@ -50,7 +51,14 @@ run_evaluator() {
     evaluator_cmd=("$BENCH_EVALUATOR")
   fi
 
-  "${evaluator_cmd[@]}"     --phase "$phase"     --base-url "$BASE_URL"     --output "$output"     --state "$OUTPUT_DIR/evaluator-state.json"     --compose-file "$SCRIPT_DIR/docker-compose.yml"     --db-name "$DB_NAME"     --db-root-password "$MYSQL_ROOT_PASSWORD"
+  "${evaluator_cmd[@]}" \
+    --phase "$phase" \
+    --base-url "$BASE_URL" \
+    --output "$output" \
+    --state "$OUTPUT_DIR/evaluator-state.json" \
+    --compose-file "$SCRIPT_DIR/docker-compose.yml" \
+    --db-name "$DB_NAME" \
+    --db-root-password "$MYSQL_ROOT_PASSWORD"
 }
 
 APP_PID=""
@@ -77,8 +85,17 @@ trap cleanup EXIT INT TERM
 start_app() {
   (
     cd "$CANDIDATE_DIR"
-    exec setsid env       PORT="$PORT"       DB_HOST="$DB_HOST"       DB_PORT="$DB_HOST_PORT"       DB_NAME="$DB_NAME"       DB_USER="$DB_USER"       DB_PASSWORD="$DB_PASSWORD"       AUTH_SECRET="$AUTH_SECRET"       npm start
+    exec setsid env \
+      PORT="$PORT" \
+      DB_HOST="$DB_HOST" \
+      DB_PORT="$DB_HOST_PORT" \
+      DB_NAME="$DB_NAME" \
+      DB_USER="$DB_USER" \
+      DB_PASSWORD="$DB_PASSWORD" \
+      AUTH_SECRET="$AUTH_SECRET" \
+      npm start
   ) >> "$OUTPUT_DIR/app.log" 2>&1 &
+
   APP_PID=$!
   echo "$APP_PID" > "$OUTPUT_DIR/app.pid"
 }
@@ -97,10 +114,17 @@ fi
 
 (
   cd "$SCRIPT_DIR"
-  DB_HOST_PORT="$DB_HOST_PORT"   DB_NAME="$DB_NAME"   DB_USER="$DB_USER"   DB_PASSWORD="$DB_PASSWORD"   MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"   ./start-database.sh
+  DB_HOST_PORT="$DB_HOST_PORT" \
+  DB_NAME="$DB_NAME" \
+  DB_USER="$DB_USER" \
+  DB_PASSWORD="$DB_PASSWORD" \
+  MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+  ./start-database.sh
 )
 
-"$SCRIPT_DIR/capture-environment.sh" "$OUTPUT_DIR/environment-snapshot.txt" > "$OUTPUT_DIR/environment-sha256.txt"
+"$SCRIPT_DIR/capture-environment.sh" \
+  "$OUTPUT_DIR/environment-snapshot.txt" \
+  > "$OUTPUT_DIR/environment-sha256.txt"
 
 cd "$CANDIDATE_DIR"
 
@@ -112,7 +136,15 @@ else
   echo "install_command=npm install" >> "$OUTPUT_DIR/run-info.txt"
 fi
 
-env   PORT="$PORT"   DB_HOST="$DB_HOST"   DB_PORT="$DB_HOST_PORT"   DB_NAME="$DB_NAME"   DB_USER="$DB_USER"   DB_PASSWORD="$DB_PASSWORD"   AUTH_SECRET="$AUTH_SECRET"   npm run db:init 2>&1 | tee "$OUTPUT_DIR/db-init.log"
+env \
+  PORT="$PORT" \
+  DB_HOST="$DB_HOST" \
+  DB_PORT="$DB_HOST_PORT" \
+  DB_NAME="$DB_NAME" \
+  DB_USER="$DB_USER" \
+  DB_PASSWORD="$DB_PASSWORD" \
+  AUTH_SECRET="$AUTH_SECRET" \
+  npm run db:init 2>&1 | tee "$OUTPUT_DIR/db-init.log"
 
 start_app
 "$SCRIPT_DIR/wait-health.sh" "$BASE_URL" 90
@@ -143,7 +175,10 @@ if [[ -n "${BENCH_EVALUATOR:-}" ]]; then
   echo "evaluator_post_exit=$POST_RC" >> "$OUTPUT_DIR/run-info.txt"
 
   if [[ -f "$OUTPUT_DIR/evaluator-pre.json" && -f "$OUTPUT_DIR/evaluator-post.json" ]]; then
-    python3 "$SCRIPT_DIR/aggregate-evaluation.py"       --pre "$OUTPUT_DIR/evaluator-pre.json"       --post "$OUTPUT_DIR/evaluator-post.json"       --output "$OUTPUT_DIR/evaluation.json"
+    python3 "$SCRIPT_DIR/aggregate-evaluation.py" \
+      --pre "$OUTPUT_DIR/evaluator-pre.json" \
+      --post "$OUTPUT_DIR/evaluator-post.json" \
+      --output "$OUTPUT_DIR/evaluation.json"
   fi
 fi
 
