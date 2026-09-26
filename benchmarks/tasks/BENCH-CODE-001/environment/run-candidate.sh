@@ -90,8 +90,6 @@ if git -C "$CANDIDATE_DIR" rev-parse HEAD >/dev/null 2>&1; then
   echo "candidate_commit=$(git -C "$CANDIDATE_DIR" rev-parse HEAD)" >> "$OUTPUT_DIR/run-info.txt"
 fi
 
-"$SCRIPT_DIR/capture-environment.sh" "$OUTPUT_DIR/environment-snapshot.txt" > "$OUTPUT_DIR/environment-sha256.txt"
-
 if [[ ! -f "$CANDIDATE_DIR/package.json" ]]; then
   echo "ERROR: candidate does not contain package.json" >&2
   exit 1
@@ -101,6 +99,8 @@ fi
   cd "$SCRIPT_DIR"
   DB_HOST_PORT="$DB_HOST_PORT"   DB_NAME="$DB_NAME"   DB_USER="$DB_USER"   DB_PASSWORD="$DB_PASSWORD"   MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"   ./start-database.sh
 )
+
+"$SCRIPT_DIR/capture-environment.sh" "$OUTPUT_DIR/environment-snapshot.txt" > "$OUTPUT_DIR/environment-sha256.txt"
 
 cd "$CANDIDATE_DIR"
 
