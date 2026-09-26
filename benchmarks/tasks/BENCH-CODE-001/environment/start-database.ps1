@@ -7,7 +7,14 @@ $ErrorActionPreference = "Stop"
 Push-Location $scriptDir
 
 try {
-    & docker.exe compose down --remove-orphans *> $null
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & docker.exe compose down --remove-orphans 2>&1 | Out-Null
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
 
     & docker.exe compose up -d mysql
     if ($LASTEXITCODE -ne 0) {
