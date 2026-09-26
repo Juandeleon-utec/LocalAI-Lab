@@ -2,80 +2,107 @@
 
 Use this procedure before the first Qwen or Claude candidate run.
 
-## 1. Choose one physical staging host
+## 1. Current engineering-validation host
 
-Use the same host for every candidate in the comparison.
+The current Windows workstation is suitable for engineering validation:
 
-The current Ryzen 7 5700G / 32 GB development workstation is technically sufficient for Node.js/MySQL validation, but it is optional. If it is selected, keep its runtime configuration fixed for all candidates.
+- CPU: AMD Ryzen 7 5700G
+- RAM: 32 GB
+- GPU: NVIDIA GeForce GTX 1050 4 GB
+- OS: Windows
 
-## 2. Required software
+The GPU is not used by BENCH-CODE-001 candidate applications.
 
-The selected host must provide:
+This machine may later become the formal staging host, but that decision is made only after reference validation succeeds.
 
-- Git;
+## 2. Required Windows software
+
+Install and keep available:
+
+- Git for Windows;
 - Node.js 24 LTS family;
 - npm;
-- Docker with Compose;
-- curl;
-- Bash-compatible shell for the current public harness.
+- Python 3;
+- Docker Desktop with Docker Compose;
+- Windows PowerShell 5.1 or PowerShell 7.
 
-On a Windows staging host, run the harness from a consistent Linux-compatible environment such as WSL2, or use a separate Linux staging host. Do not mix Windows-native and Linux executions inside the same formal comparison.
+Docker Desktop must be running before the validation begins.
 
-## 3. Clone and freeze
+No WSL, Bash or `chmod` command is required for the Windows-native harness.
 
-```bash
-git clone https://github.com/Juandeleon-utec/LocalAI-Lab.git
-cd LocalAI-Lab
+## 3. Update LocalAI-Lab
+
+From PowerShell:
+
+```powershell
+cd C:\path\to\LocalAI-Lab
+git pull
 git rev-parse HEAD
 ```
 
-Record that commit in the run manifest.
+Record the commit shown by `git rev-parse HEAD`.
 
-## 4. Preflight and capture environment
+## 4. PowerShell execution policy for the current terminal
 
-```bash
-cd benchmarks/tasks/BENCH-CODE-001/environment
-chmod +x *.sh
-./preflight.sh
+If Windows blocks local `.ps1` execution, use a process-local policy only:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-The preflight must report `PASS` before continuing.
+This affects only the current PowerShell process.
 
-The candidate runner captures the environment automatically after the MySQL image is available. For a manual snapshot:
+## 5. Preflight
 
-```bash
-./start-database.sh
-./capture-environment.sh environment-snapshot.txt
-./stop-database.sh
+```powershell
+cd .\benchmarks\tasks\BENCH-CODE-001\environment
+.\preflight.ps1
 ```
 
-Record the generated SHA-256.
-
-## 5. Validate clean MySQL lifecycle
-
-```bash
-./start-database.sh
-docker compose ps
-./stop-database.sh
-./start-database.sh
-docker compose ps
-```
-
-Both starts must reach the healthy state.
-
-## 6. Hidden evaluator and validation reference
-
-Place both frozen validation artifacts outside the participant workspace.
-
-Recommended layout:
+The last line must be:
 
 ```text
-/opt/bench-code-001-hidden/
-├── evaluator.py
-└── reference-candidate/
+Preflight PASS
 ```
 
-Current engineering-validation fingerprints:
+The preflight reports the exact Windows, Node.js, npm, Python, Docker and Docker Compose versions.
+
+## 6. Validate clean MySQL lifecycle
+
+Run:
+
+```powershell
+.\start-database.ps1
+docker compose ps
+.\stop-database.ps1
+
+.\start-database.ps1
+docker compose ps
+.\stop-database.ps1
+```
+
+Both starts must reach the Docker health state `healthy`.
+
+The MySQL data directory is ephemeral, so a new benchmark run starts from an empty database.
+
+## 7. Hidden evaluator and reference candidate
+
+Keep both artifacts outside the LocalAI-Lab repository and outside every candidate workspace.
+
+A convenient Windows layout is:
+
+```text
+C:\bench-code-001-private\
+├── hidden-evaluator\
+│   └── evaluator.py
+└── reference-candidate\
+    ├── package.json
+    ├── src\
+    ├── public\
+    └── ...
+```
+
+Engineering-validation fingerprints:
 
 ```text
 hidden evaluator ZIP
@@ -85,27 +112,72 @@ reference candidate ZIP
 SHA-256: 452d8deae6fa04b83b1356850db265105e5fa5ee94bfa4471deff5dc93d3d5cf
 ```
 
-The reference implementation exists only to validate the harness. It is not ground truth and must never be provided to evaluated agents.
+The reference candidate validates the benchmark instrument only. It is not ground truth and must never be supplied to an evaluated agent.
 
-Record the evaluator archive SHA-256 in every formal run manifest.
+## 8. Reference-validation run on Windows
 
-Do not copy either artifact into a participant repository.
+Set the evaluator path:
 
-## 7. Reference-validation run
-
-Before evaluating an AI-generated candidate, use a known-good reference implementation that follows the same public prompt contract.
-
-Run:
-
-```bash
-export BENCH_EVALUATOR=/opt/bench-code-001-hidden/evaluator.py
-
-./run-candidate.sh \
-  /opt/bench-code-001-hidden/reference-candidate \
-  /path/to/results/reference-validation
+```powershell
+$env:BENCH_EVALUATOR = "C:\bench-code-001-private\hidden-evaluator\evaluator.py"
 ```
 
-The runner must produce at least:
+Create a results directory outside the candidate:
+
+```powershell
+New-Item -ItemType Directory -Force C:\bench-code-001-results | Out-Null
+```
+
+Run the known-good reference:
+
+```powershell
+.\run-candidate.ps1 `
+  -CandidateDirectory "C:\bench-code-001-private\reference-candidate" `
+  -OutputDirectory "C:\bench-code-001-results\reference-validation"
+```
+
+The runner automatically performs:
+
+```text
+fresh MySQL
+-> npm ci / npm install
+-> npm run db:init
+-> npm start
+-> GET /health
+-> hidden evaluator pre-restart
+-> stop Node
+-> restart Node without resetting MySQL
+-> hidden evaluator post-restart
+-> evaluation.json
+-> logs + environment snapshot
+```
+
+## 9. Expected reference result
+
+Open:
+
+```powershell
+Get-Content C:\bench-code-001-results\reference-validation\evaluation.json
+```
+
+Expected summary:
+
+```json
+{
+  "tests_passed": 16,
+  "tests_total": 16,
+  "critical_tests_passed": 14,
+  "critical_tests_total": 14,
+  "all_tests_passed": true,
+  "all_critical_tests_passed": true
+}
+```
+
+If the reference candidate does not reach this result, do not execute Qwen or Claude yet.
+
+## 10. Expected retained artifacts
+
+The result directory should include at least:
 
 ```text
 run-info.txt
@@ -121,51 +193,27 @@ evaluator-state.json
 evaluation.json
 ```
 
-For the known-good reference candidate, the expected functional result is:
+## 11. Freeze before formal runs
 
-```text
-tests_passed: 16
-tests_total: 16
-critical_tests_passed: 14
-critical_tests_total: 14
-all_tests_passed: true
-all_critical_tests_passed: true
-```
+Only after the reference candidate reaches 16/16 and 14/14:
 
-If the reference candidate does not reach that result, do not run model comparisons yet. Diagnose the harness/evaluator/reference interaction first.
-
-The purpose of this run is to validate the benchmark harness, not to create a comparison result.
-
-Check:
-
-- MySQL starts from an empty state;
-- `npm ci` or `npm install` succeeds;
-- `npm run db:init` succeeds;
-- `npm start` succeeds;
-- `/health` becomes ready;
-- pre-restart evaluator output is created;
-- the application is restarted without resetting MySQL;
-- post-restart persistence output is created;
-- application and MySQL logs are preserved.
-
-## 8. Freeze before formal runs
-
-After the reference-validation run passes:
-
-- pin exact Node.js version;
-- pin exact MySQL image digest;
-- record Docker/Compose version;
-- record staging-host OS/kernel;
-- preserve environment snapshot hash;
-- preserve prompt hash;
-- preserve hidden evaluator hash;
+- decide whether this Windows workstation is the formal staging host;
+- record the exact Windows build;
+- pin the exact Node.js version;
+- pin the exact MySQL image digest;
+- record Docker Desktop and Docker Compose versions;
+- preserve the environment snapshot;
+- preserve the prompt hash;
+- preserve the hidden evaluator hash;
 - preserve the LocalAI-Lab commit.
 
-Do not change these inputs between Qwen3-Coder, Qwen3.6 and Claude Code runs.
+If another machine is chosen for formal staging, repeat this complete validation on that machine.
 
-## 9. Formal sequence
+Do not change the selected staging environment between Qwen3-Coder, Qwen3.6 and Claude Code runs.
 
-Only after the harness has passed reference validation:
+## 12. Formal sequence
+
+After the staging environment is frozen:
 
 1. C001-A01/A02/A03 — OpenCode + Qwen3-Coder, 32K;
 2. C001-B01/B02/B03 — OpenCode + Qwen3.6, 32K;
@@ -174,11 +222,6 @@ Only after the harness has passed reference validation:
 
 Each run starts from a clean candidate workspace and a fresh MySQL instance.
 
+## Linux alternative
 
-## 10. Engineering validation vs formal staging
-
-The Ryzen 7 5700G / 32 GB workstation may be used immediately for engineering validation under WSL2/Linux-compatible Docker.
-
-That does **not** automatically freeze it as the formal staging host.
-
-If a different dedicated staging server is selected later, repeat Sections 4–8 on that server and freeze the new environment before C001-A01. Formal Qwen/Claude results must all use the same final staging environment.
+The existing Bash helpers remain available for a future Linux staging host. Do not mix Windows-native and Linux staging results inside the same formal comparison.
