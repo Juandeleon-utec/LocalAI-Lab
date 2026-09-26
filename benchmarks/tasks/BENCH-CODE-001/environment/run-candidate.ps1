@@ -204,7 +204,8 @@ finally {
 
     Push-Location $scriptDir
     try {
-        & docker.exe compose logs mysql *> (Join-Path $outputDir "mysql.log")
+        $mysqlLog = Join-Path $outputDir "mysql.log"
+        & docker.exe compose logs mysql 2>&1 | Set-Content -Path $mysqlLog
         & docker.exe compose down --remove-orphans *> $null
     }
     finally {
