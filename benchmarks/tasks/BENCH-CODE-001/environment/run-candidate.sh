@@ -17,6 +17,7 @@ DB_NAME="${DB_NAME:-bench_code_001}"
 DB_USER="${DB_USER:-bench_user}"
 DB_PASSWORD="${DB_PASSWORD:-bench_password}"
 AUTH_SECRET="${AUTH_SECRET:-bench-code-001-local-secret}"
+MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-bench-root-password}"
 BASE_URL="http://127.0.0.1:$PORT"
 
 APP_PID=""
@@ -82,7 +83,11 @@ POST_RC=0
 
 if [[ -n "${BENCH_EVALUATOR:-}" ]]; then
   set +e
-  "$BENCH_EVALUATOR"     --phase pre-restart     --base-url "$BASE_URL"     --output "$OUTPUT_DIR/evaluator-pre.json"
+  "$BENCH_EVALUATOR"     --phase pre-restart     --base-url "$BASE_URL"     --output "$OUTPUT_DIR/evaluator-pre.json" \
+    --state "$OUTPUT_DIR/evaluator-state.json" \
+    --compose-file "$SCRIPT_DIR/docker-compose.yml" \
+    --db-name "$DB_NAME" \
+    --db-root-password "$MYSQL_ROOT_PASSWORD"
   PRE_RC=$?
   set -e
 
@@ -96,7 +101,11 @@ start_app
 
 if [[ -n "${BENCH_EVALUATOR:-}" ]]; then
   set +e
-  "$BENCH_EVALUATOR"     --phase post-restart     --base-url "$BASE_URL"     --output "$OUTPUT_DIR/evaluator-post.json"
+  "$BENCH_EVALUATOR"     --phase post-restart     --base-url "$BASE_URL"     --output "$OUTPUT_DIR/evaluator-post.json" \
+    --state "$OUTPUT_DIR/evaluator-state.json" \
+    --compose-file "$SCRIPT_DIR/docker-compose.yml" \
+    --db-name "$DB_NAME" \
+    --db-root-password "$MYSQL_ROOT_PASSWORD"
   POST_RC=$?
   set -e
 
