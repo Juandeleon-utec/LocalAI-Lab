@@ -19,6 +19,12 @@ DB_PASSWORD="${DB_PASSWORD:-bench_password}"
 AUTH_SECRET="${AUTH_SECRET:-bench-code-001-local-secret}"
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-bench-root-password}"
 BASE_URL="http://127.0.0.1:$PORT"
+START_EPOCH="$(date +%s)"
+
+if [[ -z "${BENCH_EVALUATOR:-}" && "${BENCH_ALLOW_NO_EVALUATOR:-0}" != "1" ]]; then
+  echo "ERROR: BENCH_EVALUATOR is required. Set BENCH_ALLOW_NO_EVALUATOR=1 only for an unscored harness smoke test." >&2
+  exit 2
+fi
 
 run_evaluator() {
   local phase="$1"
@@ -80,6 +86,12 @@ start_app() {
 echo "candidate_dir=$CANDIDATE_DIR" > "$OUTPUT_DIR/run-info.txt"
 echo "started_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUTPUT_DIR/run-info.txt"
 
+if git -C "$CANDIDATE_DIR" rev-parse HEAD >/dev/null 2>&1; then
+  echo "candidate_commit=$(git -C "$CANDIDATE_DIR" rev-parse HEAD)" >> "$OUTPUT_DIR/run-info.txt"
+fi
+
+"$SCRIPT_DIR/capture-environment.sh" "$OUTPUT_DIR/environment-snapshot.txt" > "$OUTPUT_DIR/environment-sha256.txt"
+
 if [[ ! -f "$CANDIDATE_DIR/package.json" ]]; then
   echo "ERROR: candidate does not contain package.json" >&2
   exit 1
@@ -135,7 +147,9 @@ if [[ -n "${BENCH_EVALUATOR:-}" ]]; then
   fi
 fi
 
+END_EPOCH="$(date +%s)"
 echo "ended_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUTPUT_DIR/run-info.txt"
+echo "wall_time_seconds=$((END_EPOCH - START_EPOCH))" >> "$OUTPUT_DIR/run-info.txt"
 
 if (( PRE_RC != 0 || POST_RC != 0 )); then
   exit 1
