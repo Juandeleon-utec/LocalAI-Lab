@@ -11,7 +11,7 @@ while ((Get-Date) -lt $deadline) {
         $response = Invoke-RestMethod -Uri "$BaseUrl/health" -Method Get -TimeoutSec 2
         if ($null -ne $response -and $response.status -eq "ok") {
             Write-Host "Candidate is healthy at $BaseUrl"
-            exit 0
+            return
         }
     }
     catch {
