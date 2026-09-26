@@ -48,7 +48,8 @@
 - [x] Complete static validation of reference candidate, hidden evaluator and result aggregation.
 - [ ] Select and freeze the physical benchmark/staging host.
 - [x] Validate Windows preflight and two clean MySQL create/healthy/destroy cycles on the Ryzen 7 5700G workstation.
-- [ ] Validate the hidden evaluator and harness against a known-good reference implementation on the selected staging host.
+- [x] Validate the hidden evaluator and harness against a known-good reference implementation on the Windows engineering-validation host (16/16 total, 14/14 critical).
+- [ ] Freeze the selected formal staging host and exact environment fingerprints.
 - [ ] Validate autonomous edit-test-fix loop under BENCH-CODE-001.
 - [ ] Run Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K.
 - [ ] Integrate and benchmark Qwen3.6-35B-A3B Q4_K_M at 32K.
