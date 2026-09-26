@@ -232,3 +232,60 @@ For future formal runs, the required provenance chain includes:
 - telemetry logs when resource claims are made.
 
 The A001/A003 repository audit identified several missing inputs, which are tracked explicitly in `docs/academic-rag/reproducibility-record-2026-09-13.md` rather than being silently assumed present.
+
+
+---
+
+## ADR-016 — Treat 8K coding-agent validation as pilot evidence and use 32K for BENCH-CODE-001
+
+**Status:** Accepted for the first formal coding benchmark
+
+The initial OpenCode/Qwen3-Coder validation used an 8K context budget and successfully demonstrated repository reading and controlled writes. Later development behavior showed context pressure and excessive code compaction as the task grew.
+
+### Decision
+
+- retain the 8K work as engineering/pilot evidence;
+- do not use it as the primary model-quality comparison;
+- use a nominal 32768-token context budget for both local systems in BENCH-CODE-001;
+- record actual token/context usage and compaction events where observable;
+- increase context only through a separately versioned experiment if 32K remains a measured bottleneck.
+
+### Rationale
+
+The formal comparison should measure coding-agent capability rather than an avoidable context constraint. At the same time, 256K is not adopted merely because the model can expose it; context should be increased only when evidence justifies the memory and performance cost.
+
+---
+
+## ADR-017 — BENCH-CODE-001 evaluates complete systems against an independent functional contract
+
+**Status:** Accepted
+
+BENCH-CODE-001 v1.0 uses a fixed Node.js/MySQL authenticated web-application task, a clean seed repository, a dedicated validation environment and an external hidden evaluator.
+
+### Decision
+
+Claude Code is a participant and hosted baseline, not a reference implementation or source of ground truth.
+
+Comparisons are separated into:
+
+1. local model comparison: OpenCode + Qwen3-Coder vs OpenCode + Qwen3.6 under the same nominal 32K context budget;
+2. system-level comparison: the best local stack vs Claude Code;
+3. inference optimization: Qwen3.6 without vs with MTP.
+
+### Rationale
+
+This prevents model, agent and inference-engine differences from being incorrectly collapsed into one causal claim.
+
+---
+
+## ADR-018 — Keep hidden coding evaluator outside the public participant workspace
+
+**Status:** Accepted
+
+The exact BENCH-CODE-001 hidden tests must not be available to the coding agent during generation.
+
+The evaluator archive, fixtures and configuration will be stored separately during formal execution and identified by immutable SHA-256 values in run manifests. The public repository documents only the evaluation contract and test families.
+
+### Rationale
+
+A publicly visible evaluator would allow an agent to optimize directly against the assertions and would weaken the benchmark as a measure of general task completion.
