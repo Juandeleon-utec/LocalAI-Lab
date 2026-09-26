@@ -6,6 +6,9 @@ param(
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $scriptDir "windows-common.ps1")
+if ($null -eq (Ensure-DockerCommand)) { throw "Docker Desktop CLI was not found." }
+
 $candidateDir = (Resolve-Path $CandidateDirectory).Path
 
 if (-not (Test-Path $OutputDirectory)) {
