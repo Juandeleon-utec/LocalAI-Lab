@@ -7,6 +7,9 @@ All notable changes to LocalAI-Lab will be documented here.
 ### Added
 
 - BENCH-CODE-001 v1.0 benchmark definition under `benchmarks/tasks/BENCH-CODE-001/`.
+- Public BENCH-CODE-001 staging harness: ephemeral MySQL container, database lifecycle helpers, health checker, candidate runner and environment snapshot.
+- Development-workstation hardware profile: Ryzen 7 5700G, 32 GB RAM, GeForce GTX 1050 4 GB.
+- External hidden evaluator v1.0.0 fingerprint recorded without publishing its assertions.
 - Frozen participant prompt for an authenticated Node.js/MySQL web application with a minimal frontend.
 - Controlled-run protocol with 32K nominal local context, no corrective human prompting, clean-run isolation and three engineering repetitions per system.
 - External hidden-evaluator contract covering authentication, authorization, CRUD, persistence, validation and representative injection-style inputs.

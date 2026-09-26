@@ -214,14 +214,17 @@ Do not place the entire application in one file if separating responsibilities w
 
 ## Required commands
 
-The finished repository must support:
+The finished repository must support these commands exactly:
 
 ```bash
 npm install
+npm run db:init
 npm start
 ```
 
-Document any additional initialization command in `README.md`.
+`npm run db:init` must create the required schema on a clean database and should be safe to run again without destroying existing valid data.
+
+Document the commands and required environment variables in `README.md`.
 
 ## Verification requirement
 
