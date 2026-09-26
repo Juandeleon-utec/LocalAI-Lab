@@ -52,7 +52,7 @@
     "tests_passed": null,
     "tests_total": 16,
     "critical_tests_passed": null,
-    "critical_tests_total": 13,
+    "critical_tests_total": 14,
     "hidden_evaluator_exit_code": null,
     "critical_authorization_failure": null,
     "unexpected_server_crash": null
@@ -76,5 +76,14 @@
     "server_log": null,
     "human_review": null
   },
-  "notes": []
+  "notes": [],
+  "execution_environment": {
+    "host_os": null,
+    "host_kernel": null,
+    "container_runtime": null,
+    "node_version": null,
+    "node_image_digest": null,
+    "mysql_version": null,
+    "mysql_image_digest": null
+  }
 }
