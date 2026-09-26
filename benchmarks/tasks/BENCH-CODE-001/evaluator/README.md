@@ -65,3 +65,16 @@ Before formal execution, freeze and checksum:
 - evaluator dependencies.
 
 Do not modify the evaluator after inspecting candidate failures without creating a new benchmark version.
+
+
+## Current external evaluator freeze candidate
+
+A BENCH-CODE-001 hidden evaluator v1.0.0 package was generated outside this repository.
+
+SHA-256 of the current evaluator archive:
+
+```text
+edb663ba732cd54ad3ce6cae34e73d1a351ed8afe4bcf58209dd60e46aede670
+```
+
+This hash may be used for engineering validation. Before the first formal run, confirm that this exact archive is retained and record the same hash in every v1.0 run manifest.
