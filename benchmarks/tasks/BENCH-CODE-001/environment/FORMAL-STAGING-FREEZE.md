@@ -1,6 +1,6 @@
 # BENCH-CODE-001 v1.0 — Formal Staging Freeze
 
-Status: **DRAFT — pending environment snapshot SHA-256 only**
+Status: **FINAL — frozen before the first formal BENCH-CODE-001 v1.0 run**
 
 This document records the benchmark/staging inputs that must remain unchanged across all formal BENCH-CODE-001 v1.0 runs after the freeze is finalized.
 
@@ -104,10 +104,10 @@ Reference-validation snapshot timestamp:
 Environment snapshot SHA-256:
 
 ```text
-PENDING
+7c3b89e3ad1b2093c1450edbf4843cfbbdd8134691a6ce0f9497cdb0470fa3a3
 ```
 
-The exact hash from `C:\bench-code-001-results\reference-validation\environment-sha256.txt` must replace `PENDING` before C001-A01.
+This is the SHA-256 of the reference-validation `environment-snapshot.txt` generated on 2026-09-26 before C001-A01.
 
 ## Freeze rule
 
