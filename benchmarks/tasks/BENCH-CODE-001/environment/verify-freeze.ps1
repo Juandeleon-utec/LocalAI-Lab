@@ -13,6 +13,9 @@ $expected = @{
     DockerVersionPrefix = "Docker version 29.8.0, build 88096ef"
     ComposeVersion = "Docker Compose version v5.5.1"
     WindowsVersion = "10.0.26200"
+    DockerCpus = 16
+    DockerMemoryMinBytes = 16000000000
+    DockerMemoryMaxBytes = 17500000000
     MySqlDigest = "mysql@sha256:0744ee5ef89ce6ccfa13de3e579fe6b9e27f93dd70da9c06d2c908b1b193fb8d"
 }
 
@@ -48,6 +51,21 @@ Assert-Equal "docker_compose" (& docker.exe compose version).Trim() $expected.Co
 
 $os = Get-CimInstance Win32_OperatingSystem
 Assert-Equal "windows_version" $os.Version $expected.WindowsVersion
+
+$dockerInfo = & docker.exe info --format "{{json .}}"
+if ($LASTEXITCODE -ne 0) { throw "docker info failed." }
+$docker = $dockerInfo | ConvertFrom-Json
+
+if ([int]$docker.NCPU -ne [int]$expected.DockerCpus) {
+    throw "docker_cpu mismatch. Expected $($expected.DockerCpus), found $($docker.NCPU)."
+}
+Write-Host "PASS: docker_cpu = $($docker.NCPU)"
+
+$dockerMemory = [int64]$docker.MemTotal
+if ($dockerMemory -lt [int64]$expected.DockerMemoryMinBytes -or $dockerMemory -gt [int64]$expected.DockerMemoryMaxBytes) {
+    throw "docker_memory_bytes outside frozen range: $dockerMemory"
+}
+Write-Host "PASS: docker_memory_bytes = $dockerMemory"
 
 $repoDigests = & docker.exe image inspect $expected.MySqlDigest --format "{{json .RepoDigests}}"
 if ($LASTEXITCODE -ne 0) {
