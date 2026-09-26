@@ -144,10 +144,14 @@ try {
     }
     catch {}
 
+    $env:PORT = $port
+    $env:DB_HOST = $dbHost
+    $env:DB_PORT = $dbHostPort
     $env:DB_HOST_PORT = $dbHostPort
     $env:DB_NAME = $dbName
     $env:DB_USER = $dbUser
     $env:DB_PASSWORD = $dbPassword
+    $env:AUTH_SECRET = $authSecret
     $env:MYSQL_ROOT_PASSWORD = $mysqlRootPassword
 
     & (Join-Path $scriptDir "start-database.ps1")
