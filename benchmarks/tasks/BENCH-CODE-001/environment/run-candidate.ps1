@@ -121,10 +121,18 @@ function Invoke-NpmLogged {
 
     Push-Location $candidateDir
     try {
-        & npm.cmd @Arguments 2>&1 | Tee-Object -FilePath $LogPath
-        $exitCode = $LASTEXITCODE
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            & npm.cmd @Arguments 2>&1 | ForEach-Object { "$_" } | Tee-Object -FilePath $LogPath
+            $exitCode = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+
         if ($exitCode -ne 0) {
-            throw "npm $($Arguments -join ' ') failed with exit code $exitCode."
+            throw "npm $($Arguments -join ' ') failed with exit code $exitCode. See $LogPath"
         }
     }
     finally {
@@ -144,10 +152,14 @@ try {
     }
     catch {}
 
+    $env:PORT = $port
+    $env:DB_HOST = $dbHost
+    $env:DB_PORT = $dbHostPort
     $env:DB_HOST_PORT = $dbHostPort
     $env:DB_NAME = $dbName
     $env:DB_USER = $dbUser
     $env:DB_PASSWORD = $dbPassword
+    $env:AUTH_SECRET = $authSecret
     $env:MYSQL_ROOT_PASSWORD = $mysqlRootPassword
 
     & (Join-Path $scriptDir "start-database.ps1")
