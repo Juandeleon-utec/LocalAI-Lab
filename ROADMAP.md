@@ -45,6 +45,7 @@
 - [x] Freeze participant prompt, execution protocol, evaluator contract and blinded-review rubric before formal runs.
 - [x] Implement and checksum the external hidden evaluator for BENCH-CODE-001.
 - [x] Add the public staging harness and clean ephemeral MySQL-per-run reset procedure.
+- [x] Complete static validation of reference candidate, hidden evaluator and result aggregation.
 - [ ] Select and freeze the physical benchmark/staging host.
 - [ ] Validate the hidden evaluator and harness against a known-good reference implementation on the selected staging host.
 - [ ] Validate autonomous edit-test-fix loop under BENCH-CODE-001.
