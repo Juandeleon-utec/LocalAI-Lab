@@ -20,6 +20,33 @@ AUTH_SECRET="${AUTH_SECRET:-bench-code-001-local-secret}"
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-bench-root-password}"
 BASE_URL="http://127.0.0.1:$PORT"
 
+run_evaluator() {
+  local phase="$1"
+  local output="$2"
+
+  if [[ -z "${BENCH_EVALUATOR:-}" ]]; then
+    return 0
+  fi
+
+  if [[ ! -f "$BENCH_EVALUATOR" ]]; then
+    echo "ERROR: BENCH_EVALUATOR does not exist: $BENCH_EVALUATOR" >&2
+    return 2
+  fi
+
+  local evaluator_cmd=()
+  if [[ "$BENCH_EVALUATOR" == *.py ]]; then
+    evaluator_cmd=(python3 "$BENCH_EVALUATOR")
+  else
+    if [[ ! -x "$BENCH_EVALUATOR" ]]; then
+      echo "ERROR: BENCH_EVALUATOR is not executable: $BENCH_EVALUATOR" >&2
+      return 2
+    fi
+    evaluator_cmd=("$BENCH_EVALUATOR")
+  fi
+
+  "${evaluator_cmd[@]}"     --phase "$phase"     --base-url "$BASE_URL"     --output "$output"     --state "$OUTPUT_DIR/evaluator-state.json"     --compose-file "$SCRIPT_DIR/docker-compose.yml"     --db-name "$DB_NAME"     --db-root-password "$MYSQL_ROOT_PASSWORD"
+}
+
 APP_PID=""
 
 stop_app() {
@@ -60,7 +87,7 @@ fi
 
 (
   cd "$SCRIPT_DIR"
-  DB_HOST_PORT="$DB_HOST_PORT"   DB_NAME="$DB_NAME"   DB_USER="$DB_USER"   DB_PASSWORD="$DB_PASSWORD"   ./start-database.sh
+  DB_HOST_PORT="$DB_HOST_PORT"   DB_NAME="$DB_NAME"   DB_USER="$DB_USER"   DB_PASSWORD="$DB_PASSWORD"   MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"   ./start-database.sh
 )
 
 cd "$CANDIDATE_DIR"
@@ -83,11 +110,7 @@ POST_RC=0
 
 if [[ -n "${BENCH_EVALUATOR:-}" ]]; then
   set +e
-  "$BENCH_EVALUATOR"     --phase pre-restart     --base-url "$BASE_URL"     --output "$OUTPUT_DIR/evaluator-pre.json" \
-    --state "$OUTPUT_DIR/evaluator-state.json" \
-    --compose-file "$SCRIPT_DIR/docker-compose.yml" \
-    --db-name "$DB_NAME" \
-    --db-root-password "$MYSQL_ROOT_PASSWORD"
+  run_evaluator "pre-restart" "$OUTPUT_DIR/evaluator-pre.json"
   PRE_RC=$?
   set -e
 
@@ -101,15 +124,15 @@ start_app
 
 if [[ -n "${BENCH_EVALUATOR:-}" ]]; then
   set +e
-  "$BENCH_EVALUATOR"     --phase post-restart     --base-url "$BASE_URL"     --output "$OUTPUT_DIR/evaluator-post.json" \
-    --state "$OUTPUT_DIR/evaluator-state.json" \
-    --compose-file "$SCRIPT_DIR/docker-compose.yml" \
-    --db-name "$DB_NAME" \
-    --db-root-password "$MYSQL_ROOT_PASSWORD"
+  run_evaluator "post-restart" "$OUTPUT_DIR/evaluator-post.json"
   POST_RC=$?
   set -e
 
   echo "evaluator_post_exit=$POST_RC" >> "$OUTPUT_DIR/run-info.txt"
+
+  if [[ -f "$OUTPUT_DIR/evaluator-pre.json" && -f "$OUTPUT_DIR/evaluator-post.json" ]]; then
+    python3 "$SCRIPT_DIR/aggregate-evaluation.py"       --pre "$OUTPUT_DIR/evaluator-pre.json"       --post "$OUTPUT_DIR/evaluator-post.json"       --output "$OUTPUT_DIR/evaluation.json"
+  fi
 fi
 
 echo "ended_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUTPUT_DIR/run-info.txt"
