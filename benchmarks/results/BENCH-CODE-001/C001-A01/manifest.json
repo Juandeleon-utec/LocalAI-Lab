@@ -1,0 +1,126 @@
+{
+  "benchmark": {
+    "id": "BENCH-CODE-001",
+    "version": "1.0",
+    "run_id": "C001-A01",
+    "timestamp_utc": "2026-09-27T13:33:41Z",
+    "localai_lab_commit": "23bed848a1467225a0858dbdb27e57ef2e9aa474",
+    "prompt_sha256": "e1ec6e63a2a603a4d5591158a262d66de1f838a93e72d03ae2a158827e35dbac",
+    "seed_sha256": "a1d24686ddf69b8d5eb69b956b1500fafa92aac8658270deff33ba3e2c1eadc7",
+    "evaluator_sha256": "edb663ba732cd54ad3ce6cae34e73d1a351ed8afe4bcf58209dd60e46aede670",
+    "environment_sha256": "7c3b89e3ad1b2093c1450edbf4843cfbbdd8134691a6ce0f9497cdb0470fa3a3"
+  },
+  "system": {
+    "agent": "OpenCode",
+    "agent_version": "1.18.27",
+    "model_provider": "local llama.cpp OpenAI-compatible endpoint",
+    "model_id": "local/qwen3-coder",
+    "model_file": "Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf",
+    "model_sha256": "f67299d72124ed68b4cbf3a776079df289bd854a17dfe6febfc835d1e1fbdefb",
+    "quantization": "Q3_K_M",
+    "inference_engine": "llama.cpp",
+    "inference_engine_commit": "b96806d96061049a5b574269b049bf6241d63d46",
+    "configured_context_tokens": 32768,
+    "max_observed_context_tokens": null,
+    "compaction_events": null,
+    "generation_settings": {
+      "llama_cpp_build": 10752,
+      "server_slots": 1,
+      "server_slot_context_tokens": 32768
+    }
+  },
+  "local_hardware": {
+    "gpu": "AMD RX 9060 XT",
+    "vram_gb": 16,
+    "cpu": "Intel Core i5-14600KF",
+    "ram_gb": 64,
+    "rocm_version": null,
+    "kernel": null,
+    "os": null
+  },
+  "execution": {
+    "started_at_utc": "2026-09-27T13:33:41Z",
+    "ended_at_utc": "2026-09-27T13:40:58Z",
+    "wall_time_seconds": 436,
+    "termination_reason": "agent_declared_completion",
+    "human_interventions": 0,
+    "tool_calls": null,
+    "agent_iterations": null,
+    "edit_test_fix_cycles": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "candidate_commit": "00156c7a0bdb783ec55e7b930c693dd5b388b96b"
+  },
+  "evaluation": {
+    "application_started": true,
+    "tests_passed": 16,
+    "tests_total": 16,
+    "critical_tests_passed": 14,
+    "critical_tests_total": 14,
+    "hidden_evaluator_exit_code": 0,
+    "critical_authorization_failure": false,
+    "unexpected_server_crash": false
+  },
+  "telemetry": {
+    "peak_vram_mb": null,
+    "mean_vram_mb": null,
+    "peak_ram_mb": null,
+    "mean_ram_mb": null,
+    "mean_gpu_utilization_percent": null,
+    "mean_cpu_utilization_percent": null,
+    "peak_temperature_c": null,
+    "mean_power_w": null,
+    "integrated_energy_wh": null,
+    "telemetry_artifact": "amd-smi.csv"
+  },
+  "artifacts": {
+    "candidate_repository_archive": {
+      "path": "C001-A01-candidate.tar",
+      "sha256": "fa3b507710cc951014c0ab357498e69806cdfb710a58c3dd70007d6cca96442a"
+    },
+    "agent_log": {
+      "path": "opencode-events.jsonl",
+      "sha256": "54bd951fa1366aff2b8b595f927b2c17a39c93ec2793ad08ab030654fa7873ae"
+    },
+    "agent_stderr": {
+      "path": "opencode-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "evaluation_json": {
+      "path": "evaluation.json",
+      "sha256": "60923e4bbb87e1cd3d43984e97d36120cc477080511ac45bac2aee9b79dc76fd"
+    },
+    "server_log": {
+      "path": "llama-server.log",
+      "sha256": "02c835c7cafd0d384f00d48b655f6a0c79f1baa6bca9592d8fa3b935fbef1378"
+    },
+    "llama_metrics_before": {
+      "path": "llama-metrics-before.prom",
+      "sha256": "033056262d2dfed7ee1a6103733a5e445b13fb53daaa6de97304ae73a95d0f36"
+    },
+    "llama_metrics_after": {
+      "path": "llama-metrics-after.prom",
+      "sha256": "feb4fa86f575674697093f5db10f32ca76c01474425ec9682f45a13d3c90b292"
+    },
+    "amd_smi_csv": {
+      "path": "amd-smi.csv",
+      "sha256": "6ea6debd63d75b23dc412fac7fb235df597acd4cc718896c7bd855e635719122"
+    },
+    "human_review": null
+  },
+  "notes": [
+    "OpenCode JSONL ended with step_finish reason=stop after a final report.",
+    "The Windows launcher did not retain the numeric OpenCode process exit code; its agent_process_error label is treated as an instrumentation defect, not a candidate failure.",
+    "Workspace file count/size observed after execution included node_modules and is not used as canonical source-artifact size.",
+    "ROCm/kernel/OS and summarized AMD-SMI statistics remain to be populated from preserved telemetry/environment artifacts."
+  ],
+  "execution_environment": {
+    "host_os": "Microsoft Windows 11 Pro 10.0.26200",
+    "host_kernel": "10.0.26200",
+    "container_runtime": "Docker 29.8.0 / Docker Compose v5.5.1",
+    "node_version": "v24.19.0",
+    "node_image_digest": null,
+    "mysql_version": "8.4",
+    "mysql_image_digest": "mysql@sha256:0744ee5ef89ce6ccfa13de3e579fe6b9e27f93dd70da9c06d2c908b1b193fb8d"
+  }
+}
