@@ -251,4 +251,4 @@ Books / articles / notes / technical texts
 
 - [x] C001-A01 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 436 s, 0 human interventions.
 - [x] C001-A02 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 567 s, 0 human interventions.
-- [ ] C001-A03
+- [x] C001-A03 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 586 s, 0 human interventions.
