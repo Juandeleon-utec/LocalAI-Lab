@@ -245,3 +245,10 @@ Books / articles / notes / technical texts
 5. Compare the best local configuration with Claude Code using the same prompt and seed repository.
 6. Evaluate Qwen3.6 + MTP separately for end-to-end throughput, latency and energy.
 7. Preserve every candidate repository, run manifest, hidden-test output and telemetry artifact before interpretation.
+
+
+## BENCH-CODE-001 formal runs
+
+- [x] C001-A01 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 436 s, 0 human interventions.
+- [ ] C001-A02
+- [ ] C001-A03
