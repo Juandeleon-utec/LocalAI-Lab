@@ -40,11 +40,30 @@ ldd .../llama-server -> All shared libraries resolved
 
 No llama-server process was running when the fingerprint was captured.
 
+## Server preflight result
+
+The formal 32K server profile was started successfully after removing the manually forced `-ngl 99` setting that caused a pre-run VRAM OOM during context allocation.
+
+Observed health:
+
+```json
+{"status":"ok"}
+```
+
+Observed slot/context initialization:
+
+```text
+n_slots = 1
+n_ctx_slot = 32768
+kv_unified = false
+```
+
+This confirms the intended formal context budget before agent execution. The failed `-ngl 99` attempt occurred before the agent received the benchmark prompt and therefore is not a formal benchmark run.
+
 ## Still required before formal start
 
 - exact ROCm/HIP version;
-- exact llama-server launch arguments;
+- exact live llama-server command line;
 - OpenCode version;
 - immutable seed archive SHA-256;
-- confirmation that the server reports one slot with 32768-token context;
 - start timestamp UTC.
