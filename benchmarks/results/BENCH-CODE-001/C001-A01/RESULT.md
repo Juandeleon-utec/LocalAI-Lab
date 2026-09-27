@@ -63,3 +63,61 @@ Before closing A01 completely, preserve:
 - telemetry CSV/log hashes;
 - before/after llama metrics hashes;
 - summarized telemetry statistics.
+
+
+## Frozen artifacts
+
+Candidate commit:
+
+```text
+00156c7a0bdb783ec55e7b930c693dd5b388b96b
+```
+
+Candidate archive SHA-256:
+
+```text
+fa3b507710cc951014c0ab357498e69806cdfb710a58c3dd70007d6cca96442a
+```
+
+OpenCode event log SHA-256:
+
+```text
+54bd951fa1366aff2b8b595f927b2c17a39c93ec2793ad08ab030654fa7873ae
+```
+
+OpenCode stderr SHA-256:
+
+```text
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+```
+
+The stderr hash is the SHA-256 of an empty file.
+
+Evaluation JSON SHA-256:
+
+```text
+60923e4bbb87e1cd3d43984e97d36120cc477080511ac45bac2aee9b79dc76fd
+```
+
+Inference/telemetry artifacts:
+
+```text
+llama-server.log
+02c835c7cafd0d384f00d48b655f6a0c79f1baa6bca9592d8fa3b935fbef1378
+
+llama-metrics-before.prom
+033056262d2dfed7ee1a6103733a5e445b13fb53daaa6de97304ae73a95d0f36
+
+llama-metrics-after.prom
+feb4fa86f575674697093f5db10f32ca76c01474425ec9682f45a13d3c90b292
+
+amd-smi.csv
+6ea6debd63d75b23dc412fac7fb235df597acd4cc718896c7bd855e635719122
+```
+
+Observed workspace measurement after generation:
+
+- files: 1156
+- total bytes: 7,126,210
+
+This workspace measurement includes installed dependencies such as `node_modules`; it is not used as the canonical source-artifact size. The Git candidate archive is the canonical frozen candidate artifact.
