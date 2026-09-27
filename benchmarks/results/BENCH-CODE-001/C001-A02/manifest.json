@@ -1,0 +1,50 @@
+{
+  "benchmark": {
+    "id": "BENCH-CODE-001",
+    "version": "1.0",
+    "run_id": "C001-A02",
+    "frozen_repo_commit": "23bed848a1467225a0858dbdb27e57ef2e9aa474",
+    "prompt_sha256": "e1ec6e63a2a603a4d5591158a262d66de1f838a93e72d03ae2a158827e35dbac",
+    "seed_sha256": "a1d24686ddf69b8d5eb69b956b1500fafa92aac8658270deff33ba3e2c1eadc7",
+    "evaluator_sha256": "edb663ba732cd54ad3ce6cae34e73d1a351ed8afe4bcf58209dd60e46aede670"
+  },
+  "system": {
+    "agent": "OpenCode",
+    "agent_version": "1.18.27",
+    "model_id": "local/qwen3-coder",
+    "model_file": "Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf",
+    "model_sha256": "f67299d72124ed68b4cbf3a776079df289bd854a17dfe6febfc835d1e1fbdefb",
+    "quantization": "Q3_K_M",
+    "configured_context_tokens": 32768,
+    "llama_cpp_commit": "b96806d96061049a5b574269b049bf6241d63d46",
+    "llama_cpp_build": 10752
+  },
+  "execution": {
+    "started_at_utc": "2026-09-27T17:41:38Z",
+    "ended_at_utc": "2026-09-27T17:51:05Z",
+    "wall_time_seconds": 567,
+    "termination_reason": "agent_declared_completion",
+    "opencode_exit_code": 0,
+    "opencode_last_step_reason": "stop",
+    "human_interventions": 0,
+    "candidate_commit": "73f545dc6e179de2c8a0e44d0990a184fede6e04"
+  },
+  "evaluation": {
+    "tests_passed": 16,
+    "tests_total": 16,
+    "critical_tests_passed": 14,
+    "critical_tests_total": 14,
+    "all_tests_passed": true,
+    "all_critical_tests_passed": true
+  },
+  "artifacts": {
+    "candidate_archive_sha256": "d5ed813ec223542e63dca53cce2e2606a892cdf614325d695f1629dc3438bf20",
+    "opencode_events_sha256": "ab447d3cbddc58927724df86d7e353eeee0123608f182e70d4467d094a0519ee",
+    "opencode_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evaluation_json_sha256": "edcb64b1a5baffba2021a7c87288dc47b7a676d06e820a6a6069dd3172bef8d7",
+    "llama_server_log_sha256": "d715cc1ce1d37c41cff32207adc86509e558189186dcbb4bbfabd69a9b057d4a",
+    "llama_metrics_before_sha256": "033056262d2dfed7ee1a6103733a5e445b13fb53daaa6de97304ae73a95d0f36",
+    "llama_metrics_after_sha256": "e3be05e80a8c368be56fb11e4b0f592beb04ed797108ee9a93d19999da80e46f",
+    "amd_smi_csv_sha256": "fe3a6b8a3cc73be23e51d5a756779988ab4b893c7157eb7b7a00581ab41027f7"
+  }
+}
