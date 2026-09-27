@@ -67,3 +67,19 @@ This confirms the intended formal context budget before agent execution. The fai
 - OpenCode version;
 - immutable seed archive SHA-256;
 - start timestamp UTC.
+
+
+## Infrastructure-aborted launch attempt — 2026-09-27
+
+A launcher attempt printed `C001-A01 FORMAL START` at `2026-09-27T12:17:48Z`, but it is classified as **invalid / non-scorable infrastructure setup**, not as a model result.
+
+Observed before any useful agent work:
+
+- Windows freeze verification failed because Docker Desktop's Linux engine pipe was unavailable;
+- OpenCode 1.18.27 reported `Provider not found: local`;
+- the active OpenCode config did not contain the required 32768 context declaration;
+- the interactive PowerShell paste split an `if { ... } else { ... }` construct, leaving termination/exit-code fields empty;
+- OpenCode emitted an `Unexpected server error` event after approximately 4 seconds;
+- no candidate implementation work is credited to Qwen from this attempt.
+
+Per the BENCH-CODE-001 protocol, infrastructure failures are recorded separately from model/agent failures. C001-A01 remains pending and must restart from a fresh seed only after Docker, OpenCode provider resolution and the launcher script are validated.
