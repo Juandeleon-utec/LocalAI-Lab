@@ -84,37 +84,147 @@
 - [ ] Implement citation-aware retrieval.
 - [ ] Evaluate retrieval separately with Hit Rate@K, Precision@K, Recall@K, MRR and nDCG.
 
-## Phase 5 — Service deployment and web control plane
+## Phase 5 — Service deployment, usability and web control plane
 
-This phase starts only after the current Academic Screening/RAG validation work reaches a stable checkpoint. The first goal is operational control of model services, not new end-user functionality.
+The server is not only an experimental benchmark host. It should also become practical for daily model testing, coding, academic review and document work without sacrificing reproducibility.
+
+The implementation should therefore separate **daily laboratory usability** from **formal benchmark execution**. Convenience layers may control services and projects, but formal experiments must still use frozen commands/configurations, clean runtime state and immutable artifacts.
+
+Detailed implementation checklist: `docs/architecture/operational-usability-roadmap.md`.
+
+### 5.1 — Service profiles and process control
 
 - [x] Expose OpenAI-compatible API on the LAN for manual validation.
-- [ ] Define service profiles for each operational mode.
-- [ ] Create systemd services or equivalent controlled service wrappers.
+- [ ] Define versioned service profiles for each operational mode/model.
+- [ ] Create systemd services or controlled wrapper scripts for validated `llama-server` profiles.
+- [ ] Add service wrappers for Ollama and JupyterLab where appropriate.
 - [ ] Implement safe start/stop/switch logic for large GPU models.
 - [ ] Enforce the operating rule of one large GPU model loaded at a time.
-- [ ] Add health checks and readiness state for each model backend.
-- [ ] Add structured logging for service transitions and failures.
-- [ ] Add resource telemetry to the service layer.
-- [ ] Replace development API key with managed secret/configuration.
-- [ ] Build lightweight FastAPI/HTML web control panel.
-- [ ] Expose model/service states in the web interface: STOPPED, STARTING, READY, STOPPING, ERROR.
-- [ ] Add initial web actions for Coding Agent and Academic Reviewer profiles.
-- [ ] Add a global STOP ALL action and verify VRAM release before a new large model starts.
-- [ ] Keep OpenCode on the Windows workstation; the web panel controls Linux model backends only.
+- [ ] Add a global STOP ALL action.
+- [ ] Verify process termination and VRAM release before another large model starts.
+- [ ] Add health/readiness checks for each backend.
+- [ ] Expose useful states: STOPPED, STARTING, READY, STOPPING and ERROR.
+- [ ] Add structured logs for service transitions and failures.
+- [ ] Add resource-status commands for GPU, VRAM, RAM, disk and active ports.
+- [ ] Replace development API keys with managed configuration/secrets before broader exposure.
+
+### 5.2 — OliveTin operational control panel
+
+Initial control-plane implementation target: **OliveTin**, backed by versioned YAML actions and scripts rather than a custom application.
+
+- [ ] Install OliveTin as a LAN-only administration interface.
+- [ ] Require authentication before exposing operational actions.
+- [ ] Version the OliveTin configuration in this repository.
+- [ ] Add start/stop/status/log actions for Qwen3-Coder `llama-server`.
+- [ ] Add start/stop/status/log actions for Qwen3.6 `llama-server`.
+- [ ] Add start/stop/status actions for Ollama.
+- [ ] Add start/stop/status actions for JupyterLab.
+- [ ] Add GPU/RAM/disk/port status actions.
+- [ ] Add a safe model-switch action that stops the current large model, checks VRAM release, starts the target profile and validates health.
+- [ ] Add a benchmark-preparation action that checks/cleans known runtime contamination sources without modifying frozen benchmark inputs.
+- [ ] Keep arbitrary privileged shell execution disabled; grant only narrowly scoped commands required by the panel.
+- [ ] Evaluate a custom FastAPI/HTML control panel only if OliveTin becomes a measurable usability limitation.
 
 Planned control flow:
 
 ```text
 Browser
-  -> Web control panel
-  -> Mode / service manager
-  -> stop currently active large model
-  -> verify process termination and VRAM release
-  -> start selected model profile
+  -> OliveTin
+  -> versioned action / wrapper script
+  -> systemd or controlled process
+  -> stop current large model if needed
+  -> verify termination and VRAM release
+  -> start selected profile
   -> health check
   -> READY
 ```
+
+### 5.3 — Web chat and academic-review workspace
+
+Initial user-facing chat target: **Open WebUI** connected to the active local backend through Ollama and/or an OpenAI-compatible `llama-server` endpoint.
+
+- [ ] Deploy Open WebUI on the LAN.
+- [ ] Connect Open WebUI to validated `llama-server` OpenAI-compatible profiles.
+- [ ] Connect Open WebUI to Ollama for exploratory model use.
+- [ ] Create an Academic Reviewer profile/system prompt separate from formal Academic Screening benchmark prompts.
+- [ ] Add reusable chat profiles for coding, academic review and later teaching-content workflows.
+- [ ] Validate PDF/document upload and persistent Knowledge/RAG collections.
+- [ ] Preserve the distinction between convenience RAG in Open WebUI and formal retrieval experiments implemented/evaluated under the Academic RAG benchmark.
+- [ ] Require source-grounded answers and document/page traceability where the interface supports it.
+- [ ] Measure whether the interface introduces unacceptable duplication, hidden preprocessing or loss of reproducibility before using it for formal experiments.
+
+### 5.4 — Browser-based project/file management
+
+The daily workflow should not require SCP for normal project creation and document upload.
+
+Initial file-management candidate: **Copyparty** or an equivalently lightweight maintained web file manager.
+
+- [ ] Deploy a LAN-only browser file manager with authentication and restricted roots.
+- [ ] Use `/srv/data/projects/` as the initial project root.
+- [ ] Allow project-directory creation from the browser.
+- [ ] Allow drag-and-drop upload of PDFs, DOCX, BibTeX, notes and datasets.
+- [ ] Restrict write access to project/data paths; do not expose model/system directories unnecessarily.
+- [ ] Define a standard project layout:
+
+```text
+/srv/data/projects/<project>/
+  sources/
+  notes/
+  extracted/
+  index/
+  output/
+```
+
+### 5.5 — Project-to-Knowledge/RAG synchronization
+
+- [ ] Implement a versioned `localai-create-project` script that creates the standard directory layout safely.
+- [ ] Expose project creation through OliveTin with a validated project-name argument.
+- [ ] Implement a versioned `localai-index-project` command.
+- [ ] Synchronize `sources/` into an Open WebUI Knowledge collection or the formal LocalAI-Lab RAG pipeline, depending on operating mode.
+- [ ] Avoid duplicate ingestion when a source file/hash has not changed.
+- [ ] Preserve file identity, source path, page/section metadata and content hashes where possible.
+- [ ] Add an OliveTin action to index/reindex a selected project.
+- [ ] Add an action to inspect index/Knowledge status without destroying the underlying source files.
+- [ ] Keep formal RAG indexes/versioned datasets independent from disposable convenience indexes.
+
+Planned daily academic workflow:
+
+```text
+Browser file manager
+  -> create /srv/data/projects/<project>
+  -> upload source documents
+  -> OliveTin: index project
+  -> Open WebUI: select Academic Reviewer + project Knowledge
+  -> chat / review / compare documents
+  -> save outputs under project output/
+```
+
+### 5.6 — Laboratory mode vs benchmark mode
+
+- [ ] Define an explicit **laboratory mode** for convenience services: OliveTin, Open WebUI, file manager, Ollama, Jupyter and manually selected `llama-server` profiles.
+- [ ] Define an explicit **benchmark mode** with frozen launch commands, exact model/config hashes, clean runtime checks and controlled telemetry.
+- [ ] Ensure convenience services cannot silently modify benchmark prompt, seed, evaluator or candidate artifacts.
+- [ ] Before a formal benchmark, verify/clean expected ports, residual containers, processes and GPU state.
+- [ ] Record which convenience services remained active during each benchmark; preferably stop unrelated GPU/process workloads.
+- [ ] Keep benchmark generation and clean evaluation as independent phases.
+- [ ] Preserve failed runs and contamination findings rather than silently repairing them.
+- [ ] Add usability measurements where useful: number of manual steps, setup time, project-switch time and required terminal commands.
+
+### 5.7 — Usability acceptance checks
+
+The operational platform should eventually satisfy these practical checks:
+
+- [ ] Start/stop a validated LLM from a browser without manually reconstructing its long command line.
+- [ ] See whether each major service is running and whether its health endpoint is READY.
+- [ ] Switch between two validated large-model profiles safely.
+- [ ] Open JupyterLab without manual server-side process management.
+- [ ] Create an academic project from the browser.
+- [ ] Upload project files without SCP.
+- [ ] Index/reindex the project from the browser.
+- [ ] Open a chat interface, select a local model/reviewer profile and query the project documents.
+- [ ] Recover logs/status when a model fails to start.
+- [ ] Return the machine to a known-clean benchmark state with a documented procedure.
+- [ ] Reproduce a formal benchmark without depending on undocumented state created by the convenience interfaces.
 
 ## Phase 6 — Experimental platform and reproducibility
 
