@@ -46,11 +46,22 @@
       "critical_tests_total": 14,
       "evaluation_json_sha256": "d30d8c7dddbecc37023ce6dfbd2bb0c186198f48e09ded4b6534e70ce957bbb3",
       "reason_superseded": "runtime contamination: residual candidate-created mysql-record service on host port 3306"
-    }
+    },
+    "candidate_env_state": ".env and .env.example were tracked; .env set DB_PORT=3306 and local-development DB settings",
+    "ignored_env_excluded_from_archive": false
   },
   "throughput": {
-    "run_delta_prompt_tokens_per_second": null,
-    "run_delta_decode_tokens_per_second": null
+    "prompt_tokens_processed": 42912,
+    "prompt_tokens_cached": 903511,
+    "generated_tokens": 21177,
+    "prompt_processing_seconds": 67.175,
+    "generation_seconds": 504.826,
+    "run_delta_prompt_tokens_per_second": 638.81,
+    "run_delta_decode_tokens_per_second": 41.95,
+    "prompt_cache_ratio_percent": 95.47,
+    "inference_seconds": 572.001,
+    "inference_share_of_wall_percent": 15.89,
+    "non_inference_wall_seconds": 3027.999
   },
   "artifacts": {
     "candidate_archive_sha256": "36e5a8464cda168be201f93e9d9877072aca4af7d56b2dfbfea0d1988170e71f",

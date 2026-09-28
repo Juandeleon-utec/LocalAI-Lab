@@ -45,7 +45,9 @@
       "critical_tests_total": 14,
       "evaluation_json_sha256": "68da6978dd3cdfe74777564420b9bc6b0329c6212eb86db3e7edfa56c06a13bc",
       "reason_superseded": "runtime contamination: residual candidate-created mysql-record service on host port 3306"
-    }
+    },
+    "candidate_env_state": ".env and .env.example were tracked in the candidate repository",
+    "ignored_env_excluded_from_archive": false
   },
   "throughput": {
     "prompt_tokens_processed": 144697,

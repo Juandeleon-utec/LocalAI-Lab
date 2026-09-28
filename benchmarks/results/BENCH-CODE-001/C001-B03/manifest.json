@@ -1,0 +1,62 @@
+{
+  "benchmark": {
+    "id": "BENCH-CODE-001",
+    "version": "1.0",
+    "run_id": "C001-B03",
+    "frozen_repo_commit": "23bed848a1467225a0858dbdb27e57ef2e9aa474",
+    "prompt_sha256": "e1ec6e63a2a603a4d5591158a262d66de1f838a93e72d03ae2a158827e35dbac",
+    "seed_sha256": "a1d24686ddf69b8d5eb69b956b1500fafa92aac8658270deff33ba3e2c1eadc7",
+    "evaluator_sha256": "edb663ba732cd54ad3ce6cae34e73d1a351ed8afe4bcf58209dd60e46aede670"
+  },
+  "system": {
+    "agent": "OpenCode",
+    "agent_version": "1.18.27",
+    "model_id": "local/qwen3.6",
+    "model_file": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+    "model_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+    "model_size_bytes": 20408576512,
+    "model_parameters": 34660610688,
+    "quantization": "Q4_K_M",
+    "configured_context_tokens": 32768,
+    "mtp": false,
+    "llama_cpp_commit": "b96806d96061049a5b574269b049bf6241d63d46",
+    "llama_cpp_build": 10752
+  },
+  "execution": {
+    "started_at_utc": "2026-09-28T02:53:41Z",
+    "ended_at_utc": "2026-09-28T03:06:42Z",
+    "wall_time_seconds": 781,
+    "termination_reason": "agent_declared_completion",
+    "opencode_exit_code": 0,
+    "opencode_last_step_reason": "stop",
+    "human_interventions": 0,
+    "candidate_commit": "12be1b859e41bab2f9d940ac384596c83bfc956a",
+    "automatic_compaction_observed": true
+  },
+  "evaluation": {
+    "clean_deployment_passed": false,
+    "failure_stage": "npm run db:init",
+    "failure_detail": "migration connected to benchmark MySQL at 127.0.0.1:3307 but failed on multi-statement schema sent through connection.execute(schema)",
+    "hidden_evaluator_run": false,
+    "formal_test_score": null,
+    "candidate_env_state": ".env ignored; .env.example and .gitignore tracked; ignored .env excluded from archive",
+    "ignored_env_excluded_from_archive": true
+  },
+  "throughput": {
+    "prompt_tokens_processed": 92019,
+    "prompt_tokens_cached": 805455,
+    "generated_tokens": 24049,
+    "prompt_processing_seconds": 131.901,
+    "generation_seconds": 574.349,
+    "run_delta_prompt_tokens_per_second": 697.64,
+    "run_delta_decode_tokens_per_second": 41.87,
+    "prompt_cache_ratio_percent": 89.75,
+    "inference_seconds": 706.25,
+    "inference_share_of_wall_percent": 90.43,
+    "non_inference_wall_seconds": 74.75
+  },
+  "artifacts": {
+    "candidate_archive_sha256": "ab91af4342532f382df1b4700f3c622c6630994d9042e4fe0a7330870bde60cb",
+    "external_telemetry_hashes_recorded": false
+  }
+}
