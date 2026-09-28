@@ -1,0 +1,64 @@
+{
+  "benchmark": {
+    "id": "BENCH-CODE-001",
+    "version": "1.0",
+    "run_id": "C001-B01",
+    "frozen_repo_commit": "23bed848a1467225a0858dbdb27e57ef2e9aa474",
+    "prompt_sha256": "e1ec6e63a2a603a4d5591158a262d66de1f838a93e72d03ae2a158827e35dbac",
+    "seed_sha256": "a1d24686ddf69b8d5eb69b956b1500fafa92aac8658270deff33ba3e2c1eadc7",
+    "evaluator_sha256": "edb663ba732cd54ad3ce6cae34e73d1a351ed8afe4bcf58209dd60e46aede670"
+  },
+  "system": {
+    "agent": "OpenCode",
+    "agent_version": "1.18.27",
+    "model_id": "local/qwen3.6",
+    "model_file": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+    "model_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+    "model_size_bytes": 20408576512,
+    "model_parameters": 34660610688,
+    "quantization": "Q4_K_M",
+    "configured_context_tokens": 32768,
+    "mtp": false,
+    "llama_cpp_commit": "b96806d96061049a5b574269b049bf6241d63d46",
+    "llama_cpp_build": 10752
+  },
+  "execution": {
+    "started_at_utc": "2026-09-27T19:18:52Z",
+    "ended_at_utc": "2026-09-27T19:46:12Z",
+    "wall_time_seconds": 1641,
+    "termination_reason": "agent_declared_completion",
+    "opencode_exit_code": 0,
+    "opencode_last_step_reason": "stop",
+    "human_interventions": 0,
+    "candidate_commit": "36e3ca647954b8291d4dfdb11447d1dfb330ac03"
+  },
+  "evaluation": {
+    "tests_passed": 13,
+    "tests_total": 16,
+    "critical_tests_passed": 11,
+    "critical_tests_total": 14,
+    "all_tests_passed": false,
+    "all_critical_tests_passed": false,
+    "failed_tests": [
+      "T01",
+      "T04",
+      "T12"
+    ]
+  },
+  "throughput": {
+    "end_snapshot_prompt_tokens_seconds": 709.988,
+    "end_snapshot_predicted_tokens_seconds": 41.6846,
+    "run_delta_prompt_tokens_per_second": null,
+    "run_delta_decode_tokens_per_second": null
+  },
+  "artifacts": {
+    "candidate_archive_sha256": "6141ec8794e1360bfe4e29a1aac9c90ab82622d4a5df6f3d596ebb3ad002918e",
+    "opencode_events_sha256": "2bebdc77d51297115e4285b9819aba53fc101852c9179a6bd59b497650ac23f0",
+    "opencode_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evaluation_json_sha256": "68da6978dd3cdfe74777564420b9bc6b0329c6212eb86db3e7edfa56c06a13bc",
+    "llama_server_log_sha256": "98df3c7881eb319b534b180380dfcab4322fefb113473085d43a34000ed1a745",
+    "llama_metrics_before_sha256": "3f0ccacb4e9bf70dba3dc48bb09b12cd779d75b2db18f784a02d87310b0ee01b",
+    "llama_metrics_after_sha256": "d3a1fb57d5a073c979c74319beda499f83260af6a182760b6b39e7ad1ce73c60",
+    "amd_smi_csv_sha256": "6aa4ad6c96180a4b7bf6c2d91cf894662bea697d3b55237f4f1f5572b85916f7"
+  }
+}
