@@ -46,10 +46,19 @@
     ]
   },
   "throughput": {
+    "prompt_tokens_processed": 144697,
+    "prompt_tokens_cached": 1277791,
+    "generated_tokens": 48154,
+    "prompt_processing_seconds": 203.802,
+    "generation_seconds": 1153.161,
+    "run_delta_prompt_tokens_per_second": 709.99,
+    "run_delta_decode_tokens_per_second": 41.76,
+    "prompt_cache_ratio_percent": 89.83,
+    "inference_seconds": 1356.963,
+    "inference_share_of_wall_percent": 82.69,
+    "non_inference_wall_seconds": 284.037,
     "end_snapshot_prompt_tokens_seconds": 709.988,
-    "end_snapshot_predicted_tokens_seconds": 41.6846,
-    "run_delta_prompt_tokens_per_second": null,
-    "run_delta_decode_tokens_per_second": null
+    "end_snapshot_predicted_tokens_seconds": 41.6846
   },
   "artifacts": {
     "candidate_archive_sha256": "6141ec8794e1360bfe4e29a1aac9c90ab82622d4a5df6f3d596ebb3ad002918e",
