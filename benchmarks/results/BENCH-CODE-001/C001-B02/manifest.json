@@ -33,18 +33,20 @@
     "candidate_commit": "725e16faf2bb93bbb33e361b74ae0b1f8745609b"
   },
   "evaluation": {
-    "tests_passed": 12,
-    "tests_total": 16,
-    "critical_tests_passed": 10,
-    "critical_tests_total": 14,
-    "all_tests_passed": false,
-    "all_critical_tests_passed": false,
-    "failed_tests": [
-      "T01",
-      "T02",
-      "T04",
-      "T10"
-    ]
+    "clean_deployment_passed": false,
+    "failure_stage": "npm start / health readiness",
+    "failure_detail": "application attempted MySQL on ::1:3306 and 127.0.0.1:3306 while benchmark MySQL is supplied via DB_PORT=3307; health not reached within 90 seconds",
+    "hidden_evaluator_run": false,
+    "formal_test_score": null,
+    "candidate_config_observation": "src/config/index.js uses require('dotenv').config({ override: true }) and dbPort=parseInt(process.env.DB_PORT,10)||3306",
+    "superseded_diagnostic_evaluation": {
+      "tests_passed": 12,
+      "tests_total": 16,
+      "critical_tests_passed": 10,
+      "critical_tests_total": 14,
+      "evaluation_json_sha256": "d30d8c7dddbecc37023ce6dfbd2bb0c186198f48e09ded4b6534e70ce957bbb3",
+      "reason_superseded": "runtime contamination: residual candidate-created mysql-record service on host port 3306"
+    }
   },
   "throughput": {
     "run_delta_prompt_tokens_per_second": null,
