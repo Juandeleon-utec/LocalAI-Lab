@@ -93,9 +93,22 @@ amd-smi.csv
 
 ## Throughput instrumentation
 
-The end-of-run llama.cpp metrics snapshot reported:
+Run-isolated values calculated from the delta between the pre-run and post-run llama.cpp Prometheus counters:
+
+| Metric | C001-B01 |
+|---|---:|
+| Uncached prompt tokens | 144697 |
+| Cached prompt tokens | 1277791 |
+| Generated tokens | 48154 |
+| Prompt processing time | 203.802 s |
+| Generation time | 1153.161 s |
+| Prompt throughput | 709.99 tok/s |
+| Decode throughput | 41.76 tok/s |
+| Prompt cache ratio | 89.83% |
+
+The end-of-run gauges were consistent with the counter-delta calculation:
 
 - `llamacpp:prompt_tokens_seconds = 709.988`
 - `llamacpp:predicted_tokens_seconds = 41.6846`
 
-These are recorded as end-of-run gauges. The run-isolated prompt/decode throughput will be calculated from before/after counter deltas and added separately.
+Inference time (prompt processing + generation) was 1356.963 s, or 82.69% of the 1641 s end-to-end wall time. The residual wall time outside these llama.cpp inference counters was approximately 284.04 s.
