@@ -12,6 +12,8 @@ The project has two equally important goals:
 - deliver a stable and useful local AI server for daily work;
 - preserve enough technical documentation, raw outputs, configuration, telemetry and experimental provenance to support reproducible benchmarks and future academic publications.
 
+Practical usability is treated as part of the engineering problem rather than an afterthought. The planned operational layer will provide browser-based service control, chat/document workflows and project-file management while keeping formal benchmark execution isolated from convenience-state. The implementation checklist is tracked in `docs/architecture/operational-usability-roadmap.md`.
+
 ## Current platform
 
 - CPU: Intel Core i5-14600KF
