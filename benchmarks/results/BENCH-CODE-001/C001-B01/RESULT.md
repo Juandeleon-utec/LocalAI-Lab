@@ -34,6 +34,8 @@ Error: connect ECONNREFUSED 127.0.0.1:3306
 
 The benchmark harness provides the fresh MySQL instance through the environment-variable contract on host port 3307. The candidate attempted to connect to port 3306 instead.
 
+A post-run repository-state check confirmed that both `.env` and `.env.example` were tracked in the B01 candidate repository. Therefore the candidate-local environment configuration was part of the frozen artifact rather than an ignored self-test file.
+
 Accordingly, the clean deployment did not reach application startup and the hidden evaluator was **not run**.
 
 ## Superseded diagnostic evaluation
@@ -92,8 +94,6 @@ amd-smi.csv
 
 ## Throughput instrumentation
 
-Run-isolated values calculated from the delta between the pre-run and post-run llama.cpp Prometheus counters:
-
 | Metric | C001-B01 |
 |---|---:|
 | Uncached prompt tokens | 144697 |
@@ -104,5 +104,6 @@ Run-isolated values calculated from the delta between the pre-run and post-run l
 | Prompt throughput | 709.99 tok/s |
 | Decode throughput | 41.76 tok/s |
 | Prompt cache ratio | 89.83% |
-
-Inference time (prompt processing + generation) was 1356.963 s, or 82.69% of the 1641 s end-to-end wall time.
+| Inference time | 1356.963 s |
+| Inference share of wall | 82.69% |
+| Non-inference wall time | 284.037 s |
