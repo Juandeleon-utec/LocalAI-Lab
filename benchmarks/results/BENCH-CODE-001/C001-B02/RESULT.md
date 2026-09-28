@@ -19,36 +19,40 @@ Execution:
 - wall time: 3600 s
 - termination reason: `timeout_60_minutes`
 - OpenCode exit code: 124
-- OpenCode final step reason: unavailable because run was terminated at the formal timeout
 - human interventions: 0
 
-## Hidden evaluator
+## Clean deployment result
 
-BENCH-CODE-001 v1.0 evaluator result:
+**Deployment FAIL before hidden tests.**
+
+The frozen candidate was redeployed after removing residual candidate-created services and ensuring port 3000 was free.
+
+- dependency installation succeeded;
+- `npm run db:init` succeeded;
+- `npm start` failed to become healthy within the 90-second harness limit.
+
+The application log showed the server failing to connect to MySQL at both `::1:3306` and `127.0.0.1:3306`, although the benchmark harness supplies the fresh MySQL service through `DB_PORT=3307`.
+
+Post-run inspection of the frozen candidate found:
 
 ```text
-tests_passed=12
-tests_total=16
-critical_tests_passed=10
-critical_tests_total=14
-all_tests_passed=false
-all_critical_tests_passed=false
+src/config/index.js:
+require('dotenv').config({ override: true });
+...
+dbPort: parseInt(process.env.DB_PORT, 10) || 3306
 ```
 
-Failed tests:
+This configuration permits a repository-local dotenv value to overwrite the harness-provided environment-variable contract.
 
-- T01 — health endpoint and database readiness: health returned 200 but evaluator observed `fk_count=0`.
-- T02 — valid user registration: registration returned 409 because the benchmark username already existed.
-- T04 — password storage/database inspection: evaluator could not inspect `bench_code_001.users`.
-- T10 — owner update: GET succeeded but PUT returned 500.
+The clean deployment never reached a healthy application state, so the hidden evaluator was **not run**.
 
-T12 passed in this run: cross-user PUT and DELETE both returned 404.
+## Superseded diagnostic evaluation
 
-The run did not complete before the 60-minute stop condition. The candidate was frozen exactly at timeout and evaluated without manual edits.
+An earlier evaluation produced 12/16 total and 10/14 critical tests. That result is retained only as diagnostic evidence. It occurred while a residual candidate-created MySQL container was listening on host port 3306 and therefore does not represent a clean benchmark deployment.
 
-## Runtime behavior at timeout
+## Runtime behavior at generation timeout
 
-The final OpenCode events show the agent repeatedly attempting to start and verify the application server. A residual `node src/server.js` process remained after timeout and was terminated only after the candidate archive and evaluation had already been frozen/completed. This cleanup did not modify the evaluated candidate.
+The formal agent run itself reached the 60-minute stop condition. Final OpenCode events showed repeated application-start/port-verification attempts. A residual Node process was also observed after the timeout and cleaned up only after the candidate was frozen.
 
 ## Frozen artifacts
 
@@ -76,7 +80,7 @@ OpenCode stderr SHA-256:
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 ```
 
-Evaluation JSON SHA-256:
+Superseded diagnostic evaluation JSON SHA-256:
 
 ```text
 d30d8c7dddbecc37023ce6dfbd2bb0c186198f48e09ded4b6534e70ce957bbb3
@@ -100,4 +104,4 @@ amd-smi.csv
 
 ## Throughput instrumentation
 
-Run-isolated token counts and throughput will be calculated from the before/after llama.cpp Prometheus counters and recorded separately.
+Run-isolated token counts and throughput are retained separately from deployment quality. They describe the 60-minute generation run even though the final artifact did not deploy cleanly.

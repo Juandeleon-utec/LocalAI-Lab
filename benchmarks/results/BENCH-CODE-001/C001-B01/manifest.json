@@ -33,17 +33,19 @@
     "candidate_commit": "36e3ca647954b8291d4dfdb11447d1dfb330ac03"
   },
   "evaluation": {
-    "tests_passed": 13,
-    "tests_total": 16,
-    "critical_tests_passed": 11,
-    "critical_tests_total": 14,
-    "all_tests_passed": false,
-    "all_critical_tests_passed": false,
-    "failed_tests": [
-      "T01",
-      "T04",
-      "T12"
-    ]
+    "clean_deployment_passed": false,
+    "failure_stage": "npm run db:init",
+    "failure_detail": "ECONNREFUSED 127.0.0.1:3306 while benchmark MySQL is supplied via DB_PORT=3307",
+    "hidden_evaluator_run": false,
+    "formal_test_score": null,
+    "superseded_diagnostic_evaluation": {
+      "tests_passed": 13,
+      "tests_total": 16,
+      "critical_tests_passed": 11,
+      "critical_tests_total": 14,
+      "evaluation_json_sha256": "68da6978dd3cdfe74777564420b9bc6b0329c6212eb86db3e7edfa56c06a13bc",
+      "reason_superseded": "runtime contamination: residual candidate-created mysql-record service on host port 3306"
+    }
   },
   "throughput": {
     "prompt_tokens_processed": 144697,
