@@ -42,7 +42,7 @@ require('dotenv').config({ override: true });
 dbPort: parseInt(process.env.DB_PORT, 10) || 3306
 ```
 
-This configuration permits a repository-local dotenv value to overwrite the harness-provided environment-variable contract.
+The candidate also contained a tracked `.env` with `DB_PORT=3306`, `DB_NAME=record_manager`, `DB_USER=root` and local-development credentials. The `override: true` setting allowed that tracked file to replace the harness-provided environment-variable contract.
 
 The clean deployment never reached a healthy application state, so the hidden evaluator was **not run**.
 
@@ -52,7 +52,7 @@ An earlier evaluation produced 12/16 total and 10/14 critical tests. That result
 
 ## Runtime behavior at generation timeout
 
-The formal agent run itself reached the 60-minute stop condition. Final OpenCode events showed repeated application-start/port-verification attempts. A residual Node process was also observed after the timeout and cleaned up only after the candidate was frozen.
+The formal agent run reached the 60-minute stop condition. Final OpenCode events showed repeated application-start/port-verification attempts. A residual Node process was observed after the timeout and cleaned up only after the candidate was frozen.
 
 ## Frozen artifacts
 
@@ -86,7 +86,7 @@ Superseded diagnostic evaluation JSON SHA-256:
 d30d8c7dddbecc37023ce6dfbd2bb0c186198f48e09ded4b6534e70ce957bbb3
 ```
 
-Inference/telemetry artifacts:
+Inference/telemetry artifact SHA-256 values:
 
 ```text
 llama-server.log
@@ -104,4 +104,18 @@ amd-smi.csv
 
 ## Throughput instrumentation
 
-Run-isolated token counts and throughput are retained separately from deployment quality. They describe the 60-minute generation run even though the final artifact did not deploy cleanly.
+| Metric | C001-B02 |
+|---|---:|
+| Uncached prompt tokens | 42912 |
+| Cached prompt tokens | 903511 |
+| Generated tokens | 21177 |
+| Prompt processing time | 67.175 s |
+| Generation time | 504.826 s |
+| Prompt throughput | 638.81 tok/s |
+| Decode throughput | 41.95 tok/s |
+| Prompt cache ratio | 95.47% |
+| Inference time | 572.001 s |
+| Inference share of wall | 15.89% |
+| Non-inference wall time | 3027.999 s |
+
+The unusually large non-inference wall component reflects the 60-minute agent timeout and repeated local verification/startup activity, not slower llama.cpp decoding.
