@@ -39,7 +39,8 @@ Persistent storage:
 
 Only one large GPU model is intended to be active at a time.
 
-- `code`: OpenCode + Qwen3-Coder-30B-A3B-Instruct Q3_K_M
+- `code` (daily/experimental): OpenCode + Qwen3-Coder-30B-A3B-Instruct Q4_K_M at 49,152 context
+- `code-formal-baseline`: Qwen3-Coder-30B-A3B-Instruct Q3_K_M retained for frozen BENCH-CODE-001 conditions
 - `research`: academic screening/RAG + Qwen3-30B-A3B-Instruct-2507 Q3_K_M
 
 Model switching is currently manual and explicit. systemd/autostart remains intentionally deferred while benchmark behavior is being characterized.
@@ -55,6 +56,8 @@ Validated components:
 - controlled repository reading and writes
 
 Formal B002 generation throughput is about 69.1 tok/s TG128, with roughly 14.4–14.7 GB VRAM usage.
+
+The current Q4_K_M daily profile uses 49,152 context, 8,192 output and temperature 0.1. Exploratory long-context work is documented in `docs/benchmarks/qwen3-coder-q3-q4-2026-10-02.md`. A 10m17s real coding-agent session reached about 39K context without compaction and measured about 512.9 prompt tok/s and 29.7 generation tok/s as weighted llama.cpp session averages. These figures are not directly comparable with B002 because the workloads differ.
 
 The initial 8K OpenCode validation is now treated as pilot evidence because context pressure/compaction was observed during larger code-generation work.
 
