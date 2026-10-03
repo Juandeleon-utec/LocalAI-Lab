@@ -2,6 +2,27 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-10-02
+
+### Added
+
+- Qwen3-Coder-30B-A3B-Instruct Q4_K_M daily coding profile at 49,152 context, 8,192 output and temperature 0.1.
+- Consolidated Q3_K_M vs Q4_K_M agentic coding observations under `docs/benchmarks/qwen3-coder-q3-q4-2026-10-02.md`.
+- Versioned Q4 48K launch profile under `configs/qwen3-coder-q4-48k-t01.md`.
+
+### Validated
+
+- AUDIT-CODE-001 P2: Q3_K_M entered a repetitive tool loop and exhausted context without a final report; Q4_K_M completed the audit but retained factual errors.
+- CODE-FIX-001 P2: Q4_K_M independently identified missing GET-by-ID backend routes required by the admin frontend and implemented the minimal route additions.
+- Q4 CODE-FIX session reached about 39K context without compaction and produced weighted llama.cpp averages of approximately 512.9 prompt tok/s and 29.7 generation tok/s.
+
+### Decisions
+
+- Keep Q4_K_M/48K as the current daily coding-agent profile.
+- Keep frozen Q3_K_M/32K BENCH-CODE-001 formal results unchanged.
+- Score task completion, factual/root-cause accuracy and agentic stability separately.
+- Do not compare Q3 B002 direct throughput numerically with Q4 agentic-session throughput until an identical telemetry-controlled workload is run.
+
 ## [Unreleased] - 2026-09-26
 
 ### Added
