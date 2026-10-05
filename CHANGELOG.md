@@ -13,6 +13,7 @@ All notable changes to LocalAI-Lab will be documented here.
 ### Validated
 
 - LAILAB-B003 direct paired throughput: Q3_K_M reached 1953.24 ± 180.63 tok/s PP512 and 69.33 ± 1.80 tok/s TG128; Q4_K_M reached 1384.99 ± 119.01 tok/s PP512 and 56.22 ± 1.33 tok/s TG128.
+- Reverse-order B003 replication confirmed the result: mean Q3_K_M = 1955.49 PP512 / 69.325 TG128; mean Q4_K_M = 1366.73 PP512 / 56.26 TG128. Q3 retained a 23.22% TG128 advantage and 43.08% PP512 advantage.
 - Under the same direct workload, Q4_K_M was 29.09% slower in prompt processing and 18.91% slower in token generation than Q3_K_M; Q3 was 41.03% faster in PP512 and 23.32% faster in TG128.
 
 - AUDIT-CODE-001 P2: Q3_K_M entered a repetitive tool loop and exhausted context without a final report; Q4_K_M completed the audit but retained factual errors.
