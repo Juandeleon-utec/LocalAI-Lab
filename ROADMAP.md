@@ -41,6 +41,7 @@
 - [ ] Evaluate Qwen Code.
 - [ ] Evaluate Aider.
 - [x] Validate initial local coding-agent workflow over LAN.
+- [x] Validate Q4_K_M 48K real-world CODE-FIX-001 workflow through production deployment: Users and Transporters Edit flows confirmed working (2026-10-05).
 - [x] Define BENCH-CODE-001 v1.0: authenticated Node.js/MySQL web-application task.
 - [x] Freeze participant prompt, execution protocol, evaluator contract and blinded-review rubric before formal runs.
 - [x] Implement and checksum the external hidden evaluator for BENCH-CODE-001.
