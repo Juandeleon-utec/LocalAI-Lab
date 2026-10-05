@@ -14,6 +14,7 @@ All notable changes to LocalAI-Lab will be documented here.
 
 - AUDIT-CODE-001 P2: Q3_K_M entered a repetitive tool loop and exhausted context without a final report; Q4_K_M completed the audit but retained factual errors.
 - CODE-FIX-001 P2: Q4_K_M independently identified missing GET-by-ID backend routes required by the admin frontend and implemented the minimal route additions.
+- CODE-FIX-001 P2 production validation on 2026-10-05: Edit workflows for both Users and Transporters were deployed and manually confirmed working end to end.
 - Q4 CODE-FIX session reached about 39K context without compaction and produced weighted llama.cpp averages of approximately 512.9 prompt tok/s and 29.7 generation tok/s.
 
 ### Decisions
