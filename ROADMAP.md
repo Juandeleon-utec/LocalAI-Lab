@@ -36,6 +36,7 @@
 - [x] Reclassify the 8K coding-agent work as pilot evidence after context pressure/compaction was observed.
 - [x] Define 32K as the nominal local context budget for formal BENCH-CODE-001 comparisons.
 - [x] Measure prompt and generation throughput.
+- [x] Complete direct Q3_K_M vs Q4_K_M paired throughput benchmark (LAILAB-B003): Q3 69.33 tok/s TG128 vs Q4 56.22 tok/s TG128.
 - [x] Measure RAM/VRAM behavior for the selected coder model.
 - [x] Evaluate OpenCode for repository reading and controlled writes.
 - [ ] Evaluate Qwen Code.
