@@ -43,6 +43,38 @@ This is not an energy metric; it is only a rough storage-size-normalized through
 | TG128 / GiB | 5.06 tok/s/GiB | 3.25 tok/s/GiB |
 | PP512 / GiB | 142.57 tok/s/GiB | 80.15 tok/s/GiB |
 
+## Reverse-order replication
+
+A second paired execution inverted model order to reduce simple order/thermal-state bias.
+
+| Run | Quantization | PP512 (tok/s) | TG128 (tok/s) |
+| --- | --- | ---: | ---: |
+| Pair 1 | Q3_K_M | 1953.24 ± 180.63 | 69.33 ± 1.80 |
+| Pair 1 | Q4_K_M | 1384.99 ± 119.01 | 56.22 ± 1.33 |
+| Pair 2 (reverse) | Q4_K_M | 1348.46 ± 108.52 | 56.30 ± 1.46 |
+| Pair 2 (reverse) | Q3_K_M | 1957.73 ± 160.90 | 69.32 ± 1.75 |
+
+Mean of the two external runs:
+
+| Metric | Q3_K_M | Q4_K_M | Q4 vs Q3 |
+| --- | ---: | ---: | ---: |
+| PP512 | 1955.49 tok/s | 1366.73 tok/s | -30.11% |
+| TG128 | 69.325 tok/s | 56.26 tok/s | -18.85% |
+
+Equivalent Q3 advantage:
+
+- PP512: +43.08%
+- TG128: +23.22%
+
+External-run repeatability:
+
+- Q3 PP512 pair difference relative to pair mean: 0.23%
+- Q3 TG128 pair difference relative to pair mean: 0.01%
+- Q4 PP512 pair difference relative to pair mean: 2.67%
+- Q4 TG128 pair difference relative to pair mean: 0.14%
+
+The TG128 result is especially stable across execution order for both quantizations. This materially strengthens the conclusion that, on this 16 GB RX 9060 XT and this llama.cpp build/configuration, Q3_K_M sustains roughly 23% higher token-generation throughput than Q4_K_M under the bounded TG128 workload.
+
 ## Interpretation
 
 Q3_K_M is materially faster than Q4_K_M on this 16 GB GPU under the same direct inference workload.
@@ -72,4 +104,4 @@ The close agreement provides a useful repeatability check for the Q3 baseline.
 
 ## Next step
 
-For a stronger paired result, repeat the external order in reverse (Q4 then Q3) while capturing VRAM, RAM, GPU utilization, temperature, power and exact layer/offload placement. The current B003 result is already a valid direct throughput comparison for this single paired session, but additional repetitions will improve robustness.
+The reverse-order pair has now been completed and confirms the throughput difference. Next, capture VRAM, RAM, GPU utilization, temperature, power and exact layer/offload placement so the performance gap can be related to resource placement rather than throughput alone.
