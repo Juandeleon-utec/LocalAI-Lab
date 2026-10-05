@@ -12,6 +12,9 @@ All notable changes to LocalAI-Lab will be documented here.
 
 ### Validated
 
+- LAILAB-B003 direct paired throughput: Q3_K_M reached 1953.24 ± 180.63 tok/s PP512 and 69.33 ± 1.80 tok/s TG128; Q4_K_M reached 1384.99 ± 119.01 tok/s PP512 and 56.22 ± 1.33 tok/s TG128.
+- Under the same direct workload, Q4_K_M was 29.09% slower in prompt processing and 18.91% slower in token generation than Q3_K_M; Q3 was 41.03% faster in PP512 and 23.32% faster in TG128.
+
 - AUDIT-CODE-001 P2: Q3_K_M entered a repetitive tool loop and exhausted context without a final report; Q4_K_M completed the audit but retained factual errors.
 - CODE-FIX-001 P2: Q4_K_M independently identified missing GET-by-ID backend routes required by the admin frontend and implemented the minimal route additions.
 - CODE-FIX-001 P2 production validation on 2026-10-05: Edit workflows for both Users and Transporters were deployed and manually confirmed working end to end.
