@@ -289,3 +289,15 @@ The evaluator archive, fixtures and configuration will be stored separately duri
 ### Rationale
 
 A publicly visible evaluator would allow an agent to optimize directly against the assertions and would weaken the benchmark as a measure of general task completion.
+
+<!-- BENCH-CODE-DEV-002-DECISIONS -->
+## BENCH-CODE-DEV-002 methodological decisions — 2026-10-08
+
+- **Preserve official results and add semantic auditing rather than retroactively changing the evaluator.** The original 18-test output remains historical evidence; Semantic Audit v2 is a separate interpretive layer.
+- **Treat generic route-level 404 as insufficient evidence for validation behavior.** Negative tests are credited only when the corresponding positive route/functionality has been established.
+- **Separate infrastructure invalidity from candidate failure.** A candidate-generated migration/startup failure is a model result. A harness failure before inference is infrastructure invalidity. Post-agent evidence-collection faults may be recovered without rerunning inference.
+- **Do not rerun a valid model attempt merely because the candidate fails.** Repetitions must be explicit and justified.
+- **Keep the Qwen3.6 context-overflow attempt in the audit trail.** R2 is the completed comparison run, while attempt 1 remains documented as a context-management event.
+- **Use audited critical functionality before speed when ranking quality.** Wall time, token counts and tok/s remain separate efficiency metrics.
+- **Do not universalize the Q3-versus-Q4 result.** The current conclusion is restricted to BENCH-CODE-DEV-002 and the tested hardware/software configuration.
+- **Next control:** Qwen3-30B-A3B-Instruct-2507 Q3_K_M at the same 49,152-token budget, to isolate the contribution of the Coder specialization.
