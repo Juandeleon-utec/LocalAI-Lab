@@ -364,3 +364,20 @@ Books / articles / notes / technical texts
 - [x] C001-A01 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 436 s, 0 human interventions.
 - [x] C001-A02 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 567 s, 0 human interventions.
 - [x] C001-A03 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 586 s, 0 human interventions.
+
+<!-- BENCH-CODE-DEV-002-ROADMAP -->
+## BENCH-CODE-DEV-002 progression
+
+- [x] Freeze existing-code vehicle-management task and seed.
+- [x] Validate API, restart and Playwright evaluator layers.
+- [x] Run Qwen3-Coder-Next ~80B-A3B Q3_K_M.
+- [x] Run Qwen3-Coder-30B-A3B Q3_K_M.
+- [x] Run Qwen3-Coder-30B-A3B Q4_K_M and classify its candidate startup failure.
+- [x] Run Qwen3.6-35B-A3B Q4_K_M R2 after preserving the first context-overflow attempt.
+- [x] Add Semantic Audit v2 and retain official + audited scores side by side.
+- [x] Preserve benchmark prompt, v1.8 freeze fingerprints and consolidated result table in Git.
+- [ ] Run Qwen3-30B-A3B-Instruct-2507 Q3_K_M as a same-scale general-instruction control.
+- [ ] Add DeepSeek-family candidate if the installed local profile can be frozen under the same protocol.
+- [ ] Add a hosted-system comparison only after the local comparison matrix is sufficiently controlled.
+- [ ] Add integrated energy/resource telemetry to BENCH-CODE-DEV-002 without changing functional scoring.
+- [ ] Refine a future evaluator version so negative-path tests are semantically guarded natively; keep the v1.8 evaluator immutable for historical runs.
