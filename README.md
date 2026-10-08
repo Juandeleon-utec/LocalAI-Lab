@@ -216,3 +216,25 @@ LocalAI-Lab/
 **Stage:** Working experimental platform; A001/A002/A003 academic screening characterization complete, reproducibility hardening and retrieval baseline next.
 
 The coding path is operational and BENCH-CODE-001 v1.0 is now defined as the next controlled coding-agent experiment. The academic screening baseline and prompt-calibration stages are complete. Near-term work is split between freezing/executing the coding benchmark and continuing the academic retrieval/reproducibility roadmap.
+
+<!-- BENCH-CODE-DEV-002-2026-10-08 -->
+## BENCH-CODE-DEV-002 — existing-code development benchmark
+
+A second coding benchmark is now preserved under `benchmarks/tasks/BENCH-CODE-DEV-002/`. It evaluates one-pass modification of an existing Node.js/Express/MySQL application: adding administrative vehicle management while preserving current behavior.
+
+The frozen v1.8 protocol uses a 49,152-token context budget, zero corrective human interventions and an external API/restart/Playwright evaluator. A complementary Semantic Audit v2 preserves the official scores while removing vacuous PASS cases caused by generic route-level 404 responses.
+
+Current audited results:
+
+| Model | Audited main | Audited critical | Restart | E2E | Wall time | Result |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Qwen3-Coder-Next ~80B-A3B Q3_K_M | 12/18 | 10/15 | 2/2 | 0/6 | 737.994 s | FAIL |
+| Qwen3-Coder-30B-A3B Q3_K_M | 12/18 | 10/15 | 1/2 | 1/6 | **535.188 s** | FAIL |
+| Qwen3-Coder-30B-A3B Q4_K_M | — | — | — | — | 843.555 s | **FAIL_STARTUP** |
+| Qwen3.6-35B-A3B Q4_K_M | 5/18 | 5/15 | 1/2 | 0/6 | 987.068 s | FAIL |
+
+Under this benchmark, Coder-Next ~80B Q3 provides the strongest persistence/backend evidence, while Coder-30B Q3 provides the strongest quality/efficiency trade-off. The 30B Q4 result is a candidate startup failure caused by an invalid duplicated Sequelize association alias. Qwen3.6 R2 completed, but its vehicle routes were not integrated into the live router.
+
+Detailed results: `benchmarks/results/BENCH-CODE-DEV-002/`.
+
+The next planned controlled comparison is Qwen3-30B-A3B-Instruct-2507 Q3_K_M as a same-scale general-instruction control against the specialized Coder-30B Q3 profile.
