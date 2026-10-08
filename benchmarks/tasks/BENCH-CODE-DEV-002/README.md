@@ -66,3 +66,9 @@ Efficiency metrics such as wall time, prompt tokens and generation throughput ar
 | `DEV002-QWEN36-35B-Q4-R2` | Qwen3.6-35B-A3B | Q4_K_M | completed after one documented context-overflow attempt |
 
 Results and interpretation are under `benchmarks/results/BENCH-CODE-DEV-002/`.
+
+## Public-repository evidence policy
+
+The exact `seed.tar`, candidate workspaces and full raw run archive are retained outside this public Git repository. The exact evaluator/harness artifacts are also bound by the v1.8 SHA-256 manifest rather than all being republished here. This avoids publishing application-specific material or benchmark credentials while preserving immutable fingerprints and the result/provenance record.
+
+The repository includes the participant prompt, protocol, freeze manifest, one-shot runner logic, semantic auditor and consolidated/per-run result interpretation.
