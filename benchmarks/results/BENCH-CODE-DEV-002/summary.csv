@@ -1,5 +1,5 @@
-run_id,model,classification,official_main,audited_main,official_critical,audited_critical,restart,e2e,wall_seconds,prompt_tokens,output_tokens,prompt_tok_s,generation_tok_s
-DEV002-CODER-NEXT-Q3,local/qwen3-coder-next-q3,FAIL,15/18,12/18,12/15,10/15,2/2,0/6,737.994,78847.0,12178.0,277.218,30.0023
-DEV002-CODER30-Q3,local/qwen3-coder,FAIL,14/18,12/18,11/15,10/15,1/2,1/6,535.188,55204.0,13947.0,656.087,36.2531
-DEV002-CODER30-Q4,local/qwen3-coder-q4,FAIL_STARTUP,,,,,,,843.555,87192.0,19903.0,611.408,30.7436
-DEV002-QWEN36-35B-Q4-R2,local/qwen3.6-35b-q4,FAIL,11/18,5/18,8/15,5/15,1/2,0/6,987.068,131222.0,29255.0,628.782,40.6422
+run_id,model,classification,official_main,audited_main,official_critical,audited_critical,audited_critical_completion_pct,restart,e2e,wall_seconds,prompt_tokens,output_tokens,prompt_tok_s,generation_tok_s
+DEV002-CODER-NEXT-Q3,local/qwen3-coder-next-q3,FAIL,15/18,12/18,12/15,10/15,66.7,2/2,0/6,737.994,78847.0,12178.0,277.218,30.0023
+DEV002-CODER30-Q3,local/qwen3-coder,FAIL,14/18,12/18,11/15,10/15,66.7,1/2,1/6,535.188,55204.0,13947.0,656.087,36.2531
+DEV002-CODER30-Q4,local/qwen3-coder-q4,FAIL_STARTUP,,,,,,,,843.555,87192.0,19903.0,611.408,30.7436
+DEV002-QWEN36-35B-Q4-R2,local/qwen3.6-35b-q4,FAIL,11/18,5/18,8/15,5/15,33.3,1/2,0/6,987.068,131222.0,29255.0,628.782,40.6422
