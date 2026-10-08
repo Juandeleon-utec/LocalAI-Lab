@@ -51,10 +51,10 @@
 - [ ] Select and freeze the physical benchmark/staging host.
 - [x] Validate Windows preflight and two clean MySQL create/healthy/destroy cycles on the Ryzen 7 5700G workstation.
 - [x] Validate the hidden evaluator and harness against a known-good reference implementation on the Windows engineering-validation host (16/16 total, 14/14 critical).
-- [ ] Freeze the selected formal staging host and exact environment fingerprints.
-- [ ] Validate autonomous edit-test-fix loop under BENCH-CODE-001.
-- [ ] Run Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K.
-- [ ] Integrate and benchmark Qwen3.6-35B-A3B Q4_K_M at 32K.
+- [x] Freeze the BENCH-CODE-001 formal inputs/environment fingerprints used for the completed local runs.
+- [x] Validate autonomous one-shot coding execution and external evaluation under BENCH-CODE-001.
+- [x] Run Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K (A01/A02/A03: 3/3 clean PASS).
+- [x] Integrate and benchmark Qwen3.6-35B-A3B Q4_K_M under BENCH-CODE-001 (B01/B02/B03 completed; 0/3 clean deployments).
 - [ ] Evaluate Qwen3.6 MTP as a separate inference-efficiency factor.
 
 ## Phase 4 — Academic stack
@@ -254,7 +254,7 @@ The operational platform should eventually satisfy these practical checks:
 ## Phase 7 — Comparative studies
 
 - [x] Define identical coding task and controlled repository state for BENCH-CODE-001 v1.0.
-- [ ] Execute three clean runs per local system for the BENCH-CODE-001 engineering phase.
+- [x] Execute three BENCH-CODE-001 runs per tested local system; preserve clean PASS/failure outcomes rather than rerunning failed candidates.
 - [ ] Compare BENCH-CODE-001 local systems against Claude Code as a hosted system-level baseline.
 - [ ] Analyze quality, latency, energy, privacy and cost.
 - [x] Compare A001, A002 and A003 before introducing retrieval.
@@ -350,13 +350,14 @@ Books / articles / notes / technical texts
 
 ## Immediate coding benchmark sequence
 
-1. Freeze and checksum BENCH-CODE-001 v1.0 inputs before the first formal run.
-2. Build the external hidden evaluator and staging-server reset procedure.
-3. Run OpenCode + Qwen3-Coder-30B-A3B-Instruct Q3_K_M at 32K as the local baseline.
-4. Add Qwen3.6-35B-A3B Q4_K_M without MTP and repeat the identical benchmark.
-5. Compare the best local configuration with Claude Code using the same prompt and seed repository.
-6. Evaluate Qwen3.6 + MTP separately for end-to-end throughput, latency and energy.
-7. Preserve every candidate repository, run manifest, hidden-test output and telemetry artifact before interpretation.
+1. [x] Preserve BENCH-CODE-001 as the greenfield baseline with three Qwen3-Coder Q3 runs and three Qwen3.6 Q4 runs.
+2. [x] Freeze and execute BENCH-CODE-DEV-002 as the existing-code integration benchmark.
+3. [x] Add Semantic Audit v2 so generic 404 responses cannot inflate negative-path scoring.
+4. [ ] Run Qwen3-30B-A3B-Instruct-2507 Q3_K_M under BENCH-CODE-DEV-002 as a same-scale general-instruction control.
+5. [ ] Add a DeepSeek-family local candidate if the installed profile can be frozen under the same protocol.
+6. [ ] Compare the strongest local configuration with Claude Code using the same frozen task/seed.
+7. [ ] Add integrated energy/resource telemetry without changing the functional benchmark contract.
+8. [ ] Preserve every candidate repository, run artifact, evaluator output and telemetry record before interpretation.
 
 
 ## BENCH-CODE-001 formal runs
@@ -364,3 +365,20 @@ Books / articles / notes / technical texts
 - [x] C001-A01 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 436 s, 0 human interventions.
 - [x] C001-A02 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 567 s, 0 human interventions.
 - [x] C001-A03 — OpenCode 1.18.27 + Qwen3-Coder-30B-A3B-Instruct Q3_K_M, 32768 context: 16/16 total, 14/14 critical, 586 s, 0 human interventions.
+
+<!-- BENCH-CODE-DEV-002-ROADMAP -->
+## BENCH-CODE-DEV-002 progression
+
+- [x] Freeze existing-code vehicle-management task and seed.
+- [x] Validate API, restart and Playwright evaluator layers.
+- [x] Run Qwen3-Coder-Next ~80B-A3B Q3_K_M.
+- [x] Run Qwen3-Coder-30B-A3B Q3_K_M.
+- [x] Run Qwen3-Coder-30B-A3B Q4_K_M and classify its candidate startup failure.
+- [x] Run Qwen3.6-35B-A3B Q4_K_M R2 after preserving the first context-overflow attempt.
+- [x] Add Semantic Audit v2 and retain official + audited scores side by side.
+- [x] Preserve benchmark prompt, v1.8 freeze fingerprints and consolidated result table in Git.
+- [ ] Run Qwen3-30B-A3B-Instruct-2507 Q3_K_M as a same-scale general-instruction control.
+- [ ] Add DeepSeek-family candidate if the installed local profile can be frozen under the same protocol.
+- [ ] Add a hosted-system comparison only after the local comparison matrix is sufficiently controlled.
+- [ ] Add integrated energy/resource telemetry to BENCH-CODE-DEV-002 without changing functional scoring.
+- [ ] Refine a future evaluator version so negative-path tests are semantically guarded natively; keep the v1.8 evaluator immutable for historical runs.

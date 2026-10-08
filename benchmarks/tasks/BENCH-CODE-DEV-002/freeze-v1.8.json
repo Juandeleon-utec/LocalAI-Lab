@@ -1,0 +1,62 @@
+{
+    "benchmark":  "BENCH-CODE-DEV-002",
+    "freeze_version":  "1.8",
+    "protocol":  "one-shot-per-model",
+    "human_interventions_per_run":  0,
+    "seed_commit":  "d429be34cab51ae58b5237ef6e0c296e2c5b67f0",
+    "seed_sha256":  "df80c1d7186342dead10fba07fa25d018eea56c5e49652421928868351995d55",
+    "prompt_sha256":  "3c44852d92d34278171e3a04ae76b208946cb7bd15ff39b2ce3f37477a9cf18f",
+    "files":  [
+                  {
+                      "path":  "prompt.txt",
+                      "sha256":  "3c44852d92d34278171e3a04ae76b208946cb7bd15ff39b2ce3f37477a9cf18f",
+                      "bytes":  2938
+                  },
+                  {
+                      "path":  "seed.tar",
+                      "sha256":  "df80c1d7186342dead10fba07fa25d018eea56c5e49652421928868351995d55",
+                      "bytes":  2764800
+                  },
+                  {
+                      "path":  "evaluator\\evaluator.py",
+                      "sha256":  "b829215e345cb721f3b3174da3cc7098f006cfdea6acce556c6ef671d65f6a38",
+                      "bytes":  5916
+                  },
+                  {
+                      "path":  "evaluator\\e2e.js",
+                      "sha256":  "34c8f9b24023e5cd62b254b292adf73c54be9992aaa8185459f602071fefc0d1",
+                      "bytes":  4208
+                  },
+                  {
+                      "path":  "scripts\\prepare-seed.ps1",
+                      "sha256":  "f22d287cd18227437693ac89c58a881d599a678e30248875d7ffa77120f3070e",
+                      "bytes":  1102
+                  },
+                  {
+                      "path":  "scripts\\preflight.ps1",
+                      "sha256":  "737f3b6c43ccd1d0a46d3a817f02942488bc534dd85fba6bf4a76ffbbab508d1",
+                      "bytes":  2231
+                  },
+                  {
+                      "path":  "scripts\\setup-evaluator.ps1",
+                      "sha256":  "51cb8097a0be54bd6eb7cc92dbfa27ba5c35a0dc2a835590413c511c5301a9e6",
+                      "bytes":  612
+                  },
+                  {
+                      "path":  "scripts\\evaluate.ps1",
+                      "sha256":  "5fba6aa01baf7b4ee8bc8d9c7edf4e8dd9c8af3e17f02ea8fb6987699ba157e9",
+                      "bytes":  9812
+                  },
+                  {
+                      "path":  "scripts\\run-model.ps1",
+                      "sha256":  "85fb7bc661a64b0e0135e0a174737cb134682506adf75d97ce21d4bf944f16a6",
+                      "bytes":  9278
+                  },
+                  {
+                      "path":  "scripts\\summarize.py",
+                      "sha256":  "38e0660bc75e7f4b6a0e610badc1eb34a1129f6efeb59614ddf43c267e5f6a63",
+                      "bytes":  3812
+                  }
+              ],
+    "frozen_utc":  "2026-10-08T00:13:53.4014957Z"
+}

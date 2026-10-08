@@ -225,3 +225,17 @@ The A001/A003 results are engineering/development evidence. Publication-level cl
 Do not select primary metrics after inspecting formal results. Before publication-oriented experiments, create a versioned benchmark protocol defining primary metrics, task selection, repetitions, ground-truth provenance and statistical analysis.
 
 When an intervention is designed after inspecting prior errors, label the resulting experiment as development/calibration and validate it independently before presenting it as generalizable evidence.
+
+<!-- BENCH-CODE-DEV-002-RESEARCH -->
+## BENCH-CODE-DEV-002 research observations
+
+The existing-code benchmark adds a complementary research axis to the greenfield BENCH-CODE-001 work: autonomous integration into an already structured application.
+
+Current evidence supports four task-specific observations:
+
+1. **Model scale alone did not determine efficiency.** Qwen3-Coder-Next ~80B Q3 and Qwen3-Coder-30B Q3 reached the same audited API score (12/18; 10/15 critical), but the 30B profile completed in 535.188 s versus 737.994 s.
+2. **Quantization effects were not monotonic in task success.** Under this exact benchmark/configuration, Qwen3-Coder-30B Q3 delivered a runnable partially functional candidate while Q4 failed during startup. This is not evidence that Q3 is universally superior to Q4; it is evidence that the trade-off must be measured at task level.
+3. **Token throughput is not an adequate proxy for agent productivity.** Qwen3.6-35B Q4 generated at about 40.64 tok/s, the highest among these runs, but achieved only 5/18 audited tests because the generated route implementation was not integrated into the active router.
+4. **Evaluator semantics matter.** Raw negative-path scores can overestimate capability when a generic 404 satisfies an expected-error assertion. Semantic Audit v2 demonstrates the need to couple negative behavior with positive route-existence evidence.
+
+A particularly useful next experiment is a controlled `Qwen3-Coder-30B Q3` versus `Qwen3-30B-A3B-Instruct-2507 Q3` comparison under the same seed/prompt/evaluator. This isolates coding specialization more cleanly than a comparison that simultaneously changes scale and quantization.
