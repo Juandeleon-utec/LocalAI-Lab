@@ -39,7 +39,7 @@ Persistent storage:
 
 Only one large GPU model is intended to be active at a time.
 
-- `code` (daily/experimental): OpenCode + Qwen3-Coder-30B-A3B-Instruct Q4_K_M at 49,152 context
+- `code` (daily/experimental): OpenCode + Qwen3-Coder-30B-A3B-Instruct Q4_K_M at 49,152 context (convenience profile; BENCH-CODE-DEV-002 currently favors the Q3 profile for the measured autonomous-development workload)
 - `code-formal-baseline`: Qwen3-Coder-30B-A3B-Instruct Q3_K_M retained for frozen BENCH-CODE-001 conditions
 - `research`: academic screening/RAG + Qwen3-30B-A3B-Instruct-2507 Q3_K_M
 
@@ -61,7 +61,7 @@ The current Q4_K_M daily profile uses 49,152 context, 8,192 output and temperatu
 
 The initial 8K OpenCode validation is now treated as pilot evidence because context pressure/compaction was observed during larger code-generation work.
 
-The first controlled coding-agent benchmark is being frozen as **BENCH-CODE-001 v1.0**:
+The first controlled coding-agent benchmark, **BENCH-CODE-001 v1.0**, is now preserved as the greenfield baseline:
 
 - greenfield authenticated Node.js + MySQL web application;
 - fixed REST/API and minimal frontend contract;
@@ -215,7 +215,7 @@ LocalAI-Lab/
 **Version:** V0.1  
 **Stage:** Working experimental platform; A001/A002/A003 academic screening characterization complete, reproducibility hardening and retrieval baseline next.
 
-The coding path is operational and BENCH-CODE-001 v1.0 is now defined as the next controlled coding-agent experiment. The academic screening baseline and prompt-calibration stages are complete. Near-term work is split between freezing/executing the coding benchmark and continuing the academic retrieval/reproducibility roadmap.
+The coding path is operational. BENCH-CODE-001 is preserved as the greenfield baseline and BENCH-CODE-DEV-002 now adds an existing-code integration benchmark with official and semantically audited results. The academic screening baseline and prompt-calibration stages are complete. Near-term coding work is the same-scale Qwen3 Instruct control, followed by additional local/hosted comparisons under frozen protocols.
 
 <!-- BENCH-CODE-DEV-002-2026-10-08 -->
 ## BENCH-CODE-DEV-002 — existing-code development benchmark
