@@ -1,0 +1,72 @@
+{
+  "benchmark": "BENCH-CODE-DEV-002",
+  "freeze_version": "1.8",
+  "context_tokens": 49152,
+  "audit": {
+    "name": "semantic-audit-v2",
+    "sha256": "e26d669651fc09ad8a4e128333d7f4427dd35a91a5760e17c1ae52a21135652c"
+  },
+  "runs": [
+    {
+      "run_id": "DEV002-CODER-NEXT-Q3",
+      "model": "local/qwen3-coder-next-q3",
+      "classification": "FAIL",
+      "official_main": "15/18",
+      "audited_main": "12/18",
+      "official_critical": "12/15",
+      "audited_critical": "10/15",
+      "restart": "2/2",
+      "e2e": "0/6",
+      "wall_seconds": 737.994,
+      "prompt_tokens": 78847,
+      "output_tokens": 12178,
+      "prompt_tok_s": 277.218,
+      "generation_tok_s": 30.0023
+    },
+    {
+      "run_id": "DEV002-CODER30-Q3",
+      "model": "local/qwen3-coder",
+      "classification": "FAIL",
+      "official_main": "14/18",
+      "audited_main": "12/18",
+      "official_critical": "11/15",
+      "audited_critical": "10/15",
+      "restart": "1/2",
+      "e2e": "1/6",
+      "wall_seconds": 535.188,
+      "prompt_tokens": 55204,
+      "output_tokens": 13947,
+      "prompt_tok_s": 656.087,
+      "generation_tok_s": 36.2531,
+      "provenance_note": "post-agent evidence recovery; model was not rerun"
+    },
+    {
+      "run_id": "DEV002-CODER30-Q4",
+      "model": "local/qwen3-coder-q4",
+      "classification": "FAIL_STARTUP",
+      "wall_seconds": 843.555,
+      "prompt_tokens": 87192,
+      "output_tokens": 19903,
+      "prompt_tok_s": 611.408,
+      "generation_tok_s": 30.7436,
+      "root_cause": "duplicate Sequelize association alias transportista during db:migrate"
+    },
+    {
+      "run_id": "DEV002-QWEN36-35B-Q4-R2",
+      "model": "local/qwen3.6-35b-q4",
+      "classification": "FAIL",
+      "official_main": "11/18",
+      "audited_main": "5/18",
+      "official_critical": "8/15",
+      "audited_critical": "5/15",
+      "restart": "1/2",
+      "e2e": "0/6",
+      "wall_seconds": 987.068,
+      "prompt_tokens": 131222,
+      "output_tokens": 29255,
+      "prompt_tok_s": 628.782,
+      "generation_tok_s": 40.6422,
+      "provenance_note": "R2 completed after one explicitly preserved context-overflow attempt"
+    }
+  ]
+}
