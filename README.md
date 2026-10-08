@@ -226,12 +226,12 @@ The frozen v1.8 protocol uses a 49,152-token context budget, zero corrective hum
 
 Current audited results:
 
-| Model | Audited main | Audited critical | Restart | E2E | Wall time | Result |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Qwen3-Coder-Next ~80B-A3B Q3_K_M | 12/18 | 10/15 | 2/2 | 0/6 | 737.994 s | FAIL |
-| Qwen3-Coder-30B-A3B Q3_K_M | 12/18 | 10/15 | 1/2 | 1/6 | **535.188 s** | FAIL |
-| Qwen3-Coder-30B-A3B Q4_K_M | — | — | — | — | 843.555 s | **FAIL_STARTUP** |
-| Qwen3.6-35B-A3B Q4_K_M | 5/18 | 5/15 | 1/2 | 0/6 | 987.068 s | FAIL |
+| Model | Audited main | Audited critical | Critical completion | Restart | E2E | Wall time | Result |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Qwen3-Coder-Next ~80B-A3B Q3_K_M | 12/18 | 10/15 | **66.7%** | 2/2 | 0/6 | 737.994 s | FAIL |
+| Qwen3-Coder-30B-A3B Q3_K_M | 12/18 | 10/15 | **66.7%** | 1/2 | 1/6 | **535.188 s** | FAIL |
+| Qwen3-Coder-30B-A3B Q4_K_M | — | — | **N/A (startup)** | — | — | 843.555 s | **FAIL_STARTUP** |
+| Qwen3.6-35B-A3B Q4_K_M | 5/18 | 5/15 | **33.3%** | 1/2 | 0/6 | 987.068 s | FAIL |
 
 Under this benchmark, Coder-Next ~80B Q3 provides the strongest persistence/backend evidence, while Coder-30B Q3 provides the strongest quality/efficiency trade-off. The 30B Q4 result is a candidate startup failure caused by an invalid duplicated Sequelize association alias. Qwen3.6 R2 completed, but its vehicle routes were not integrated into the live router.
 

@@ -21,7 +21,8 @@
       "prompt_tokens": 78847,
       "output_tokens": 12178,
       "prompt_tok_s": 277.218,
-      "generation_tok_s": 30.0023
+      "generation_tok_s": 30.0023,
+      "audited_critical_completion_pct": 66.7
     },
     {
       "run_id": "DEV002-CODER30-Q3",
@@ -38,7 +39,8 @@
       "output_tokens": 13947,
       "prompt_tok_s": 656.087,
       "generation_tok_s": 36.2531,
-      "provenance_note": "post-agent evidence recovery; model was not rerun"
+      "provenance_note": "post-agent evidence recovery; model was not rerun",
+      "audited_critical_completion_pct": 66.7
     },
     {
       "run_id": "DEV002-CODER30-Q4",
@@ -49,7 +51,8 @@
       "output_tokens": 19903,
       "prompt_tok_s": 611.408,
       "generation_tok_s": 30.7436,
-      "root_cause": "duplicate Sequelize association alias transportista during db:migrate"
+      "root_cause": "duplicate Sequelize association alias transportista during db:migrate",
+      "audited_critical_completion_pct": null
     },
     {
       "run_id": "DEV002-QWEN36-35B-Q4-R2",
@@ -66,7 +69,8 @@
       "output_tokens": 29255,
       "prompt_tok_s": 628.782,
       "generation_tok_s": 40.6422,
-      "provenance_note": "R2 completed after one explicitly preserved context-overflow attempt"
+      "provenance_note": "R2 completed after one explicitly preserved context-overflow attempt",
+      "audited_critical_completion_pct": 33.3
     }
   ]
 }

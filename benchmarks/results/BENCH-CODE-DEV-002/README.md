@@ -4,12 +4,12 @@ Existing-code feature-development benchmark: add administrative vehicle manageme
 
 ## Consolidated results
 
-| Model | Official main | Audited main | Audited critical | Restart | E2E | Wall s | Prompt tokens | Output tokens | Prompt tok/s | Gen tok/s | Classification |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Qwen3-Coder-Next ~80B-A3B Q3_K_M | 15/18 | **12/18** | **10/15** | **2/2** | 0/6 | 737.994 | 78,847 | 12,178 | 277.218 | 30.0023 | FAIL |
-| Qwen3-Coder-30B-A3B Q3_K_M | 14/18 | **12/18** | **10/15** | 1/2 | **1/6** | **535.188** | **55,204** | 13,947 | **656.087** | 36.2531 | FAIL |
-| Qwen3-Coder-30B-A3B Q4_K_M | — | — | — | — | — | 843.555 | 87,192 | 19,903 | 611.408 | 30.7436 | **FAIL_STARTUP** |
-| Qwen3.6-35B-A3B Q4_K_M | 11/18 | **5/18** | **5/15** | 1/2 | 0/6 | 987.068 | 131,222 | 29,255 | 628.782 | **40.6422** | FAIL |
+| Model | Official main | Audited main | Audited critical | Critical completion | Restart | E2E | Wall s | Prompt tokens | Output tokens | Prompt tok/s | Gen tok/s | Classification |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Qwen3-Coder-Next ~80B-A3B Q3_K_M | 15/18 | **12/18** | **10/15** | **66.7%** | **2/2** | 0/6 | 737.994 | 78,847 | 12,178 | 277.218 | 30.0023 | FAIL |
+| Qwen3-Coder-30B-A3B Q3_K_M | 14/18 | **12/18** | **10/15** | **66.7%** | 1/2 | **1/6** | **535.188** | **55,204** | 13,947 | **656.087** | 36.2531 | FAIL |
+| Qwen3-Coder-30B-A3B Q4_K_M | — | — | — | **N/A (startup)** | — | — | 843.555 | 87,192 | 19,903 | 611.408 | 30.7436 | **FAIL_STARTUP** |
+| Qwen3.6-35B-A3B Q4_K_M | 11/18 | **5/18** | **5/15** | **33.3%** | 1/2 | 0/6 | 987.068 | 131,222 | 29,255 | 628.782 | **40.6422** | FAIL |
 
 ## Main findings
 
@@ -46,6 +46,8 @@ Auditor SHA-256:
 `E26D669651FC09AD8A4E128333D7F4427DD35A91A5760E17C1AE52A21135652C`
 
 ## Interpretation
+
+The **Critical completion** percentage is calculated as audited critical tests passed / 15. It is not shown for the startup-failure run because the functional evaluator could not execute.
 
 Two separate conclusions emerge:
 
