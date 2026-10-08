@@ -2,6 +2,38 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+<!-- BENCH-CODE-DEV-002-CHANGELOG -->
+## [Unreleased] - 2026-10-08
+
+### Added
+
+- BENCH-CODE-DEV-002 existing-code feature-development benchmark definition, frozen prompt/protocol and v1.8 fingerprints.
+- Preserved result summary for Qwen3-Coder-Next ~80B Q3, Qwen3-Coder-30B Q3, Qwen3-Coder-30B Q4 and Qwen3.6-35B Q4.
+- Semantic Audit v2 for removing vacuous negative-test passes caused by generic route-level 404 responses.
+- Explicit candidate/startup vs infrastructure-failure attribution rules.
+
+### Validated
+
+- Qwen3-Coder-Next ~80B Q3: 12/18 audited, 10/15 audited critical, 2/2 restart, 0/6 E2E, 737.994 s.
+- Qwen3-Coder-30B Q3: 12/18 audited, 10/15 audited critical, 1/2 restart, 1/6 E2E, 535.188 s.
+- Qwen3-Coder-30B Q4: candidate `FAIL_STARTUP` during `db:migrate` because the delivered Sequelize model graph reused alias `transportista`.
+- Qwen3.6-35B Q4 R2: 5/18 audited, 5/15 audited critical, 1/2 restart, 0/6 E2E, 987.068 s.
+- The first Qwen3.6 attempt exceeded the fixed 49,152-token context budget and is retained as an explicitly documented retry rather than silently discarded.
+
+### Findings
+
+- Coder-Next ~80B Q3 and Coder-30B Q3 tie on audited API score, but 30B Q3 completed about 27.5% faster.
+- Coder-30B Q3 used about 30% fewer prompt tokens than Coder-Next while matching audited API quality.
+- Under BENCH-CODE-DEV-002, Coder-30B Q3 materially outperformed Coder-30B Q4 in both functional completion and wall time.
+- Higher instantaneous generation throughput did not imply higher task completion: Qwen3.6-35B Q4 had the highest generation tok/s but the weakest completed functional result.
+
+### Decisions
+
+- Preserve both official and audited scores; never rewrite the historical evaluator output.
+- Use audited critical functionality as the primary cross-model quality signal for BENCH-CODE-DEV-002.
+- Keep quality and efficiency separate in model selection.
+- Run Qwen3-30B-A3B-Instruct-2507 Q3_K_M next as a same-scale general-instruction control.
+
 ## [Unreleased] - 2026-10-02
 
 ### Added
@@ -286,35 +318,3 @@ These gaps are explicitly tracked instead of being silently assumed complete.
 - Qwen3 family and alternative models identified as academic evaluation candidates.
 - Qwen3-Embedding and Qwen3-Reranker families identified as RAG candidates.
 - Reproducibility, telemetry and future publication potential established as project requirements.
-
-<!-- BENCH-CODE-DEV-002-CHANGELOG -->
-## [Unreleased] - 2026-10-08
-
-### Added
-
-- BENCH-CODE-DEV-002 existing-code feature-development benchmark definition, frozen prompt/protocol and v1.8 fingerprints.
-- Preserved result summary for Qwen3-Coder-Next ~80B Q3, Qwen3-Coder-30B Q3, Qwen3-Coder-30B Q4 and Qwen3.6-35B Q4.
-- Semantic Audit v2 for removing vacuous negative-test passes caused by generic route-level 404 responses.
-- Explicit candidate/startup vs infrastructure-failure attribution rules.
-
-### Validated
-
-- Qwen3-Coder-Next ~80B Q3: 12/18 audited, 10/15 audited critical, 2/2 restart, 0/6 E2E, 737.994 s.
-- Qwen3-Coder-30B Q3: 12/18 audited, 10/15 audited critical, 1/2 restart, 1/6 E2E, 535.188 s.
-- Qwen3-Coder-30B Q4: candidate `FAIL_STARTUP` during `db:migrate` because the delivered Sequelize model graph reused alias `transportista`.
-- Qwen3.6-35B Q4 R2: 5/18 audited, 5/15 audited critical, 1/2 restart, 0/6 E2E, 987.068 s.
-- The first Qwen3.6 attempt exceeded the fixed 49,152-token context budget and is retained as an explicitly documented retry rather than silently discarded.
-
-### Findings
-
-- Coder-Next ~80B Q3 and Coder-30B Q3 tie on audited API score, but 30B Q3 completed about 27.5% faster.
-- Coder-30B Q3 used about 30% fewer prompt tokens than Coder-Next while matching audited API quality.
-- Under BENCH-CODE-DEV-002, Coder-30B Q3 materially outperformed Coder-30B Q4 in both functional completion and wall time.
-- Higher instantaneous generation throughput did not imply higher task completion: Qwen3.6-35B Q4 had the highest generation tok/s but the weakest completed functional result.
-
-### Decisions
-
-- Preserve both official and audited scores; never rewrite the historical evaluator output.
-- Use audited critical functionality as the primary cross-model quality signal for BENCH-CODE-DEV-002.
-- Keep quality and efficiency separate in model selection.
-- Run Qwen3-30B-A3B-Instruct-2507 Q3_K_M next as a same-scale general-instruction control.
