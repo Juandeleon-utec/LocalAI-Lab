@@ -2,6 +2,22 @@
 
 All notable changes to LocalAI-Lab will be documented here.
 
+## [Unreleased] - 2026-10-08 — Qwen coding policy and operations
+
+### Operational configuration
+
+- Recorded the current OliveTin-controlled `llama-qwen-coder.service`: Qwen3-Coder-30B-A3B Q3_K_M; 114,688 requested context; `--fit on --fit-target 1024 -np 1`; Jinja and metrics enabled; temperature 0.7, top-p 0.8, top-k 20, repeat penalty 1.05.
+- Added `services/systemd/llama-qwen-coder.service` as a **deployment template** that reads its API key from a private EnvironmentFile rather than storing the credential in Git.
+- Preserved previous Q4/48K/t0.1 and formal-run records as historical, not revised.
+
+### OpenCode prompt policy
+
+- Added `prompts/coding/qwen-coding-policy-v1.2.md` for copying to application repositories as `AGENTS.md`.
+- Documented evidence-first repository exploration, minimal edits, targeted validation, stop conditions, and one non-duplicated completion report.
+- Recorded qualitative manual observations of OpenCode recognizing policy versions and completing read-only analysis. No new functional coding benchmark or controlled A/B result is claimed.
+- Added deployment, API health-check and prompt verification instructions in `docs/agents/qwen-coding-policy-and-server-2026-10-08.md`.
+
+
 <!-- BENCH-CODE-DEV-002-CHANGELOG -->
 ## [Unreleased] - 2026-10-08
 
