@@ -1,5 +1,14 @@
 # LocalAI-Lab
 
+## Operational coding profile update — 2026-10-08
+
+The **currently running daily Qwen coding profile** is now Qwen3-Coder-30B-A3B-Instruct **Q3_K_M**, hosted by `llama-qwen-coder.service` and controlled through OliveTin. Its requested context is `114688` tokens (`--fit on --fit-target 1024 -np 1`), with `--jinja --metrics`, default sampling `--temp 0.7 --top-p 0.8 --top-k 20 --repeat-penalty 1.05`, and OpenAI-compatible alias `qwen3-coder` on port 8080. Actual context allocation can be adjusted by `--fit`, and clients can override sampling defaults.
+
+For VS Code/OpenCode coding tasks, the **Qwen Coding Policy v1.2** is loaded as an `AGENTS.md` file in the *application's repository*, not through llama-server or OliveTin. Its canonical shareable template is `prompts/coding/qwen-coding-policy-v1.2.md`.
+
+See [operational setup and validation](docs/agents/qwen-coding-policy-and-server-2026-10-08.md) and [versioned systemd unit template](services/systemd/llama-qwen-coder.service). These describe **today's operational profile** and do not alter the frozen benchmark conditions documented below. References below to Q4/48K/t0.1 describe the previous October 2 profile, not the current daily-use profile.
+
+
 **Local LLM, RAG and Coding Agent Testbed on Consumer Hardware**
 
 LocalAI-Lab is an engineering and research project for building, operating and evaluating a local AI server with two primary workloads:
