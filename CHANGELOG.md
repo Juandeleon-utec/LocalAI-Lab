@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased] - 2026-10-27 — October laboratory results and operational inventory
+
+- Added BENCH-GEMMA4-CODE-002 partial run record: Gemma 4 26B IQ4_XS, 83.61 s, 3,995 reported tokens, 48.62 tok/s, prompt SHA256 and local artifact paths; functional tests and exact raw telemetry remain pending.
+- Added Academic Reviewer v0.3.2 observational records for Gemma 26B Q3 and Gemma 21B REAP Q4, distinguishing generated findings from confirmed findings and ensuring these are **not** presented as controlled significance claims.
+- Added 27 October server/model inventory with 8080/8088/8089/8090/8501 historical endpoints, runtime details, REAP exploratory resource measurements, and scripts not yet imported.
+- Preserved all formal BENCH-CODE-001 records and historical score comparisons; no regrading or reinterpretation of original scoring.
+- Remaining tasks: transfer immutable local benchmark outputs and hashes; verify exact server scripts/context/metrics; conduct reproducible scoring and update a reconciled master dashboard.
+
+
 All notable changes to LocalAI-Lab will be documented here.
 
 ## [Unreleased] - 2026-10-08 — Qwen coding policy and operations
