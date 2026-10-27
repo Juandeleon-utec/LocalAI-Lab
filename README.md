@@ -1,5 +1,8 @@
 # LocalAI-Lab
 
+> **Laboratory update — 2026-10-27:** The repository now includes the [BENCH-GEMMA4-CODE-002 partial record](benchmarks/results/BENCH-GEMMA4-CODE-002/README.md), [October Academic Reviewer model trials](benchmarks/results/ACADEMIC-REVIEWER-2026-10/README.md), and the [Qwen/Gemma/REAP service inventory](docs/operations/server-models-2026-10-27.md). These are evidence-status-marked retrospective notes, **not** a live server sync or a claim that raw logs/scripts have been uploaded. The formal [16 October BENCH-CODE-001 scorecard](benchmarks/results/BENCH-CODE-001/EXECUTIVE-COMPARISON.md) remains the frozen comparable coding benchmark.
+
+
 ## Operational coding profile update — 2026-10-08
 
 The **currently running daily Qwen coding profile** is now Qwen3-Coder-30B-A3B-Instruct **Q3_K_M**, hosted by `llama-qwen-coder.service` and controlled through OliveTin. Its requested context is `114688` tokens (`--fit on --fit-target 1024 -np 1`), with `--jinja --metrics`, default sampling `--temp 0.7 --top-p 0.8 --top-k 20 --repeat-penalty 1.05`, and OpenAI-compatible alias `qwen3-coder` on port 8080. Actual context allocation can be adjusted by `--fit`, and clients can override sampling defaults.
