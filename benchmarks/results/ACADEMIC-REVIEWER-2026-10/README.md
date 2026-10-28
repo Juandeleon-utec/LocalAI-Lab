@@ -33,3 +33,27 @@ A bibliographic PRISMA-based research review about detection/localization of can
 - Use consistent rubric for false positives, literal evidence, severity, recall, language and timing.
 - Run repeated trials or label one-shot results exploratory.
 - Review any sensitive source document before committing; share only permitted metadata.
+
+## Verified local run manifest inventory — terminal output 2026-10-28
+
+Seven local `manifest.json` files were enumerated under
+`/home/jpdeleon/academic-reviewer-ai-v0.3.2/benchmarks/runs/`.
+All seven report `engine_version=0.3.2`, `prompt_version=academic-reviewer-v0.3.2-evidence-1`,
+`extraction_sha256=105989dae26fe7808ddfad4368ca048a5949c6292eb6f86c35ae0ea77aaa26b2`,
+and an existing `result.json`.
+
+| Run ID | UTC created_at | Model |
+|---|---|---|
+| AR-f5c39484bf83 | 2026-10-24T17:18:00.512551+00:00 | qwen3-academic |
+| AR-4413ebf5fcd2 | 2026-10-24T18:07:45.636980+00:00 | qwen3-academic |
+| AR-1a1922d522b4 | 2026-10-24T21:22:37.529651+00:00 | gemma4-academic-q3 |
+| AR-3d635177e590 | 2026-10-25T03:20:56.106352+00:00 | gemma4-academic-q3 |
+| AR-2fdf58148d16 | 2026-10-25T03:52:17.942119+00:00 | gemma4-academic-q3 |
+| AR-7333c55150b2 | 2026-10-25T05:10:09.770350+00:00 | gemma4-academic-q3 |
+| AR-7f3d0d839fa1 | 2026-10-25T19:42:26.384466+00:00 | gemma4-REAP-Q4 |
+
+Counts by model: Qwen 2, Gemma 26B Q3 4, REAP 21B Q4 1.
+
+**Comparability qualification:** matching extraction hash and version strings provide a useful common comparison basis, but the terminal snippet did not output `document_sha256`; original `manifest.json` and `result.json` files, model parameters, rubric and result-level outcomes still need inspection. The matching extraction hash alone does not establish a controlled benchmark.
+
+Do not publish original PDF or confidential source passages; review exports before committing.
