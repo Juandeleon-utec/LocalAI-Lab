@@ -57,3 +57,34 @@ Counts by model: Qwen 2, Gemma 26B Q3 4, REAP 21B Q4 1.
 **Comparability qualification:** matching extraction hash and version strings provide a useful common comparison basis, but the terminal snippet did not output `document_sha256`; original `manifest.json` and `result.json` files, model parameters, rubric and result-level outcomes still need inspection. The matching extraction hash alone does not establish a controlled benchmark.
 
 Do not publish original PDF or confidential source passages; review exports before committing.
+
+## Aggregate verified from uploaded JSON evidence (2026-10-28)
+
+Evidence: user-supplied archive `localai-reviewer-results.tar.gz` with seven `manifest.json` and seven `result.json`. Results below were calculated directly from `result.json -> findings` and `contextual_adjudication[].validation_status`, **not** inferred from prose summaries.
+
+All seven manifests have identical `source_sha256` and `extraction_sha256`, `engine_version=0.3.2`, `prompt_version=academic-reviewer-v0.3.2-evidence-1`, `mode=articulo`, `chunk_count=6`, `truncated=false`. This supports a shared input/extraction and engine/prompt setup. Model serving configuration, runtime load and sampling details are not fully frozen by this archive alone.
+
+| Run | Model | Generated findings | Confirmed | Pending | Rejected | Warnings array |
+|---|---|---:|---:|---:|---:|---:|
+| AR-f5c39484bf83 | qwen3-academic | 9 | 1 | 6 | 2 | 1 |
+| AR-4413ebf5fcd2 | qwen3-academic | 5 | 0 | 5 | 0 | 1 |
+| AR-1a1922d522b4 | gemma4-academic-q3 | 4 | 0 | 4 | 0 | 1 |
+| AR-3d635177e590 | gemma4-academic-q3 | 2 | 0 | 2 | 0 | 11 |
+| AR-2fdf58148d16 | gemma4-academic-q3 | 4 | 0 | 4 | 0 | 12 |
+| AR-7333c55150b2 | gemma4-academic-q3 | 4 | 1 | 3 | 0 | 1 |
+| AR-7f3d0d839fa1 | gemma4-REAP-Q4 | 5 | 0 | 5 | 0 | 1 |
+| **TOTAL** | | **33** | **2** | **29** | **2** | **28** |
+
+### Aggregate by model
+
+| Model | Runs | Findings | Confirmed | Pending | Rejected |
+|---|---:|---:|---:|---:|---:|
+| qwen3-academic | 2 | 14 | 1 | 11 | 2 |
+| gemma4-academic-q3 | 4 | 14 | 1 | 13 | 0 |
+| gemma4-REAP-Q4 | 1 | 5 | 0 | 5 | 0 |
+
+**Interpretation:** `pendiente` means not adjudicated as confirmed; a pending finding is not an established manuscript defect. `rechazado` is a validator label, not a measurement of holistic model quality. Unequal repetitions (2/4/1) and differences in warning patterns prevent a ranking of model quality.
+
+### Evidence handling and outstanding work
+
+The archive contains finding-level evidence, report summaries and validator details that may quote the research manuscript. **Only the derived aggregate metadata above was committed**; raw `result.json`, PDFs, quotations and hidden validation text were not published. Before releasing full outputs, obtain authorization and redact manuscript-derived text and private metadata. Collect wall-time, token counts, actual inference flags, llama.cpp/ROCm build and GPU measurements to compare computational cost.
