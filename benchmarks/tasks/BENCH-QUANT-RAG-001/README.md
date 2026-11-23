@@ -49,3 +49,34 @@ python scripts/quant-rag/vector_index.py query --index-dir "C:\LocalAI-Lab-data\
 El índice incluye `embeddings.npy` y `index_manifest.json`. El manifiesto fija el SHA de los fragmentos, SHA de la matriz vectorial, la revisión del modelo de embeddings y sus dimensiones. El buscador rechaza modificaciones inadvertidas del corpus y del índice.
 
 **Pendiente**: fijar formalmente la política de filtro de dominio (ambos manuales vs dominio conocido); congelar los resultados Top-K de las 50 preguntas antes de la primera inferencia; medir recall@k y exactitud de páginas.
+
+## Etapa 3: evaluación de recuperación (50 preguntas)
+
+El evaluador `scripts/quant-rag/evaluate_retrieval.py` usa el dataset JSON con `id`, `dominio`, `pregunta` y `paginas_pdf`. El banco incluye respuestas, pero **solo se accede a las páginas de referencia para calcular métricas DESPUÉS de recuperar documentos**. No se introducen las respuestas ni las páginas de referencia en el modelo de embeddings ni en la consulta.
+
+Políticas:
+- `global`: recuperación entre los dos manuales
+- `domain`: recuperación restringida al manual asociado a la pregunta (Arduino o LOGO!), sin conocimiento de las páginas de referencia
+
+Métricas por política/dominio: hit@5, MRR@5 y promedio de cobertura de páginas de referencia. Un hit requiere **mismo documento y página**.
+
+Guardar el dataset evaluador fuera del corpus y del índice, por ejemplo `/srv/data/quant-rag/evaluation/questions_gold.json`. No copiar documentos DOCX al corpus.
+
+```bash
+python -m unittest discover -s scripts/quant-rag/tests -v
+
+python scripts/quant-rag/evaluate_retrieval.py \
+  --questions /srv/data/quant-rag/evaluation/questions_gold.json \
+  --index-dir /srv/data/quant-rag/index-e5-small \
+  --output-dir /srv/data/quant-rag/retrieval-v1 \
+  --top-k 5 --device cpu
+```
+
+Salidas:
+- `retrieval_evaluation.jsonl`: métricas comparadas por pregunta/política; contiene las páginas encontradas y etiquetas de evaluación.
+- `frozen_contexts.jsonl`: preguntas y fragmentos congelados, sin respuestas de referencia ni lista de páginas gold. Es la base para el harness de inferencia futuro, **pero aún debe transformarse a prompts definitivos**.
+- `retrieval_manifest.json`: hashes del dataset, índice, archivos de resultado y métricas agregadas.
+
+Las salidas de las dos políticas se guardan juntas para análisis; **no elegir una política a posteriori y presentar su puntuación como resultado de una configuración fijada de antemano**. Declarar la política seleccionada antes del benchmark de cuantizaciones.
+
+Estado: código y pruebas versionados; pendiente ejecución real de 50 preguntas en ia-server.
