@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import fitz
+import pymupdf as fitz
 
 SCRIPT = Path(__file__).resolve().parents[1] / "prepare_corpus.py"
 spec = importlib.util.spec_from_file_location("quant_rag_prepare_corpus", SCRIPT)
