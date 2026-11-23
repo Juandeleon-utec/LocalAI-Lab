@@ -57,3 +57,22 @@ Guardar también respuestas crudas y sus hashes. La referencia gold nunca puede 
 - La inferencia funcional FP16 de 34,08 tok/s no es todavía una medición RAG formal.
 - El valor inicial de VRAM (9.815.388.160 bytes) es uso total de GPU, no solo memoria atribuible al modelo.
 - Usar archivos de la misma revisión Unsloth no demuestra por sí solo un procedimiento de cuantización idéntico; describir procedencia y limitaciones.
+
+## Fase de validación de seis cuantizaciones (smoke test)
+
+El script [smoke_qwen.py](../../../scripts/quant-rag/smoke_qwen.py) comprueba los seis GGUF por separado, utilizando llama-server con ROCm. Es **una prueba funcional anterior al benchmark RAG**, no contabiliza ninguna de las 900 respuestas. Registra en /srv/data/quant-rag/runs/SMOKE-QWEN-<fecha-UTC>/:
+- smoke_results.csv: éxito/error, tiempo de carga, tokens, tiempos de generación, instantáneas de VRAM y SHA-256;
+- smoke_manifest.json: variantes, parámetros y hash de la planilla;
+- F16/, Q8_0/, Q6_K/, Q4_K_M/, Q3_K_M/, Q2_K/: request.json, response.json si tuvo éxito, server.log, result.json, server_command.json.
+
+Para ejecutar tras generar el inventario (puerto 18182 debe estar libre):
+
+    cd ~/LocalAI-Lab
+    source .venv-quant-rag/bin/activate
+    python scripts/quant-rag/register_experiment.py
+    python scripts/quant-rag/smoke_qwen.py
+
+Por defecto se comprueban los seis modelos; con --variants Q8_0 se valida solo Q8_0. Los archivos GGUF deben superar la verificación SHA-256 antes de cargarse. El script jamás detiene servidores ajenos y rechaza un puerto ocupado. Si un modelo falla, registra el error y continúa con los demás. El script puede tardar por las cargas secuenciales.
+
+Las mediciones de memoria son instantáneas **de toda la GPU** (antes de cargar, después y después de inferir), no mediciones precisas del máximo VRAM del proceso. No usar esos valores como peak VRAM real en el informe sin instrumentación adicional. Un posible servidor FP16 ya iniciado en el puerto 18181 debe detenerse manualmente antes de comenzar para evitar interferencia de VRAM.
+
