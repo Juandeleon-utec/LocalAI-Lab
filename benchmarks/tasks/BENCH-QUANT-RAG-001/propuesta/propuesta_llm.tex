@@ -1,0 +1,95 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{microtype}
+\geometry{margin=2.5cm}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black}
+\setlength{\parskip}{0.55em}
+\setlength{\parindent}{0pt}
+\title{\textbf{Impacto de la cuantización de modelos de lenguaje en sistemas RAG para consultas sobre documentación técnica industrial}\\[0.5em]\large Propuesta de proyecto final}
+\author{Maestría en Robótica e Inteligencia Artificial (PRIA)\\UTEC --- Asignatura: Grandes Modelos de Lenguaje (LLM)}
+\date{23 de noviembre de 2026}
+\begin{document}
+\maketitle
+\section{Identificación del grupo y título tentativo}
+\textbf{Integrantes:} Juan Pedro de León; \emph{[completar nombre del segundo integrante]}; \emph{[tercer integrante, si corresponde]}.
+
+La asignatura exige grupos de dos a tres integrantes. La identificación se completará antes de entregar la propuesta.
+
+\textbf{Título tentativo:} Impacto de la cuantización de modelos de lenguaje en sistemas RAG para consultas sobre documentación técnica industrial.
+
+\textbf{Código del experimento:} \texttt{BENCH-QUANT-RAG-001}.
+
+\section{Resumen de la propuesta}
+La consulta de documentación técnica industrial mediante lenguaje natural puede facilitar el acceso a información sobre programación y automatización. Los grandes modelos de lenguaje (LLMs) ofrecen esta capacidad, pero su ejecución local está condicionada por la memoria disponible y los costos de inferencia. La cuantización reduce la precisión de representación de los pesos y los requisitos de memoria, aunque podría modificar la exactitud y la fidelidad de las respuestas.
+
+Se propone un estudio experimental de seis representaciones del mismo modelo, \texttt{Qwen3-4B-Instruct-2507}: FP16, Q8\_0, Q6\_K, Q4\_K\_M, Q3\_K\_M y Q2\_K, integradas en un sistema de generación aumentada por recuperación (\emph{Retrieval-Augmented Generation}, RAG). Las consultas se responderán utilizando cinco fragmentos recuperados de manuales de Arduino y Siemens LOGO!. Se mantendrán constantes el corpus, el índice, los contextos recuperados y la configuración de inferencia para comparar las cuantizaciones.
+
+El objetivo es cuantificar los compromisos entre exactitud factual, respaldo documental, variabilidad de respuestas, latencia y memoria de GPU, e identificar configuraciones que permitan ejecutar localmente consultas técnicas con recursos acotados. Se empleará un servidor con GPU AMD Radeon RX 9060 XT (16 GB), ROCm y \texttt{llama.cpp}.
+
+El estudio se limita a una condición \emph{con RAG}. Por ello no buscará demostrar que RAG compense las pérdidas por cuantización frente a una condición sin recuperación.
+
+\section{Relación con la asignatura}
+El proyecto aplica conceptos de arquitectura Transformer y tokenización; representaciones vectoriales (\emph{embeddings}) para búsqueda semántica; ingeniería de prompts mediante instrucciones uniformes; y optimización de LLMs mediante cuantización. Integra asimismo RAG y evaluación de modelos en tareas concretas.
+
+Como profundización, propone un diseño pareado de evaluación de calidad y eficiencia bajo distintas precisiones, con control de versiones, hashes, registro de recursos y separación estricta entre los datos de recuperación y las respuestas de referencia.
+
+\section{Datos previstos}
+Se utilizarán exclusivamente dos documentos PDF en el índice RAG: \texttt{Manual+Programacion+Arduino.pdf} (70 páginas) y \texttt{Logo\_s.pdf} (322 páginas, manual Siemens LOGO! edición 06/2003). El corpus ya fue extraído en 392 páginas y segmentado en 906 fragmentos de 900 caracteres con solapamiento de 150 caracteres. La recuperación utiliza \texttt{intfloat/multilingual-e5-small}, con vectores de 384 dimensiones e índice fijo.
+
+Se dispone de 50 preguntas de evaluación: 20 de Arduino y 30 de LOGO!, con páginas PDF de referencia y respuestas esperadas. Estas referencias se mantienen fuera del índice y \textbf{no se incorporarán a los prompts}. Los documentos son históricos; los resultados se contrastarán prioritariamente con la versión exacta del manual utilizado y no se extrapolarán sin advertencia a equipos actuales.
+
+La evaluación preliminar de recuperación Top-K=5 obtuvo, en ambas políticas evaluadas, Hit@5 de 0,96, MRR@5 de 0,8123 y recuperación media de páginas de referencia de 0,95. Las preguntas LOGO-012 y LOGO-024 no recuperaron la página de referencia entre los primeros cinco resultados; se conservarán como casos de recuperación insuficiente. La inferencia principal empleará la política global, sin filtro de dominio.
+
+Los archivos de gran tamaño, los PDF, el banco con respuestas y las salidas completas permanecerán en el almacenamiento experimental local. GitHub contendrá el protocolo, los scripts y los manifiestos de procedencia que permitan verificarlos.
+
+\section{Metodología tentativa}
+\subsection{Corpus y recuperación fija}
+Se mantendrá el índice E5 ya generado. Para cada pregunta se utilizarán los mismos cinco fragmentos recuperados, con identificadores, orden, texto y hashes congelados antes de la primera inferencia. La política principal será la búsqueda global entre ambos manuales.
+
+\subsection{Variantes del modelo}
+Se utilizarán seis archivos GGUF de \texttt{Qwen3-4B-Instruct-2507} provenientes de la misma revisión fija del repositorio \texttt{unsloth/Qwen3-4B-Instruct-2507-GGUF}: \texttt{a06e946bb6b655725eafa393f4a9745d460374c9}. Se registrarán los SHA-256 individuales, tamaños, versión de llama.cpp, plantilla y parámetros de inferencia. Compartir repositorio no constituye por sí solo prueba de identidad del procedimiento de cuantización; su procedencia se declarará como limitación cuando corresponda.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Variante & Función en el estudio\\
+\midrule
+FP16 & Referencia de mayor precisión\\
+Q8\_0 & Cuantización de 8 bits\\
+Q6\_K & Cuantización K de 6 bits\\
+Q4\_K\_M & Cuantización K mixta de aproximadamente 4 bits\\
+Q3\_K\_M & Cuantización K mixta de aproximadamente 3 bits\\
+Q2\_K & Cuantización K de aproximadamente 2 bits\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Diseño experimental}
+Se consideran 50 preguntas, 6 variantes y 3 repeticiones por combinación, totalizando \textbf{900 respuestas}. Las variantes se ejecutarán individualmente. Se fijarán el prompt, la temperatura, el límite de generación, el contexto, la política de caché y, cuando corresponda, las semillas de muestreo. Cada ejecución conservará salida cruda, identificadores, tokens, métricas temporales, estado de finalización, errores y recursos de GPU. La primera prueba funcional de FP16 ya respondió una consulta sobre \texttt{setup()} y \texttt{loop()} mediante la API; no se considera una medición RAG formal.
+
+\subsection{Evaluación y análisis}
+La calidad se analizará en términos de exactitud frente a la respuesta de referencia, fidelidad de las afirmaciones al contexto recuperado, información no sustentada y variabilidad entre repeticiones. Se establecerá una rúbrica explícita de puntuación antes de analizar las 900 respuestas, para evitar adaptar el criterio a los resultados.
+
+La eficiencia se analizará mediante latencia, tiempos de procesamiento y generación, tokens por segundo, tamaño del GGUF y consumo de VRAM. Para VRAM se distinguirán medición basal, uso tras carga y máximo durante inferencia, considerando que \texttt{rocm-smi} registra utilización de toda la GPU.
+
+Las comparaciones serán pareadas por pregunta; las tres repeticiones no se tratarán como 150 preguntas independientes. Se presentarán tablas, gráficos y medidas de dispersión, explicitando posibles efectos del contenido recuperado, caché y variabilidad de generación.
+
+\section{Viabilidad y resultados esperados}
+Están disponibles los PDF, el corpus extraído y segmentado, el índice vectorial, los 50 ítems de evaluación y los seis GGUF. El servidor dispone de ROCm y llama.cpp. Se validó preliminarmente la API con FP16 y se observó una velocidad de 34,08 tokens/s en una consulta fuera del protocolo formal; esta cifra no constituye aún un resultado comparativo.
+
+Se espera producir una caracterización reproducible del compromiso entre calidad y eficiencia para el modelo y el corpus seleccionados. Las conclusiones no se extenderán automáticamente a otros modelos, hardware, versiones de manuales o configuraciones RAG.
+
+\section{Entregables}
+El proyecto contempla un \textbf{informe técnico} con metodología, configuración, resultados, análisis, limitaciones y conclusiones, y una \textbf{presentación en línea de 20 minutos}, prevista para el \textbf{18 de diciembre de 2026}. El registro experimental incorporará manifiestos de hashes y planillas CSV generadas mediante scripts reproducibles.
+
+\end{document}
