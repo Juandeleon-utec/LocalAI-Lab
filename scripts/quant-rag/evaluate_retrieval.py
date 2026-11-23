@@ -51,10 +51,10 @@ def validate_questions(path: Path, strict_count: bool = True) -> list[dict]:
     return data
 
 
-def page_metrics(retrieved: list[dict], gold_pages: list[int]) -> dict:
+def page_metrics(retrieved: list[dict], gold_pages: list[int], expected_domain: str) -> dict:
     gold = set(gold_pages)
-    matched_ranks = [item["rank"] for item in retrieved if item["page_pdf"] in gold]
-    unique_pages = {item["page_pdf"] for item in retrieved}
+    matched_ranks = [item["rank"] for item in retrieved if item["doc_id"] == expected_domain and item["page_pdf"] in gold]
+    unique_pages = {item["page_pdf"] for item in retrieved if item["doc_id"] == expected_domain}
     return {
         "hit_at_k": int(bool(matched_ranks)),
         "first_relevant_rank": min(matched_ranks) if matched_ranks else None,
@@ -93,7 +93,7 @@ def run(questions: list[dict], index_dir: Path, model, top_k: int):
         for policy in POLICIES:
             filter_domain = entry["dominio"] if policy == "domain" else None
             passages = query(index_dir, entry["pregunta"], model, top_k, domain=filter_domain)
-            metrics = page_metrics(passages, entry["paginas_pdf"])
+            metrics = page_metrics(passages, entry["paginas_pdf"], entry["dominio"])
             evaluations.append({
                 "question_id": entry["id"],
                 "domain": entry["dominio"],
