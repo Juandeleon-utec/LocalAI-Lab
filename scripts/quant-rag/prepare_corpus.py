@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 try:
-    import fitz  # PyMuPDF
+    import pymupdf as fitz  # PyMuPDF public API
 except ImportError as exc:
     raise SystemExit("Install dependency: python -m pip install pymupdf") from exc
 
