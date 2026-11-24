@@ -53,8 +53,58 @@ La evaluación preliminar de recuperación Top-K=5 obtuvo, en ambas políticas e
 Los archivos de gran tamaño, los PDF, el banco con respuestas y las salidas completas permanecerán en el almacenamiento experimental local. GitHub contendrá el protocolo, los scripts y los manifiestos de procedencia que permitan verificarlos.
 
 \section{Metodología tentativa}
-\subsection{Corpus y recuperación fija}
-Se mantendrá el índice E5 ya generado. Para cada pregunta se utilizarán los mismos cinco fragmentos recuperados, con identificadores, orden, texto y hashes congelados antes de la primera inferencia. La política principal será la búsqueda global entre ambos manuales.
+\subsection{Arquitectura del sistema RAG y herramientas utilizadas}
+El sistema RAG fue implementado mediante scripts Python independientes y verificables, sin depender de un framework de orquestación como LangChain o LlamaIndex ni de una base de datos vectorial externa. Esta decisión permite controlar y auditar la extracción, la segmentación, los embeddings, el ranking y el contexto recibido por el LLM.
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+Componente & Herramientas & Función concreta\\
+\midrule
+Lectura y extracción & Python 3.12 y PyMuPDF & Extraer texto de cada página física del PDF, conservando su procedencia.\\
+Segmentación & Python, algoritmo propio & Ventanas de hasta 900 caracteres con 150 de solapamiento, sin mezclar páginas.\\
+Embeddings & SentenceTransformers y \texttt{multilingual-e5-small} & Transformar fragmentos y preguntas en vectores semánticos de 384 dimensiones.\\
+Almacenamiento y búsqueda & NumPy, \texttt{embeddings.npy} & Matriz densa normalizada y ordenamiento por similitud coseno.\\
+Evaluación de recuperación & Python, referencias de página & Calcular Hit@5, MRR@5 y cobertura de páginas del manual.\\
+Generación & llama.cpp, GGUF y ROCm & Inferencia local del modelo Qwen3-4B en seis precisiones.\\
+Trazabilidad & JSONL, JSON, CSV y SHA-256 & Congelar entradas, verificar integridad y registrar resultados.\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Preprocesamiento y extracción documental}
+El corpus de entrada consta de dos manuales PDF: 70 páginas de Arduino y 322 de Siemens LOGO!, para un total de 392 páginas físicas. Mediante \texttt{prepare\_corpus.py} y la biblioteca \texttt{PyMuPDF}, se extrae el texto página por página con la opción \texttt{get\_text("text", sort=True)}. Se conserva el identificador del documento, el archivo original, el número de página PDF, el texto y su hash SHA-256. Se genera un inventario de fuentes (\texttt{source\_inventory.json}) y un registro de páginas (\texttt{pages.jsonl}).
+
+Esta extracción utiliza el contenido textual del PDF; no se incorpora un proceso OCR. No se realizan operaciones de limpieza capaces de modificar silenciosamente el texto original. La extracción puede conservar imperfecciones de formato propias de la estructura PDF, una limitación que será considerada durante el análisis.
+
+\subsection{Segmentación y conservación de procedencia}
+El script \texttt{chunk\_corpus.py} aplica una segmentación determinista con ventanas máximas de 900 caracteres y 150 caracteres de solapamiento. Cuando es posible, ajusta el límite del fragmento a un espacio entre palabras. Cada fragmento pertenece a una única página: no se combinan textos de páginas distintas.
+
+Se obtuvieron 906 fragmentos, identificados mediante un código que contiene documento, página y número de fragmento (por ejemplo, \texttt{logo-p0047-c001}). Cada registro conserva posiciones de caracteres, procedencia, texto y SHA-256. Los resultados se almacenan en \texttt{chunks.jsonl} y \texttt{chunk\_manifest.json}.
+
+\subsection{Modelo de embeddings e índice vectorial}
+Se emplea \texttt{intfloat/multilingual-e5-small}, disponible mediante la biblioteca \texttt{SentenceTransformers}, en la revisión fija \texttt{614241f622f53c4eeff9890bdc4f31cfecc418b3}. Se generan representaciones de 384 dimensiones para los 906 fragmentos. La implementación utiliza los prefijos específicos del modelo: \texttt{passage:} para documentos y \texttt{query:} para preguntas.
+
+Los embeddings se convierten a \texttt{float32}, se normalizan mediante la norma L2 y se conservan en una matriz NumPy (\texttt{embeddings.npy}). No se utiliza FAISS, Chroma ni otra base vectorial: el índice corresponde a la matriz de vectores y sus metadatos de integridad. La búsqueda calcula la similitud coseno mediante el producto entre los vectores normalizados de la consulta y de los fragmentos, y ordena los resultados de mayor a menor puntuación.
+
+\subsection{Recuperación, evaluación y congelamiento}
+Para cada pregunta se seleccionan los cinco fragmentos mejor posicionados (\textbf{Top-K=5}). Se compararon dos estrategias: búsqueda global en ambos manuales y búsqueda restringida al dominio del documento. Ambas obtuvieron, en los 50 ítems, Hit@5 de 0,96, MRR@5 de 0,8123 y cobertura media de páginas de 0,95. Se eligió la política \emph{global} para la inferencia principal, evitando utilizar el dominio como información adicional para limitar la búsqueda.
+
+El script \texttt{evaluate\_retrieval.py} separa la evaluación de la recuperación de los contextos que recibirán los modelos. Los archivos \texttt{retrieval\_evaluation.jsonl} contienen las métricas respecto de las páginas de referencia; \texttt{frozen\_contexts.jsonl} almacena exclusivamente preguntas y fragmentos recuperados, \textbf{sin respuestas de referencia ni páginas objetivo}. Las preguntas LOGO-012 y LOGO-024 no alcanzaron la página de referencia en el Top-K y se mantienen como casos de recuperación insuficiente.
+
+El script \texttt{freeze\_rag\_prompts.py} comprueba los hashes y organiza los cinco fragmentos en un prompt reproducible, con citas de documento y página. El mismo texto y orden de evidencia se empleará con todas las cuantizaciones y repeticiones, sin recalcular embeddings ni modificar los documentos.
+
+\subsection{Archivos y controles de reproducibilidad}
+Los componentes y su procedencia se registran mediante identificadores, hashes SHA-256 y manifiestos JSON. Las principales salidas son:
+\begin{itemize}[nosep]
+    \item \texttt{source\_inventory.json} y \texttt{pages.jsonl}: fuentes y texto extraído.
+    \item \texttt{chunks.jsonl} y \texttt{chunk\_manifest.json}: segmentación y parámetros.
+    \item \texttt{embeddings.npy} y \texttt{index\_manifest.json}: matriz vectorial, revisión E5 y hashes.
+    \item \texttt{frozen\_contexts.jsonl} y \texttt{retrieval\_manifest.json}: recuperación y su evaluación.
+    \item Planillas CSV y manifiestos de modelos: tamaños, variantes y hashes de los GGUF.
+\end{itemize}
+Los documentos y archivos de evaluación originales se conservan fuera del repositorio de código, en el almacenamiento experimental local.
 
 \subsection{Variantes del modelo}
 Se utilizarán seis archivos GGUF de \texttt{Qwen3-4B-Instruct-2507} provenientes de la misma revisión fija del repositorio \texttt{unsloth/Qwen3-4B-Instruct-2507-GGUF}: \texttt{a06e946bb6b655725eafa393f4a9745d460374c9}. Se registrarán los SHA-256 individuales, tamaños, versión de llama.cpp, plantilla y parámetros de inferencia. Compartir repositorio no constituye por sí solo prueba de identidad del procedimiento de cuantización; su procedencia se declarará como limitación cuando corresponda.
@@ -85,7 +135,7 @@ La eficiencia se analizará mediante latencia, tiempos de procesamiento y genera
 Las comparaciones serán pareadas por pregunta; las tres repeticiones no se tratarán como 150 preguntas independientes. Se presentarán tablas, gráficos y medidas de dispersión, explicitando posibles efectos del contenido recuperado, caché y variabilidad de generación.
 
 \section{Viabilidad y resultados esperados}
-Están disponibles los PDF, el corpus extraído y segmentado, el índice vectorial, los 50 ítems de evaluación y los seis GGUF. El servidor dispone de ROCm y llama.cpp. Se validó preliminarmente la API con FP16 y se observó una velocidad de 34,08 tokens/s en una consulta fuera del protocolo formal; esta cifra no constituye aún un resultado comparativo.
+Están disponibles los PDF, el corpus extraído y segmentado, el índice vectorial, los 50 ítems de evaluación y los seis GGUF. El servidor dispone de ROCm y llama.cpp. Las seis variantes GGUF superaron una prueba funcional de carga e inferencia (6/6, sin errores), aunque todavía no se han evaluado formalmente con el banco RAG. Se validó preliminarmente la API con FP16 y se observó una velocidad de 34,08 tokens/s en una consulta fuera del protocolo formal; esta cifra no constituye aún un resultado comparativo.
 
 Se espera producir una caracterización reproducible del compromiso entre calidad y eficiencia para el modelo y el corpus seleccionados. Las conclusiones no se extenderán automáticamente a otros modelos, hardware, versiones de manuales o configuraciones RAG.
 
